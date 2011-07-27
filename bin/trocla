@@ -1,0 +1,117 @@
+#!/usr/bin/env ruby
+# CLI client for Trocla.
+#
+require 'rubygems'
+require 'trocla'
+require 'optparse'
+require 'yaml'
+
+options = { :config_file => nil, :ask_password => true }
+
+OptionParser.new do |opts|
+  opts.on("--version", "-V", "Version information") do
+    puts Trocla::VERSION::STRING
+    exit
+  end
+
+  opts.on("--config CONFIG", "-c", "Configuration file") do |v|
+    if File.exist?(v)
+      options[:config_file] = v
+    else
+      STDERR.puts "Cannot find config file: #{v}"
+      exit 1
+    end
+  end
+
+  opts.on("--no-random") do
+    options['random'] = false
+  end
+    
+  opts.on("--length LENGTH") do |v|
+    options['length'] = v.to_i
+  end
+  
+  opts.on("--pwd-from-stdin") do
+    options[:ask_password] = false
+  end
+    
+
+end.parse!
+
+def create(options)
+  miss_format unless options[:trocla_format]
+  Trocla.new(options.delete(:config_file)).password(
+    options.delete(:trocla_key),
+    options.delete(:trocla_format),
+    options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
+  )
+end
+
+def get(options)
+  miss_format unless options[:trocla_format]
+  Trocla.new(options.delete(:config_file)).get_password(
+    options.delete(:trocla_key),
+    options.delete(:trocla_format)
+  )
+end
+def set(options)
+  miss_format unless options[:trocla_format]
+  if options.delete(:ask_password)
+    require 'highline/import'
+    password = ask("Enter your password: ") { |q| q.echo = "x" }
+    pwd2 = ask("Repeat password: ") { |q| q.echo = "x" }
+    unless password == pwd2
+      STDERR.puts "Passwords did not match, exiting!"
+      exit 1
+    end
+  else
+    password = options.delete(:other_options).shift
+  end
+  Trocla.new(options.delete(:config_file)).set_password(
+    options.delete(:trocla_key),
+    options.delete(:trocla_format),
+    password
+  )
+  ""
+end
+
+def reset(options)
+  miss_format unless options[:trocla_format]
+  Trocla.new(options.delete(:config_file)).reset_password(
+    options.delete(:trocla_key),
+    options.delete(:trocla_format),
+    options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
+  )
+end
+
+def delete(options)
+  Trocla.new(options.delete(:config_file)).delete_password(
+    options.delete(:trocla_key),
+    options.delete(:trocla_format)
+  )
+end
+
+def miss_format
+  STDERR.puts "Missing format, exiting..."
+  exit 1
+end
+
+actions=['create','get','set','reset','delete']
+
+if !(ARGV.length < 2) && (action=ARGV.shift) && actions.include?(action)
+    options[:trocla_key] = ARGV.shift
+    options[:trocla_format] = ARGV.shift
+    options[:other_options] = ARGV
+    begin
+      if result = send(action,options)
+        puts result.is_a?(String) ? result : result.inspect
+      end
+    rescue Exception => e
+      STDERR.puts "Action failed with the following message: #{e.message}" unless e.message == 'exit'
+      exit 1
+    end
+else
+    STDERR.puts "Please supply one of the following actions: #{actions.join(', ')}"
+    exit 1
+end
+

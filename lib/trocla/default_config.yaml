@@ -1,0 +1,7 @@
+---
+options:
+    random: true
+    length: 12
+adapter: YAML
+adapter_options:
+    :path: '/tmp/trocla.yaml'
