@@ -49,8 +49,8 @@ class Trocla
     end
   end
   
-  def set_password(key,format,password,delete_plain=false)
-    if ((format=format) == 'plain') && !delete_plain
+  def set_password(key,format,password)
+    if (format == 'plain')
       h = (cache[key] = { 'plain' => password })
     else
       h = (cache[key] = cache.fetch(key,{}).merge({ format => password }))

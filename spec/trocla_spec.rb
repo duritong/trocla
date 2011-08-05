@@ -44,23 +44,23 @@ describe "Trocla" do
   
   describe "set_password" do
     it "should reset hashed passwords on a new plain password" do
-      @trocla.password('reset_test','mysql').should_not be_empty
-      @trocla.get_password('reset_test','mysql').should_not be_nil
-      (old_plain=@trocla.password('reset_test','mysql')).should_not be_empty
+      @trocla.password('set_test','mysql').should_not be_empty
+      @trocla.get_password('set_test','mysql').should_not be_nil
+      (old_plain=@trocla.password('set_test','mysql')).should_not be_empty
       
-      @trocla.set_password('reset_test','plain','foobar').should_not eql(old_plain)
-      @trocla.get_password('reset_test','mysql').should be_nil
+      @trocla.set_password('set_test','plain','foobar').should_not eql(old_plain)
+      @trocla.get_password('set_test','mysql').should be_nil
     end
     
     it "should otherwise only update the hash" do
-      (mysql = @trocla.password('reset_test2','mysql')).should_not be_empty
-      (md5crypt = @trocla.password('reset_test2','md5crypt')).should_not be_empty
-      (plain = @trocla.get_password('reset_test2','plain')).should_not be_empty
+      (mysql = @trocla.password('set_test2','mysql')).should_not be_empty
+      (md5crypt = @trocla.password('set_test2','md5crypt')).should_not be_empty
+      (plain = @trocla.get_password('set_test2','plain')).should_not be_empty
       
-      (new_mysql = @trocla.set_password('reset_test2','mysql','foo')).should_not eql(mysql)
-      @trocla.get_password('reset_test2','mysql').should eql(new_mysql)
-      @trocla.get_password('reset_test2','md5crypt').should eql(md5crypt)
-      @trocla.get_password('reset_test2','plain').should eql(plain)
+      (new_mysql = @trocla.set_password('set_test2','mysql','foo')).should_not eql(mysql)
+      @trocla.get_password('set_test2','mysql').should eql(new_mysql)
+      @trocla.get_password('set_test2','md5crypt').should eql(md5crypt)
+      @trocla.get_password('set_test2','plain').should eql(plain)
     end
   end
   
