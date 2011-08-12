@@ -1,6 +1,7 @@
 GEM
   remote: http://rubygems.org/
   specs:
+    bcrypt-ruby (2.1.4)
     diff-lcs (1.1.2)
     git (1.2.5)
     highline (1.6.2)
@@ -26,6 +27,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  bcrypt-ruby
   bundler (~> 1.0.0)
   highline
   jeweler (~> 1.6.4)
