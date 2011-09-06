@@ -22,7 +22,7 @@ Jeweler::Tasks.new do |gem|
   gem.license = "GPLv3"
   gem.summary = "Trocla a simple password generator and storage" 
   gem.description = "Trocla helps you to generate random passwords and to store them in various formats (plain, MD5, bcrypt) for later retrival."
-  gem.email = "haerry+trocla@puzzle.ch"
+  gem.email = "mh+trocla@immerda.ch"
   gem.authors = ["mh"]
   gem.version = Trocla::VERSION::STRING
   # dependencies defined in Gemfile
