@@ -17,7 +17,7 @@ class Trocla
         @normal_chars ||= ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
       end
       def special_chars
-        @special_chars ||= "+*%/()@&=?![]{}-_.,;:<>".split(//)
+        @special_chars ||= "+*%/()@&=?![]{}-_.,;:".split(//)
       end
     end
   end
