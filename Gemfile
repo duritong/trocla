@@ -3,7 +3,7 @@ source "http://rubygems.org"
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 
-gem "moneta", :git => 'git://github.com/duritong/moneta.git'
+gem "moneta", ">= 0.6.1", :git => 'git://github.com/duritong/moneta.git'
 gem "highline"
 gem "bcrypt-ruby"
 
