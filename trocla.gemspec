@@ -43,7 +43,8 @@ Gem::Specification.new do |s|
     "spec/data/.keep",
     "spec/spec_helper.rb",
     "spec/trocla/util_spec.rb",
-    "spec/trocla_spec.rb"
+    "spec/trocla_spec.rb",
+    "trocla.gemspec"
   ]
   s.homepage = %q{https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/}
   s.licenses = ["GPLv3"]
