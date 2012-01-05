@@ -18,7 +18,7 @@ require 'trocla'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
   gem.name = "trocla"
-  gem.homepage = "http://www.puzzle.ch"
+  gem.homepage = "https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/"
   gem.license = "GPLv3"
   gem.summary = "Trocla a simple password generator and storage" 
   gem.description = "Trocla helps you to generate random passwords and to store them in various formats (plain, MD5, bcrypt) for later retrival."
