@@ -31,8 +31,9 @@ OptionParser.new do |opts|
     options['length'] = v.to_i
   end
 
-  opts.on("--password PASSWORD", "-p", "Provide password at command line") do
+  opts.on("--password PASSWORD", "-p", "Provide password at command line") do |pass|
     options[:ask_password] = false
+    options[:password] = pass
   end
 
   opts.on("--pwd-from-stdin") do
