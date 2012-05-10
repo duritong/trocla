@@ -36,14 +36,17 @@ class Trocla
         plain_pwd = Trocla::Util.random_str(options['length'])
         set_password(key,'plain',plain_pwd) unless format == "plain"
       end
-    else # not random
-      if %w{ssh_rsa ssh_dsa}.include?(format)
-        raise "SSH key can't be generated from a password. Please use `set` instead."
-      elsif password = get_password(key,format)
+    else
+      # return if previous value found
+      if password = get_password(key,format)
         return password
       end
 
-      if %w{ssh_rsa_public ssh_dsa_public}.include?(format)
+      # previous value not found. we will generate it from the plain
+      # password or from the private key
+      if %w{ssh_rsa ssh_dsa}.include?(format)
+        raise "SSH key can't be generated from a password. Please use `set` instead."
+      elsif %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         private_key = get_password(key, format.slice(0,7))
         raise "The private key isn't present." if not private_key
         plain_pwd = SSHKey.new(private_key).public_key
