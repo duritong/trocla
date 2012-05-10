@@ -6,7 +6,7 @@ require 'trocla'
 require 'optparse'
 require 'yaml'
 
-options = { :config_file => nil, :ask_password => true }
+options = { :config_file => nil, :ask_password => true, 'random' => false }
 
 OptionParser.new do |opts|
   opts.on("--version", "-V", "Version information") do
@@ -23,11 +23,15 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on("--no-random") do
+  opts.on("-random", "-r", "Generate random password") do
     options['random'] = false
   end
 
-  opts.on("--length LENGTH") do |v|
+  opts.on("--no-random", "Do not generate random password") do
+    options['random'] = false
+  end
+
+  opts.on("--length LENGTH", "-l", "Specify the length of password") do |v|
     options['length'] = v.to_i
   end
 
@@ -36,7 +40,7 @@ OptionParser.new do |opts|
     options[:password] = pass
   end
 
-  opts.on("--pwd-from-stdin") do
+  opts.on("--pwd-from-stdin", "Read password from STDIN") do
     options[:ask_password] = false
   end
 
