@@ -36,7 +36,7 @@ class Trocla
       elsif %w{ssh_rsa ssh_dsa}.include?(format)
         k = SSHKey.generate(:type => format.slice(4,5).upcase, :bits => ( options[:bits] || 2048) )
         plain_pwd = k.private_key
-        set_password(key,"#{format}_public", k.public_key)
+        set_password(key,"#{format}_public", k.ssh_public_key)
       elsif plain_pwd.nil?
         plain_pwd = Trocla::Util.random_str(options['length'])
         set_password(key,'plain',plain_pwd) unless format == "plain"
@@ -49,7 +49,7 @@ class Trocla
       elsif %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         private_key = get_password(key, format.slice(0,7))
         raise "The private key isn't present." if not private_key
-        plain_pwd = SSHKey.new(private_key).public_key
+        plain_pwd = SSHKey.new(private_key).ssh_public_key
       else
         plain_pwd = get_password(key,'plain')
         raise "Password must be present as plaintext if you don't want a random password" if plain_pwd.nil?
