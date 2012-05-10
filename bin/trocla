@@ -39,7 +39,7 @@ OptionParser.new do |opts|
 end.parse!
 
 def create(options)
-  miss_format unless options[:trocla_format]
+  check_format(options[:trocla_format])
   Trocla.new(options.delete(:config_file)).password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
@@ -48,14 +48,14 @@ def create(options)
 end
 
 def get(options)
-  miss_format unless options[:trocla_format]
+  check_format(options[:trocla_format])
   Trocla.new(options.delete(:config_file)).get_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format)
   )
 end
 def set(options)
-  miss_format unless options[:trocla_format]
+  check_format(options[:trocla_format])
   if options.delete(:ask_password)
     require 'highline/import'
     password = ask("Enter your password: ") { |q| q.echo = "x" }
@@ -76,7 +76,7 @@ def set(options)
 end
 
 def reset(options)
-  miss_format unless options[:trocla_format]
+  check_format(options[:trocla_format])
   Trocla.new(options.delete(:config_file)).reset_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
@@ -91,9 +91,15 @@ def delete(options)
   )
 end
 
-def miss_format
-  STDERR.puts "Missing format, exiting..."
-  exit 1
+def check_format(format_name)
+  if format_name.nil?
+    STDERR.puts "Missing format, exiting..."
+    exit 1
+  elsif not Trocla::Formats.available?(format_name)
+    STDERR.puts ":: Error: The format #{format_name} is not available"
+    exit 1
+  end
+  false
 end
 
 actions=['create','get','set','reset','delete']
