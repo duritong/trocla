@@ -30,10 +30,8 @@ class Trocla
       return password
     end
 
-    if options['random']
-      if %w{ssh_rsa_public ssh_dsa_public}.include?(format)
-        raise "You can't get random public SSH key"
-      elsif %w{ssh_rsa ssh_dsa}.include?(format)
+    if options['random'] and not %w{ssh_rsa_public ssh_dsa_public}.include?(format)
+      if %w{ssh_rsa ssh_dsa}.include?(format)
         k = SSHKey.generate(:type => format.slice(4,5).upcase, :bits => ( options[:bits] || 2048) )
         plain_pwd = k.private_key
         set_password(key,"#{format}_public", k.ssh_public_key)
