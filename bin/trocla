@@ -59,6 +59,7 @@ def get(options)
     options.delete(:trocla_format)
   )
 end
+
 def set(options)
   check_format(options[:trocla_format])
   if options.delete(:ask_password)
