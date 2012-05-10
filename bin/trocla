@@ -6,7 +6,7 @@ require 'trocla'
 require 'optparse'
 require 'yaml'
 
-options = { :config_file => nil, :ask_password => true, 'random' => false }
+options = { :config_file => nil, :ask_password => true }
 
 OptionParser.new do |opts|
   opts.on("--version", "-V", "Version information") do
