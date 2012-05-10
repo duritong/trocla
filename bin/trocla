@@ -24,7 +24,7 @@ OptionParser.new do |opts|
   end
 
   opts.on("--random", "-r", "Generate random password") do
-    options['random'] = false
+    options['random'] = true
   end
 
   opts.on("--no-random", "Do not generate random password") do
