@@ -66,6 +66,7 @@ def get(options)
 end
 
 def set(options)
+  return create(options) if options['random']
   check_format(options[:trocla_format])
   if options.delete(:ask_password)
     require 'highline/import'
