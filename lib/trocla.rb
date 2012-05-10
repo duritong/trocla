@@ -2,6 +2,13 @@ require 'trocla/version'
 require 'trocla/util'
 require 'trocla/formats'
 
+begin
+  require 'sshkey'
+rescue LoadError => e
+  STDERR.write(":: Error: #{e}\n")
+  exit(1)
+end
+
 class Trocla
 
   def initialize(config_file=nil)
@@ -12,65 +19,40 @@ class Trocla
     end
   end
 
-  # icy: THESE COMMENTS FOCUS ON SSH KEY SUPPORT ONLY
-  # icy:
-  # icy: this function will return the password if there is one
-  # icy: and it will create new password if there is not. this is a bit
-  # icy: confused, as it has the roles of both methods `get_password`
-  # icy: and `set_password`. Please note that, in the binary file `bin/trocla`,
-  # icy: the invoking `create` will call this method `password` to generate
-  # icy: new password. Because this method will call `set_password`, the
-  # icy: method `set_password` is considered as an internal form. This method
-  # icy: is simply write the password without any checking. In sort
-  # icy: this method: will generate the password if there is missing
-  # icy: and will write the password to the cache file
-  # icy:
-  # icy: there are four cases
-  # icy:   random,     plain nil      : acceptable, will generate new one
-  # icy:   random,     plain not nil  : (return) => overwrite it ^^
-  # icy:   not random, plain nil      : un accetaple
-  # icy:   not random, plain not nil  : (return)
-  # icy:
-  # icy: we don't assume that there is a relation between 'formartted'    <SSH
-  # icy: version and the 'plain' version of any password. Such relation   <SSH
-  # icy: will be handled by the format function and we won't check.       <SSH
-  #
+  # generated and saved the hashed version of the password in some format
+  # using the plain password.
   def password(key,format,options={})
     options = config['options'].merge(options)
     raise "Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
 
-    # if the previous value does exist, just return it.
-    if not options['random'] and not (password = get_password(key,format)).nil?
-      return password unless %w{sshdsa sshrsa}.include?(format)
-    end
-
-    plain_pwd = get_password(key,'plain')
     if options['random']
-      if %w{ssh_rsa ssh_dsa}.include?(format)
-        begin
-          require 'sshkey'
-        rescue LoadError => e
-          STDOUT.write(":: Error: #{e}\n")
-          exit(1)
-        end
+      if %w{ssh_rsa_public ssh_dsa_public}.include?(format)
+        raise "You can't get random public SSH key"
+      elsif %w{ssh_rsa ssh_dsa}.include?(format)
         k = SSHKey.generate(:type => format.slice(4,5).upcase, :bits => ( options[:bits] || 2048) )
-        # FIXME: * we store only the private key. The public key can be       <SSH
-        # FIXME:   generated from the private key at any time. Though we      <SSH
-        # FIXME:   can do some tricks in `trocla`, they may make the code     <SSH
-        # FIXME:   at bit messy -- due to the fact the method `get_password`  <SSH
-        # FIXME:   has not any option.                                        <SSH
-        # FIXME: * we won't alter the plain string --- 'plain' means          <SSH
-        # FIXME:   nothing in the case of 'ssh-*'                             <SSH
-        # FIXME:   we can use 'plain' to store the password of the key        <SSH
         plain_pwd = k.private_key
         set_password(key,"#{format}_public", k.public_key)
-      else # FIXME: if plain_pwd.nil?
+      elsif plain_pwd.nil?
         plain_pwd = Trocla::Util.random_str(options['length'])
-        set_password(key,'plain',plain_pwd) unless %w{plain}.include?(format)
+        set_password(key,'plain',plain_pwd) unless format == "plain"
       end
-    elsif !options['random'] && plain_pwd.nil?
-      raise "Password must be present as plaintext if you don't want a random password"
+    else # not random
+      if %w{ssh_rsa ssh_dsa}.include?(format)
+        raise "SSH key can't be generated from a password"
+      elsif password = get_password(key,format)
+        return password
+      end
+
+      if %w{ssh_rsa_public ssh_dsa_public}.include?(format)
+        private_key = get_password(key, format.slice(0,7))
+        raise "The private key isn't present." if not private_key
+        plain_pwd = SSHKey.new(private_key).public_key
+      else
+        plain_pwd = get_password(key,'plain')
+        raise "Password must be present as plaintext if you don't want a random password" if plain_pwd.nil?
+      end
     end
+
     set_password(key,format,Trocla::Formats[format].format(plain_pwd,options))
   end
 
