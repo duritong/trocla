@@ -25,6 +25,11 @@ class Trocla
     options = config['options'].merge(options)
     raise "Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
 
+    # return if previous value found
+    if password = get_password(key,format)
+      return password
+    end
+
     if options['random']
       if %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         raise "You can't get random public SSH key"
@@ -37,11 +42,6 @@ class Trocla
         set_password(key,'plain',plain_pwd) unless format == "plain"
       end
     else
-      # return if previous value found
-      if password = get_password(key,format)
-        return password
-      end
-
       # previous value not found. we will generate it from the plain
       # password or from the private key
       if %w{ssh_rsa ssh_dsa}.include?(format)
