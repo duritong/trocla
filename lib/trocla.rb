@@ -38,7 +38,7 @@ class Trocla
       end
     else # not random
       if %w{ssh_rsa ssh_dsa}.include?(format)
-        raise "SSH key can't be generated from a password"
+        raise "SSH key can't be generated from a password. Please use `set` instead."
       elsif password = get_password(key,format)
         return password
       end
