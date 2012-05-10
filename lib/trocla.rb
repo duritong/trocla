@@ -64,7 +64,6 @@ class Trocla
         # FIXME:   we can use 'plain' to store the password of the key        <SSH
         plain_pwd = k.private_key
         set_password(key,"#{format}_public", k.public_key)
-        puts k.public_key
       else # FIXME: if plain_pwd.nil?
         plain_pwd = Trocla::Util.random_str(options['length'])
         set_password(key,'plain',plain_pwd) unless %w{plain}.include?(format)
