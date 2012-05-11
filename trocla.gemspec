@@ -38,6 +38,7 @@ Gem::Specification.new do |s|
     "lib/trocla/formats/plain.rb",
     "lib/trocla/formats/ssh_dsa.rb",
     "lib/trocla/formats/ssh_rsa.rb",
+    "lib/trocla/formats/ssl_cert.rb",
     "lib/trocla/formats/ssh_dsa_public.rb",
     "lib/trocla/formats/ssh_rsa_public.rb",
     "lib/trocla/formats/sha256crypt.rb",
