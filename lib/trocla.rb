@@ -50,7 +50,7 @@ class Trocla
         raise "Trocla: SSH key can't be generated from a password. Please use `set` instead."
       elsif %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         private_key = get_password(key, format.slice(0,7))
-        raise "Trocla: You request to generate public key from private key but the private doesn't exist." if not private_key
+        raise "Trocla: You request to generate public key from private key but the private key doesn't exist." if not private_key
         plain_pwd = SSHKey.new(private_key).ssh_public_key
       elsif %w{ssl_cert}.include?(format)
         raise "Trocla: You must set the public SSL certificate manually with `set` method or `trocla set`."
