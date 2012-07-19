@@ -45,6 +45,9 @@ OptionParser.new do |opts|
     options[:ask_password] = false
   end
 
+  opts.on("--stdin", "Read data from STDIN") do
+    options[:ask_password] = false
+  end
 
 end.parse!
 
