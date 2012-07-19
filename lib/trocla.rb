@@ -23,7 +23,7 @@ class Trocla
   # using the plain password.
   def password(key,format,options={})
     options = config['options'].merge(options)
-    raise "Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
+    raise "Trocla: Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
 
     # return if previous value found
     if password = get_password(key,format)
@@ -32,9 +32,13 @@ class Trocla
 
     if options['random'] and not %w{ssh_rsa_public ssh_dsa_public ssl_cert}.include?(format)
       if %w{ssh_rsa ssh_dsa}.include?(format)
-        k = SSHKey.generate(:type => format.slice(4,5).upcase, :bits => ( options[:bits] || 2048) )
-        plain_pwd = k.private_key
-        set_password(key,"#{format}_public", k.ssh_public_key)
+        if get_password(key, "#{format}_public")
+          raise "Trocla: You can't generate new private key once its public key does exist"
+        else
+          k = SSHKey.generate(:type => format.slice(4,5).upcase, :bits => ( options[:bits] || 2048) )
+          plain_pwd = k.private_key
+          set_password(key,"#{format}_public", k.ssh_public_key)
+        end
       elsif plain_pwd.nil?
         plain_pwd = Trocla::Util.random_str(options['length'])
         set_password(key,'plain',plain_pwd) unless format == "plain"
@@ -43,16 +47,16 @@ class Trocla
       # previous value not found. we will generate it from the plain
       # password or from the private key
       if %w{ssh_rsa ssh_dsa}.include?(format)
-        raise "SSH key can't be generated from a password. Please use `set` instead."
+        raise "Trocla: SSH key can't be generated from a password. Please use `set` instead."
       elsif %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         private_key = get_password(key, format.slice(0,7))
-        raise "The private key isn't present." if not private_key
+        raise "Trocla: You request to generate public key from private key but the private doesn't exist." if not private_key
         plain_pwd = SSHKey.new(private_key).ssh_public_key
       elsif %w{ssl_cert}.include?(format)
-        raise "You must set the public SSL certificate manually with `set` method or `trocla set`."
+        raise "Trocla: You must set the public SSL certificate manually with `set` method or `trocla set`."
       else
         plain_pwd = get_password(key,'plain')
-        raise "Password must be present as plaintext if you don't want a random password" if plain_pwd.nil?
+        raise "Trocla: Password must be present as plaintext if you don't want a random password" if plain_pwd.nil?
       end
     end
 
@@ -113,8 +117,10 @@ class Trocla
   end
 
   def default_config
-      require 'yaml'
-      YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))))
+    require 'yaml'
+    f_config = File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))
+    STDERR.puts "Trocla: using default configuration #{f_config}. Use option -c (--config) to overwrite"
+    YAML.load(File.read(f_config))
   end
 
 end
