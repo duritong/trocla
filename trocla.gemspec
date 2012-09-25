@@ -31,6 +31,7 @@ Gem::Specification.new do |s|
     "lib/trocla.rb",
     "lib/trocla/default_config.yaml",
     "lib/trocla/formats.rb",
+    "lib/trocla/formats/foobar.rb",
     "lib/trocla/formats/bcrypt.rb",
     "lib/trocla/formats/md5crypt.rb",
     "lib/trocla/formats/mysql.rb",
