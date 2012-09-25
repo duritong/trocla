@@ -33,7 +33,7 @@ class Trocla
     if options['random'] and not %w{ssh_rsa_public ssh_dsa_public ssl_cert}.include?(format)
       if %w{ssh_rsa ssh_dsa}.include?(format)
         if get_password(key, "#{format}_public")
-          raise "Trocla: You can't generate new private key once its public key does exist"
+          raise "Trocla: You can't generate new private key for '#{key}' once its public key does exist"
         else
           k = SSHKey.generate(:type => format.slice(4,5).upcase, :bits => ( options[:bits] || 2048) )
           plain_pwd = k.private_key
@@ -50,7 +50,7 @@ class Trocla
         raise "Trocla: SSH key can't be generated from a password. Please use `set` instead."
       elsif %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         private_key = get_password(key, format.slice(0,7))
-        raise "Trocla: You request to generate public key from private key but the private key doesn't exist." if not private_key
+        raise "Trocla: You request to generate public key for '#{key}' but the private key doesn't exist." if not private_key
         plain_pwd = SSHKey.new(private_key).ssh_public_key
       elsif %w{ssl_cert}.include?(format)
         raise "Trocla: You must set the public SSL certificate manually with `set` method or `trocla set`."
