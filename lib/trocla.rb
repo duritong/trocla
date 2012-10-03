@@ -26,13 +26,14 @@ class Trocla
     raise "Trocla: Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
 
     # return if previous value found
-    if password = get_password(key,format)
+    unless (password = get_password(key,format)).nil?
       return password
     end
 
     # previous value not found, we will have to generate them (randomly
     # or from the other value)
-    if options['random'] and not %w{foobar ssh_rsa_public ssh_dsa_public ssl_cert}.include?(format)
+    plain_pwd = get_password(key,'plain')
+    if options['random'] && !%w{ssh_rsa_public ssh_dsa_public}.include?(format)
       if %w{ssh_rsa ssh_dsa}.include?(format)
         if get_password(key, "#{format}_public")
           raise "Trocla: You can't generate new private key for '#{key}' once its public key does exist"
@@ -48,16 +49,11 @@ class Trocla
     else
       # previous value not found. we will generate it from the plain
       # password or from the private key
-      if %w{foobar ssh_rsa ssh_dsa}.include?(format)
-        raise "Trocla: #{format} can't be generated from a password. Please use `set` instead."
-      elsif %w{ssh_rsa_public ssh_dsa_public}.include?(format)
+      if %w{ssh_rsa_public ssh_dsa_public}.include?(format)
         private_key = get_password(key, format.slice(0,7))
         raise "Trocla: You request to generate public key for '#{key}' but the private key doesn't exist." if not private_key
         plain_pwd = SSHKey.new(private_key).ssh_public_key
-      elsif %w{ssl_cert}.include?(format)
-        raise "Trocla: You must set the public SSL certificate manually with `set` method or `trocla set`."
       else
-        plain_pwd = get_password(key,'plain')
         raise "Trocla: Password must be present as plaintext if you don't want a random password" if plain_pwd.nil?
       end
     end

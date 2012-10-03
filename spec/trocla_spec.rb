@@ -16,7 +16,9 @@ describe "Trocla" do
       @trocla.password('random1','plain').length.should eql(default_config['options']['length'])
     end
     
-    Trocla::Formats.all.each do |format|
+    Trocla::Formats.all.reject{|f|
+      %{ssh_rsa ssh_dsa ssh_rsa_public ssh_dsa_public}.include?(f) 
+      }.each do |format|
       describe "#{format} password format" do
         it "should return a password hashed in the #{format} format" do
           @trocla.password('some_test',format,format_options[format]).should_not be_empty
@@ -75,7 +77,7 @@ describe "Trocla" do
     it "should not reset other formats" do
       (mysql = @trocla.password('reset_pwd2','mysql')).should_not be_empty
       (md5crypt1 = @trocla.password('reset_pwd2','md5crypt')).should_not be_empty
-      
+
       (md5crypt2 = @trocla.reset_password('reset_pwd2','md5crypt')).should_not be_empty
       md5crypt2.should_not eql(md5crypt1)
       
