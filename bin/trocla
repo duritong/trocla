@@ -23,18 +23,31 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on("--no-random") do
-    options['random'] = false
-  end
-    
-  opts.on("--length LENGTH") do |v|
-    options['length'] = v.to_i
-  end
-  
-  opts.on("--pwd-from-stdin") do
+  opts.on("--random", "-r", "Generate random password") do
+    options['random'] = true
     options[:ask_password] = false
   end
-    
+
+  opts.on("--no-random", "Do not generate random password") do
+    options['random'] = false
+  end
+
+  opts.on("--length LENGTH", "-l", "Specify the length of password") do |v|
+    options['length'] = v.to_i
+  end
+
+  opts.on("--password PASSWORD", "-p", "Provide password at command line") do |pass|
+    options[:ask_password] = false
+    options[:password] = pass
+  end
+
+  opts.on("--pwd-from-stdin", "Read password from STDIN") do
+    options[:ask_password] = false
+  end
+
+  opts.on("--stdin", "Read data from STDIN") do
+    options[:ask_password] = false
+  end
 
 end.parse!
 
@@ -56,6 +69,7 @@ def get(options)
 end
 def set(options)
   check_format(options[:trocla_format])
+  return create(options) if options['random']
   if options.delete(:ask_password)
     require 'highline/import'
     password = ask("Enter your password: ") { |q| q.echo = "x" }
@@ -65,7 +79,9 @@ def set(options)
       exit 1
     end
   else
-    password = options.delete(:other_options).shift
+    # FIXME: I don't know if we have to delete other options here.
+    password = options.delete(:password)
+    password = STDIN.read if not password
   end
   Trocla.new(options.delete(:config_file)).set_password(
     options.delete(:trocla_key),
