@@ -1,12 +1,13 @@
+require 'securerandom'
 class Trocla
   class Util
     class << self
       def random_str(length=12)
-        (1..length).collect{|a| chars[rand(chars.size)] }.join.to_s
+        (1..length).collect{|a| chars[SecureRandom.random_number(chars.size)] }.join.to_s
       end
 
       def salt(length=8)
-        (1..length).collect{|a| normal_chars[rand(normal_chars.size)] }.join.to_s
+        (1..length).collect{|a| normal_chars[SecureRandom.random_number(normal_chars.size)] }.join.to_s
       end
 
       private
