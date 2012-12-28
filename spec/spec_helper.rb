@@ -19,9 +19,8 @@ end
 def test_config
   return @config unless @config.nil?
   @config = default_config
-  yaml_path = File.expand_path(base_dir+'/spec/data/test_config.yaml')
-  File.unlink(yaml_path) if File.exists?(yaml_path)
-  @config['adapter_options'][:path] = yaml_path
+  @config.delete('adapter_options')
+  @config['adapter'] = :Memory
   @config
 end
 

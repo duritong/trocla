@@ -67,7 +67,7 @@ class Trocla
     require 'moneta'
     require "moneta/adapters/#{config['adapter'].downcase}"
     lconfig = config
-    Moneta.new(lconfig['adapter'], lconfig['adapter_options'])
+    Moneta.new(lconfig['adapter'], lconfig['adapter_options']||{})
   end
   
   def config
