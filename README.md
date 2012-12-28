@@ -1,4 +1,5 @@
 # trocla
+[![Build Status](https://travis-ci.org/duritong/trocla.png)](https://travis-ci.org/duritong/trocla)
 
 Trocla provides you a simple way to create and store (random) passwords on a
 central server, which can be retrieved by other applications. An example for
