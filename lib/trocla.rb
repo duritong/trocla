@@ -65,7 +65,6 @@ class Trocla
   
   def build_cache
     require 'moneta'
-    require "moneta/adapters/#{config['adapter'].downcase}"
     lconfig = config
     Moneta.new(lconfig['adapter'], lconfig['adapter_options']||{})
   end

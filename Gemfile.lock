@@ -28,7 +28,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt-ruby
-  bundler (~> 1.1.5)
+  bundler (~> 1.2.3)
   highline
   jeweler (~> 1.6.4)
   mocha

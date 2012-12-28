@@ -13,7 +13,7 @@ group :development do
   gem "rspec", "~> 2.4.0"
   gem "rdoc", "~> 3.8"
   gem "mocha"
-  gem "bundler", "~> 1.1.5"
+  gem "bundler", "~> 1.2.3"
   gem "jeweler", "~> 1.6.4"
   gem "rcov", ">= 0"
 end
