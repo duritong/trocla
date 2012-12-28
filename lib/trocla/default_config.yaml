@@ -2,6 +2,6 @@
 options:
     random: true
     length: 12
-adapter: YAML
+adapter: :YAML
 adapter_options:
-    :path: '/tmp/trocla.yaml'
+    :file: '/tmp/trocla.yaml'
