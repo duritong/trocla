@@ -78,14 +78,23 @@ far.
 
 This will ask you for a password and set it under the appropriate key/format.
 
-    trocla set --pwd-from-stdin user4 plain mysupersecretpassword
+    trocla set --password mysupersecretpassword user4 plain
 
 This will take the password from the cli without asking you.
 
-    trocla set --pwd-from-stdin user5 mysql *ABC....
+    trocla set user5 mysql -p *ABC....
 
 This will store a mysql sha1 hash for the key user5, without storing any kind
 of plain text password.
+
+You can also pipe in a password:
+
+    echo -n foo | trocla set user6 plain -p
+
+or a file
+
+    cat some_file | trocla set user6 plain -p
+    trocla set user6 plain -p < some_file
 
 ### reset
 

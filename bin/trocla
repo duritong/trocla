@@ -31,15 +31,10 @@ OptionParser.new do |opts|
     options['length'] = v.to_i
   end
 
-  opts.on("--password PASSWORD", "-p", "Provide password at command line") do |pass|
+  opts.on("--password [PASSWORD]", "-p", "Provide password at command line") do |pass|
     options[:ask_password] = false
     options[:password] = pass
   end
-
-  opts.on("--pwd-from-stdin") do
-    options[:ask_password] = false
-  end
-
 
 end.parse!
 
@@ -70,9 +65,7 @@ def set(options)
       exit 1
     end
   else
-    # FIXME: I don't know if we have to delete other options here.
-    password = options.delete(:password)
-    password = STDIN.read if not password
+    password = options.delete(:password) || STDIN.read.chomp
   end
   Trocla.new(options.delete(:config_file)).set_password(
     options.delete(:trocla_key),
