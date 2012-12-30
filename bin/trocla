@@ -39,7 +39,6 @@ OptionParser.new do |opts|
 end.parse!
 
 def create(options)
-  check_format(options[:trocla_format])
   Trocla.new(options.delete(:config_file)).password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
@@ -48,14 +47,12 @@ def create(options)
 end
 
 def get(options)
-  check_format(options[:trocla_format])
   Trocla.new(options.delete(:config_file)).get_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format)
   )
 end
 def set(options)
-  check_format(options[:trocla_format])
   if options.delete(:ask_password)
     require 'highline/import'
     password = ask("Enter your password: ") { |q| q.echo = "x" }
@@ -76,7 +73,6 @@ def set(options)
 end
 
 def reset(options)
-  check_format(options[:trocla_format])
   Trocla.new(options.delete(:config_file)).reset_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
@@ -95,11 +91,10 @@ def check_format(format_name)
   if format_name.nil?
     STDERR.puts "Missing format, exiting..."
     exit 1
-  elsif not Trocla::Formats.available?(format_name)
-    STDERR.puts ":: Error: The format #{format_name} is not available"
+  elsif !Trocla::Formats.available?(format_name)
+    STDERR.puts "Error: The format #{format_name} is not available"
     exit 1
   end
-  false
 end
 
 actions=['create','get','set','reset','delete']
@@ -108,6 +103,7 @@ if !(ARGV.length < 2) && (action=ARGV.shift) && actions.include?(action)
     options[:trocla_key] = ARGV.shift
     options[:trocla_format] = ARGV.shift
     options[:other_options] = ARGV
+    check_format(options[:trocla_format]) unless action == 'delete'
     begin
       if result = send(action,options)
         puts result.is_a?(String) ? result : result.inspect
