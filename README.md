@@ -125,6 +125,15 @@ to address.
 
 Simply build and install the gem. 
 
+## Update & Changes
+
+### to 0.0.8
+
+1. be sure to update as well the moneta gem, trocla now uses the official moneta releases and supports current avaiable versions.
+1. Options for moneta's backends have changed. For example, if you are using the yaml-backend you will likely need to change the adapter option `:path:` to `:file:` to match moneta's new API.
+1. SECURITY: Previous versions of trocla used quite a simple random generator. Especially in combination with the puppet `fqdn_rand` function, you likely have very predictable random passwords and I recommend you to regenerate all randomly generated passwords! Now!
+1. We now support reading passwords from files, which means that you can now also easily add multi-line passwords. Have a look at the documentation above.
+
 ## Contributing to trocla
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
