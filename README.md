@@ -131,7 +131,7 @@ Simply build and install the gem.
 
 1. be sure to update as well the moneta gem, trocla now uses the official moneta releases and supports current avaiable versions.
 1. Options for moneta's backends have changed. For example, if you are using the yaml-backend you will likely need to change the adapter option `:path:` to `:file:` to match moneta's new API.
-1. **IMPORTANT:** If you are using the yaml backend you need to migrate the current data *before* using the new trocla version! You can migrate the datastore by using the following two sed commands `sed -i 's/^    /  /' /PATH/TO/trocla_data.yaml` && `sed -i '/^  value\:/d' /PATH/TO/trocla_data.yaml`.
+1. **IMPORTANT:** If you are using the yaml backend you need to migrate the current data *before* using the new trocla version! You can migrate the datastore by using the following two sed commands: `sed -i 's/^\s\{3\}/ /' /PATH/TO/trocla_data.yaml` && `sed -i '/^\s\{2\}value\:/d' /PATH/TO/trocla_data.yaml`.
 1. **SECURITY:** Previous versions of trocla used quite a simple random generator. Especially in combination with the puppet `fqdn_rand` function, you likely have very predictable random passwords and I recommend you to regenerate all randomly generated passwords! Now!
 1. We now support reading passwords from files, which means that you can now also easily add multi-line passwords. Have a look at the documentation above.
 
