@@ -64,10 +64,11 @@ def set(options)
   else
     password = options.delete(:password) || STDIN.read.chomp
   end
+  format = options.delete(:trocla_format)
   Trocla.new(options.delete(:config_file)).set_password(
     options.delete(:trocla_key),
-    options.delete(:trocla_format),
-    password
+    format,
+    Trocla::Formats[format].format(password, options.delete(:other_options).shift.to_s)
   )
   ""
 end
