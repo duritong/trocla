@@ -55,8 +55,8 @@ end
 def set(options)
   if options.delete(:ask_password)
     require 'highline/import'
-    password = ask("Enter your password: ") { |q| q.echo = "x" }
-    pwd2 = ask("Repeat password: ") { |q| q.echo = "x" }
+    password = ask("Enter your password: ") { |q| q.echo = "x" }.to_s
+    pwd2 = ask("Repeat password: ") { |q| q.echo = "x" }.to_s
     unless password == pwd2
       STDERR.puts "Passwords did not match, exiting!"
       exit 1
