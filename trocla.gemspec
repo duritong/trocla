@@ -4,15 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{trocla}
-  s.version = "0.0.8"
+  s.name = "trocla"
+  s.version = "0.0.9"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["mh"]
-  s.date = %q{2013-01-14}
-  s.default_executable = %q{trocla}
-  s.description = %q{Trocla helps you to generate random passwords and to store them in various formats (plain, MD5, bcrypt) for later retrival.}
-  s.email = %q{mh+trocla@immerda.ch}
+  s.date = "2013-10-03"
+  s.description = "Trocla helps you to generate random passwords and to store them in various formats (plain, MD5, bcrypt) for later retrival."
+  s.email = "mh+trocla@immerda.ch"
   s.executables = ["trocla"]
   s.extra_rdoc_files = [
     "LICENSE.txt",
@@ -39,6 +38,7 @@ Gem::Specification.new do |s|
     "lib/trocla/formats/plain.rb",
     "lib/trocla/formats/sha256crypt.rb",
     "lib/trocla/formats/sha512crypt.rb",
+    "lib/trocla/formats/ssha.rb",
     "lib/trocla/util.rb",
     "lib/trocla/version.rb",
     "spec/data/.keep",
@@ -47,11 +47,11 @@ Gem::Specification.new do |s|
     "spec/trocla_spec.rb",
     "trocla.gemspec"
   ]
-  s.homepage = %q{https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/}
+  s.homepage = "https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/"
   s.licenses = ["GPLv3"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{Trocla a simple password generator and storage}
+  s.rubygems_version = "1.8.25"
+  s.summary = "Trocla a simple password generator and storage"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
