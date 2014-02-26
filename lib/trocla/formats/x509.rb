@@ -2,6 +2,11 @@ class Trocla::Formats::X509
   require 'openssl'
   def format(plain_password,options={})
 
+    if plain_password.match(/-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----.*-----BEGIN CERTIFICATE-----.*-----END CERTIFICATE-----/m)
+      # just an import, don't generate any new keys
+      return plain_password
+    end
+
     if options['subject']
       subject = options['subject']
     elsif options['CN']
@@ -36,8 +41,9 @@ class Trocla::Formats::X509
 
     def mkcert(serial,subject,issuer,public_key,days,altnames)
       cert = OpenSSL::X509::Certificate.new
+      issuer = cert if issuer == nil
       cert.subject = subject
-      cert.issuer = issuer
+      cert.issuer = issuer.subject
       cert.not_before = Time.now
       cert.not_after = Time.now + days * 24 * 60 * 60
       cert.public_key = public_key
@@ -46,7 +52,7 @@ class Trocla::Formats::X509
 
       ef = OpenSSL::X509::ExtensionFactory.new
       ef.subject_certificate = cert
-      ef.issuer_certificate = cert
+      ef.issuer_certificate = issuer
       cert.extensions = [ ef.create_extension("subjectKeyIdentifier", "hash") ]
       cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true) if subject == issuer
       cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true) if subject != issuer
@@ -64,7 +70,12 @@ class Trocla::Formats::X509
 
     def getserial(ca,serial)
       subreq = Trocla.new
-      subreq.get_password("#{ca}_serial",'plain') + 1 || serial
+      newser = subreq.get_password("#{ca}_serial",'plain')
+      if newser
+        newser + 1
+      else
+        serial
+      end
     end
 
     def setserial(ca,serial)
@@ -84,7 +95,7 @@ class Trocla::Formats::X509
         cakey = OpenSSL::PKey::RSA.new(getca(sign_with))
         caserial = getserial(sign_with, serial)
       rescue Exception => e
-        raise "Value of #{sign_with} can't be loaded as CA: #{e.message}" unless ca
+        raise "Value of #{sign_with} can't be loaded as CA: #{e.message}"
       end
 
       begin
@@ -96,7 +107,7 @@ class Trocla::Formats::X509
       end
 
       begin
-        csr_cert = mkcert(caserial, request.subject, ca.subject, request.public_key, days, altnames)
+        csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames)
         csr_cert.sign(cakey, OpenSSL::Digest::SHA1.new)
         setserial(sign_with, caserial)
       rescue Exception => e
@@ -107,7 +118,7 @@ class Trocla::Formats::X509
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
-        cert = mkcert(serial, subj, subj, key.public_key, days, altnames)
+        cert = mkcert(serial, subj, nil, key.public_key, days, altnames)
         cert.sign(key, OpenSSL::Digest::SHA1.new)
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
@@ -117,4 +128,3 @@ class Trocla::Formats::X509
     end
   end
 end
-
