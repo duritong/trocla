@@ -2,8 +2,10 @@ require 'securerandom'
 class Trocla
   class Util
     class << self
-      def random_str(length=12,shellsafe=:undef)
-        if shellsafe
+      def random_str(length=12, charset=:undef)
+        if charset == 'alphanumeric'
+          (1..length).collect{|a| normal_chars[SecureRandom.random_number(normal_chars.size)] }.join.to_s
+        elsif charset == 'special_shellsafe'
           (1..length).collect{|a| safechars[SecureRandom.random_number(safechars.size)] }.join.to_s
         else
           (1..length).collect{|a| chars[SecureRandom.random_number(chars.size)] }.join.to_s
