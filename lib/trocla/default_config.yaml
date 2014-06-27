@@ -2,6 +2,7 @@
 options:
     random: true
     length: 12
+    charset: default
 adapter: :YAML
 adapter_options:
     :file: '/tmp/trocla.yaml'
