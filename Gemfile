@@ -5,7 +5,7 @@ source "http://rubygems.org"
 
 gem "moneta", "~> 0.7.2"
 gem "highline"
-gem "bcrypt-ruby"
+gem "bcrypt"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
