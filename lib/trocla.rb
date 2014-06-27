@@ -22,7 +22,7 @@ class Trocla
 
     plain_pwd = get_password(key,'plain') 
     if options['random'] && plain_pwd.nil?
-      plain_pwd = Trocla::Util.random_str(options['length'],options['shellsafe'])
+      plain_pwd = Trocla::Util.random_str(options['length'].to_i,options['shellsafe'])
       set_password(key,'plain',plain_pwd) unless format == 'plain' 
     elsif !options['random'] && plain_pwd.nil?
       raise "Password must be present as plaintext if you don't want a random password"
