@@ -27,7 +27,7 @@ class Trocla
     elsif !options['random'] && plain_pwd.nil?
       raise "Password must be present as plaintext if you don't want a random password"
     end
-    set_password(key,format,Trocla::Formats[format].format(plain_pwd,options))
+    set_password(key,format,self.formats(format).format(plain_pwd,options))
   end
 
   def get_password(key,format)
@@ -56,6 +56,10 @@ class Trocla
       h = (cache[key] = cache.fetch(key,{}).merge({ format => password }))
     end
     h[format]
+  end
+
+  def formats(format)
+    (@format_cache||={})[format] ||= Trocla::Formats[format].new(self)
   end
 
   private

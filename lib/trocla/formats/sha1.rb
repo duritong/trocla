@@ -1,4 +1,4 @@
-class Trocla::Formats::Sha1
+class Trocla::Formats::Sha1 < Trocla::Formats::Base
   require 'digest/sha1'
   require 'base64'
   def format(plain_password,options={})
