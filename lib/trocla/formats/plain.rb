@@ -1,4 +1,4 @@
-class Trocla::Formats::Plain
+class Trocla::Formats::Plain < Trocla::Formats::Base
   
   def format(plain_password,options={})
     plain_password

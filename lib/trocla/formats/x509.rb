@@ -1,4 +1,4 @@
-class Trocla::Formats::X509
+class Trocla::Formats::X509 < Trocla::Formats::Base
   require 'openssl'
   def format(plain_password,options={})
 
@@ -23,65 +23,6 @@ class Trocla::Formats::X509
     days = options['days'] || 365
     altnames = options['altnames'] || nil
     altnames.collect { |v| "DNS:#{v}" }.join(', ') if altnames
-
-    # nice help: https://gist.github.com/mitfik/1922961
-
-    def mkkey(len)
-      OpenSSL::PKey::RSA.generate(len)
-    end
-
-    def mkreq(subject,public_key)
-      request = OpenSSL::X509::Request.new
-      request.version = 0
-      request.subject = subject
-      request.public_key = public_key
-
-      request
-    end
-
-    def mkcert(serial,subject,issuer,public_key,days,altnames)
-      cert = OpenSSL::X509::Certificate.new
-      issuer = cert if issuer == nil
-      cert.subject = subject
-      cert.issuer = issuer.subject
-      cert.not_before = Time.now
-      cert.not_after = Time.now + days * 24 * 60 * 60
-      cert.public_key = public_key
-      cert.serial = serial
-      cert.version = 2
-
-      ef = OpenSSL::X509::ExtensionFactory.new
-      ef.subject_certificate = cert
-      ef.issuer_certificate = issuer
-      cert.extensions = [ ef.create_extension("subjectKeyIdentifier", "hash") ]
-      cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true) if subject == issuer
-      cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true) if subject != issuer
-      cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
-      cert.add_extension ef.create_extension("subjectAltName", altnames, true) if altnames
-      cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
-
-      cert
-    end
-
-    def getca(ca)
-      subreq = Trocla.new
-      subreq.get_password(ca,'x509')
-    end
-
-    def getserial(ca,serial)
-      subreq = Trocla.new
-      newser = subreq.get_password("#{ca}_serial",'plain')
-      if newser
-        newser + 1
-      else
-        serial
-      end
-    end
-
-    def setserial(ca,serial)
-      subreq = Trocla.new
-      subreq.set_password("#{ca}_serial",'plain',serial)
-    end
 
     begin
       key = mkkey(keysize)
@@ -126,5 +67,62 @@ class Trocla::Formats::X509
 
       key.send("to_pem") + cert.send("to_pem")
     end
+  end
+  private
+
+  # nice help: https://gist.github.com/mitfik/1922961
+
+  def mkkey(len)
+    OpenSSL::PKey::RSA.generate(len)
+  end
+
+  def mkreq(subject,public_key)
+    request = OpenSSL::X509::Request.new
+    request.version = 0
+    request.subject = subject
+    request.public_key = public_key
+
+    request
+  end
+
+  def mkcert(serial,subject,issuer,public_key,days,altnames)
+    cert = OpenSSL::X509::Certificate.new
+    issuer = cert if issuer == nil
+    cert.subject = subject
+    cert.issuer = issuer.subject
+    cert.not_before = Time.now
+    cert.not_after = Time.now + days * 24 * 60 * 60
+    cert.public_key = public_key
+    cert.serial = serial
+    cert.version = 2
+
+    ef = OpenSSL::X509::ExtensionFactory.new
+    ef.subject_certificate = cert
+    ef.issuer_certificate = issuer
+    cert.extensions = [ ef.create_extension("subjectKeyIdentifier", "hash") ]
+    cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true) if subject == issuer
+    cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true) if subject != issuer
+    cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
+    cert.add_extension ef.create_extension("subjectAltName", altnames, true) if altnames
+    cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
+
+    cert
+  end
+
+  def getca(ca)
+    trocla.get_password(ca,'x509')
+  end
+
+  def getserial(ca,serial)
+    newser = trocla.get_password("#{ca}_serial",'plain')
+    if newser
+      newser + 1
+    else
+      serial
+    end
+  end
+
+  def setserial(ca,serial)
+    trocla.set_password("#{ca}_serial",'plain',serial)
   end
 end
