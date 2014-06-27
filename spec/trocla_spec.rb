@@ -120,7 +120,8 @@ describe "Trocla" do
   
   def format_options
     @format_options ||= Hash.new({}).merge({
-      'pgsql' => { 'username' => 'test' }
+      'pgsql' => { 'username' => 'test' },
+      'x509'  => { 'CN' => 'test' },
     })
   end
   
