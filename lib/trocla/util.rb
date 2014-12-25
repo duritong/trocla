@@ -27,7 +27,7 @@ class Trocla
         @chars ||= shellsafe + special_chars
       end
       def shellsafe
-        @chars ||= alphanumeric + shellsafe_chars
+        @shellsafe ||= alphanumeric + shellsafe_chars
       end
       def alphanumeric
         @alphanumeric ||= ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a

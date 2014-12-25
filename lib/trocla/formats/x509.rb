@@ -17,6 +17,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     else
       raise "You need to pass \"subject\" or \"CN\" as an option to use this format"
     end
+    hash = options['hash'] || 'sha2'
     sign_with = options['ca'] || nil
     keysize = options['keysize'] || 2048
     serial = options['serial'] || 1
@@ -42,14 +43,14 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       begin
         subj = OpenSSL::X509::Name.parse(subject)
         request = mkreq(subj, key.public_key)
-        request.sign(key, OpenSSL::Digest::SHA1.new)
+        request.sign(key, signature(hash))
       rescue Exception => e
         raise "Certificate request #{subject} creation failed: #{e.message}"
       end
 
       begin
         csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames)
-        csr_cert.sign(cakey, OpenSSL::Digest::SHA1.new)
+        csr_cert.sign(cakey, signature(hash))
         setserial(sign_with, caserial)
       rescue Exception => e
         raise "Certificate #{subject} signing failed: #{e.message}"
@@ -60,7 +61,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       begin
         subj = OpenSSL::X509::Name.parse(subject)
         cert = mkcert(serial, subj, nil, key.public_key, days, altnames)
-        cert.sign(key, OpenSSL::Digest::SHA1.new)
+        cert.sign(key, signature(hash))
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
       end
@@ -71,6 +72,22 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
   private
 
   # nice help: https://gist.github.com/mitfik/1922961
+
+  def signature(hash = 'sha2')
+    if hash == 'sha1'
+        OpenSSL::Digest::SHA1.new
+    elsif hash == 'sha224'
+        OpenSSL::Digest::SHA224.new
+    elsif hash == 'sha2' || hash == 'sha256'
+        OpenSSL::Digest::SHA256.new
+    elsif hash == 'sha384'
+        OpenSSL::Digest::SHA384.new
+    elsif hash == 'sha512'
+        OpenSSL::Digest::SHA512.new
+    else
+        raise "Unrecognized hash: #{hash}"
+    end
+  end
 
   def mkkey(len)
     OpenSSL::PKey::RSA.generate(len)
