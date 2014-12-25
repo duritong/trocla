@@ -127,6 +127,11 @@ Simply build and install the gem.
 
 ## Update & Changes
 
+### to 0.0.12
+
+1. change from sha1 signature for the x509 format to sha2
+1. Fix an issue where shellsafe characters might have already been initialized with shell-unsafe characters. Plz review any shell-safe character passwords regarding this problem. See the [fix](https://github.com/duritong/trocla/pull/19) for more information. Thanks [asquelt](https://github.com/asquelt) for the fix.
+
 ### to 0.0.8
 
 1. be sure to update as well the moneta gem, trocla now uses the official moneta releases and supports current avaiable versions.
@@ -147,6 +152,6 @@ Simply build and install the gem.
 
 ## Copyright
 
-Copyright (c) 2011 mh. See LICENSE.txt for
+Copyright (c) 2014 mh. See LICENSE.txt for
 further details.
 
