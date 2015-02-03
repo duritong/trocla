@@ -59,8 +59,14 @@ This will create a pgsql password hash using the username user1.
 
 Valid global options are:
 
-* length: int - Define any lenght that a newly created password should have
-* charset: (default|alphanumeric|shellsafe) - Which set of chars should be used for a random password? Default: default 
+* length: int - Define any lenght that a newly created password should have. Default: 12 - or whatever you define in your global settings.
+* charset: (default|alphanumeric|shellsafe) - Which set of chars should be used for a random password? Default: default - or whatever you define in your global settings.
+
+Example:
+
+    trocla create some_shellsafe_password plain 'charset: shellsafe'
+    trocla create another_alphanumeric_20_char_password plain "charset: alphanumeric
+    length: 20"
 
 ### get
 
