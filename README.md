@@ -60,7 +60,7 @@ This will create a pgsql password hash using the username user1.
 Valid global options are:
 
 * length: int - Define any lenght that a newly created password should have
-* charset: <default|alphanumeric|shellsafe> - Which set of chars should be used for a random password? Default: default 
+* charset: (default|alphanumeric|shellsafe) - Which set of chars should be used for a random password? Default: default 
 
 ### get
 
