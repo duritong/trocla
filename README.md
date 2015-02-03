@@ -57,6 +57,11 @@ You can pass these additional requirements as yaml-based strings to the format:
 
 This will create a pgsql password hash using the username user1.
 
+Valid global options are:
+
+* length: int - Define any lenght that a newly created password should have
+* charset: <default|alphanumeric|shellsafe> - Which set of chars should be used for a random password? Default: default 
+
 ### get
 
 Get simply returns a stored password. It will not create a new password.
