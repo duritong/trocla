@@ -4,7 +4,6 @@ class Trocla
     class << self
       def random_str(length=12, charset='default')
         _charsets = charsets[charset] || charsets['default']
-        _charsets_size = _charsets_size
         (1..length).collect{|a| _charsets[SecureRandom.random_number(_charsets.size)] }.join.to_s
       end
 
