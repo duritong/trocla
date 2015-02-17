@@ -1,6 +1,7 @@
 require 'trocla/version'
 require 'trocla/util'
 require 'trocla/formats'
+require 'trocla/encryptions'
 
 class Trocla
 
@@ -31,7 +32,7 @@ class Trocla
   end
 
   def get_password(key,format)
-    cache.fetch(key,{})[format]
+    decrypt cache.fetch(key,{})[format]
   end
 
   def reset_password(key,format,options={})
@@ -41,25 +42,32 @@ class Trocla
 
   def delete_password(key,format=nil)
     if format.nil?
-      cache.delete(key)
+      decrypt cache.delete(key)
     else
-      old_val = (h = cache.fetch(key,{})).delete(format)
-      h.empty? ? cache.delete(key) : cache[key] = h
+      old_val = (h = decrypt(cache.fetch(key,{}))).delete(format)
+      h.empty? ? decrypt(cache.delete(key)) : cache[key] = h
       old_val
     end
   end
 
   def set_password(key,format,password)
     if (format == 'plain')
-      h = (cache[key] = { 'plain' => password })
+      h = (cache[key] = { 'plain' => encrypt(password) })
     else
-      h = (cache[key] = cache.fetch(key,{}).merge({ format => password }))
+      h = (cache[key] = decrypt(cache.fetch(key,{}).merge({ format => encrypt(password) })))
     end
     h[format]
   end
 
   def formats(format)
     (@format_cache||={})[format] ||= Trocla::Formats[format].new(self)
+  end
+
+  def encryption
+    enc = config[:encryption]
+    enc ||= :none
+    @encryption ||= Trocla::Encryptions[enc].new(self, config[:ssl_options])
+    @encryption
   end
 
   private
@@ -84,6 +92,15 @@ class Trocla
       raise "Configfile #{@config_file} does not exist!" unless File.exists?(@config_file)
       default_config.merge(YAML.load(File.read(@config_file)))
     end
+  end
+
+  def encrypt(value)
+    encryption.encrypt(value)
+  end
+
+  def decrypt(value)
+     return nil if value.nil?
+    encryption.decrypt value
   end
 
   def default_config
