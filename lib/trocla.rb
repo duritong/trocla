@@ -44,9 +44,9 @@ class Trocla
     if format.nil?
       decrypt cache.delete(key)
     else
-      old_val = (h = decrypt(cache.fetch(key,{}))).delete(format)
-      h.empty? ? decrypt(cache.delete(key)) : cache[key] = h
-      old_val
+      old_val = (h = cache.fetch(key,{})).delete(format)
+      h.empty? ? cache.delete(key) : cache[key] = h
+      decrypt old_val
     end
   end
 
@@ -54,9 +54,9 @@ class Trocla
     if (format == 'plain')
       h = (cache[key] = { 'plain' => encrypt(password) })
     else
-      h = (cache[key] = decrypt(cache.fetch(key,{}).merge({ format => encrypt(password) })))
+      h = (cache[key] = cache.fetch(key,{}).merge({ format => encrypt(password) }))
     end
-    h[format]
+    decrypt h[format]
   end
 
   def formats(format)
