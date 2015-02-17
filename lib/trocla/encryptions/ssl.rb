@@ -27,7 +27,7 @@ class Trocla::Encryptions::Ssl < Trocla::Encryptions::Base
 
   def public_key
       file = require_option :public_key
-      @private_key ||= OpenSSL::PKey::RSA.new(File.read(file), nil)
+      @public_key ||= OpenSSL::PKey::RSA.new(File.read(file), nil)
   end
 
   def config
