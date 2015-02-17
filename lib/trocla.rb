@@ -70,6 +70,10 @@ class Trocla
     @encryption
   end
 
+  def config
+    @config ||= read_config
+  end
+
   private
   def cache
     @cache ||= build_cache
@@ -79,10 +83,6 @@ class Trocla
     require 'moneta'
     lconfig = config
     Moneta.new(lconfig['adapter'], lconfig['adapter_options']||{})
-  end
-
-  def config
-    @config ||= read_config
   end
 
   def read_config
