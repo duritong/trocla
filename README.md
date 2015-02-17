@@ -136,6 +136,45 @@ to address.
 
 Simply build and install the gem. 
 
+## Configuration
+
+Trocla can be configured in /etc/troclarc.yaml and in ~/.troclarc.yaml. A sample configuration file can be found in `lib/trocla/default_config.yaml`.
+
+### Storage backends
+
+Trocla can store your passwords in all backends supported by moneta. A simple YAML file configuration may look as follows:
+
+```YAML
+adapter: :YAML
+adapter_options:
+    :file: '/tmp/trocla.yaml'
+```
+
+In environments with multiple Puppet masters using an existing DB cluster might make sense. The configured user needs to be granted at least SELECT, INSERT, UPDATE, DELETE and CREATE permissions on your database:
+
+```YAML
+adapter: :Sequel
+adapter_options:
+    :db: 'mysql://db.server.name'
+    :user: 'trocla'
+    :password: '***'
+    :database: 'trocladb'
+    :table: 'trocla'
+```
+
+These examples are by no way complete, moneta has much more to offer.
+
+### SSL encryption
+
+You might want to let Trocla encrypt all your passwords
+
+```YAML
+encryption: :ssl
+ssl_options:
+    :private_key: '/var/lib/puppet/ssl/private_keys/trocla.pem'
+    :public_key: '/var/lib/puppet/ssl/public_keys/trocla.pem'
+```
+
 ## Update & Changes
 
 ### to 0.0.12
