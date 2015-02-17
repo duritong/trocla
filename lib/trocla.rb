@@ -66,7 +66,7 @@ class Trocla
   def encryption
     enc = config[:encryption]
     enc ||= :none
-    @encryption ||= Trocla::Encryptions[enc].new(self, config[:ssl_options])
+    @encryption ||= Trocla::Encryptions[enc].new(self)
     @encryption
   end
 

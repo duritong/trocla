@@ -2,9 +2,8 @@ class Trocla::Encryptions
 
   class Base
     attr_reader :trocla
-    def initialize(trocla, config)
+    def initialize(trocla)
       @trocla = trocla
-      @config = config
     end
 
     def encrypt(value)
