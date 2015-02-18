@@ -99,13 +99,13 @@ class Trocla
   end
 
   def decrypt(value)
-     return nil if value.nil?
+    return nil if value.nil?
     encryption.decrypt(value)
   end
 
   def default_config
-      require 'yaml'
-      YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))))
+    require 'yaml'
+    YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))))
   end
 
 end
