@@ -17,7 +17,7 @@ class Trocla::Encryptions
 
   class << self
     def [](enc)
-      encryptions[enc.downcase]
+      encryptions[enc.to_s.downcase]
     end
 
     def all
@@ -27,13 +27,13 @@ class Trocla::Encryptions
     end
 
     def available?(encryption)
-      all.include?(encryption.downcase)
+      all.include?(encryption.to_s.downcase)
     end
 
     private
     def encryptions
       @@encryptions ||= Hash.new do |hash, encryption|
-        encryption = encryption.downcase
+        encryption = encryption.to_s.downcase
         if File.exists?( path encryption )
           require "trocla/encryptions/#{encryption}"
           class_name = "Trocla::Encryptions::#{encryption.capitalize}"
