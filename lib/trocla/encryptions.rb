@@ -7,11 +7,11 @@ class Trocla::Encryptions
     end
 
     def encrypt(value)
-      raise NoMethodError.new "#{self.class.name} needs to implement 'encrypt()'"
+      raise NoMethodError.new("#{self.class.name} needs to implement 'encrypt()'")
     end
 
     def decrypt(value)
-      raise NoMethodError.new "#{self.class.name} needs to implement 'decrypt()'"
+      raise NoMethodError.new("#{self.class.name} needs to implement 'decrypt()'")
     end
   end
 

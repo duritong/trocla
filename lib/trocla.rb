@@ -42,11 +42,11 @@ class Trocla
 
   def delete_password(key,format=nil)
     if format.nil?
-      decrypt cache.delete(key)
+      decrypt(cache.delete(key))
     else
       old_val = (h = cache.fetch(key,{})).delete(format)
       h.empty? ? cache.delete(key) : cache[key] = h
-      decrypt old_val
+      decrypt(old_val)
     end
   end
 
@@ -100,7 +100,7 @@ class Trocla
 
   def decrypt(value)
      return nil if value.nil?
-    encryption.decrypt value
+    encryption.decrypt(value)
   end
 
   def default_config

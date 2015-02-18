@@ -48,21 +48,21 @@ def data_dir(file = nil)
 end
 
 def trocla_yaml_file
-  data_dir 'trocla_store.yaml'
+  data_dir('trocla_store.yaml')
 end
 
 def generate_ssl_keys
   require 'openssl'
   rsa_key = OpenSSL::PKey::RSA.new(4096)
-  File.open(data_dir('trocla.key'), 'w') { |f| f.write rsa_key.to_pem }
-  File.open(data_dir('trocla.pub'), 'w') { |f| f.write rsa_key.public_key.to_pem }
+  File.open(data_dir('trocla.key'), 'w') { |f| f.write(rsa_key.to_pem) }
+  File.open(data_dir('trocla.pub'), 'w') { |f| f.write(rsa_key.public_key.to_pem) }
 end
 
 def remove_ssl_keys
-  File.unlink data_dir('trocla.key')
-  File.unlink data_dir('trocla.pub')
+  File.unlink(data_dir('trocla.key'))
+  File.unlink(data_dir('trocla.pub'))
 end
 
 def remove_yaml_store
-  File.unlink trocla_yaml_file
+  File.unlink(trocla_yaml_file)
 end

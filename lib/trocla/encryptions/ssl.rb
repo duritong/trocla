@@ -21,12 +21,12 @@ class Trocla::Encryptions::Ssl < Trocla::Encryptions::Base
   private
   def private_key
       pass = nil
-      file = require_option :private_key
+      file = require_option(:private_key)
       @private_key ||= OpenSSL::PKey::RSA.new(File.read(file), nil)
   end
 
   def public_key
-      file = require_option :public_key
+      file = require_option(:public_key)
       @public_key ||= OpenSSL::PKey::RSA.new(File.read(file), nil)
   end
 
@@ -40,7 +40,7 @@ class Trocla::Encryptions::Ssl < Trocla::Encryptions::Base
   end
 
   def require_option(key)
-    val = option key
+    val = option(key)
     raise "Config error: 'ssl_options' => :#{key} is not defined" if val.nil?
     val
   end
