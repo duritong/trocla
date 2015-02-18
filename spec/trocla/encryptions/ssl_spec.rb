@@ -16,7 +16,7 @@ describe "Trocla::Encryptions::Ssl" do
   end
 
   after(:each) do
-    remove_yaml_store
+    #remove_yaml_store
   end
 
   describe "encrypt" do
@@ -40,6 +40,13 @@ describe "Trocla::Encryptions::Ssl" do
     it "should not store plaintext passwords" do
       @trocla.set_password('noplain', 'plain', 'plaintext_password')
       File.readlines(trocla_yaml_file).grep(/plaintext_password/).should be_empty
+    end
+
+    it "should make sure identical passwords do not match when stored" do
+      @trocla.set_password('one_key', 'plain', 'super secret')
+      @trocla.set_password('another_key', 'plain', 'super secret')
+      yaml = YAML.load_file(trocla_yaml_file)
+      yaml['one_key']['plain'].should_not eql(yaml['another_key']['plain'])
     end
   end
   
