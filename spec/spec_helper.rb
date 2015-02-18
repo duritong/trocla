@@ -54,8 +54,8 @@ end
 def generate_ssl_keys
   require 'openssl'
   rsa_key = OpenSSL::PKey::RSA.new(4096)
-  File.write data_dir('trocla.key'), rsa_key.to_pem
-  File.write data_dir('trocla.pub'), rsa_key.public_key.to_pem
+  File.open(data_dir('trocla.key'), 'w') { |f| f.write rsa_key.to_pem }
+  File.open(data_dir('trocla.pub'), 'w') { |f| f.write rsa_key.public_key.to_pem }
 end
 
 def remove_ssl_keys
