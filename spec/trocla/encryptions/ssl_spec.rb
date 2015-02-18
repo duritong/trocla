@@ -16,7 +16,7 @@ describe "Trocla::Encryptions::Ssl" do
   end
 
   after(:each) do
-    #remove_yaml_store
+    remove_yaml_store
   end
 
   describe "encrypt" do
