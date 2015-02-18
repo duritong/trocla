@@ -31,8 +31,8 @@ class Trocla
     set_password(key,format,self.formats(format).format(plain_pwd,options))
   end
 
-  def get_password(key,format)
-    decrypt cache.fetch(key,{})[format]
+  def get_password(key, format)
+    decrypt(cache.fetch(key, {})[format])
   end
 
   def reset_password(key,format,options={})
