@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "Trocla" do
   
   before(:each) do
-    Trocla.any_instance.expects(:read_config).returns(test_config)
+    expect_any_instance_of(Trocla).to receive(:read_config).and_return(test_config)
     @trocla = Trocla.new
   end
   
@@ -112,12 +112,6 @@ describe "Trocla" do
     end
   end
   
-  describe "VERSION" do
-    it "should return a version" do
-      Trocla::VERSION::STRING.should_not be_empty
-    end
-  end
-  
   def format_options
     @format_options ||= Hash.new({}).merge({
       'pgsql' => { 'username' => 'test' },
@@ -125,4 +119,10 @@ describe "Trocla" do
     })
   end
   
+end
+
+describe "VERSION" do
+  it "should return a version" do
+    Trocla::VERSION::STRING.should_not be_empty
+  end
 end
