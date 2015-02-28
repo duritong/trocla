@@ -19,6 +19,7 @@ class Trocla
           'default'       => chars,
           'alphanumeric'  => alphanumeric,
           'shellsafe'     => shellsafe,
+          'windowssafe'   => windowssafe,
         }
       end
 
@@ -28,6 +29,9 @@ class Trocla
       def shellsafe
         @shellsafe ||= alphanumeric + shellsafe_chars
       end
+      def windowssafe
+        @windowssafe ||= alphanumeric + windowssafe_chars
+      end
       def alphanumeric
         @alphanumeric ||= ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
       end
@@ -36,6 +40,9 @@ class Trocla
       end
       def shellsafe_chars
         @shellsafe_chars ||= "+%/@=?_.,:".split(//)
+      end
+      def windowssafe_chars
+        @windowssafe_chars ||= "+%/@=?_.,".split(//)
       end
     end
   end
