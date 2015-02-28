@@ -6,7 +6,7 @@ require 'trocla'
 require 'optparse'
 require 'yaml'
 
-options = { :config_file => nil, :ask_password => true }
+options = { :config_file => nil, :ask_password => true, :trace => false }
 
 OptionParser.new do |opts|
   opts.on("--version", "-V", "Version information") do
@@ -21,6 +21,10 @@ OptionParser.new do |opts|
       STDERR.puts "Cannot find config file: #{v}"
       exit 1
     end
+  end
+
+  opts.on("--trace", "Show stack trace on failure") do
+    options[:trace] = true
   end
 
   opts.on("--no-random") do
@@ -111,7 +115,11 @@ if !(ARGV.length < 2) && (action=ARGV.shift) && actions.include?(action)
         puts result.is_a?(String) ? result : result.inspect
       end
     rescue Exception => e
-      STDERR.puts "Action failed with the following message: #{e.message}" unless e.message == 'exit'
+      unless e.message == 'exit'
+        STDERR.puts "Action failed with the following message: #{e.message}"
+        STDERR.puts "(See full trace by running task with --trace)"
+      end
+      raise e if options[:trace]
       exit 1
     end
 else

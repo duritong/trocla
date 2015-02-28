@@ -32,6 +32,8 @@ Gem::Specification.new do |s|
     "lib/VERSION",
     "lib/trocla.rb",
     "lib/trocla/default_config.yaml",
+    "lib/trocla/encryptions/none.rb",
+    "lib/trocla/encryptions/ssl.rb",
     "lib/trocla/formats.rb",
     "lib/trocla/formats/bcrypt.rb",
     "lib/trocla/formats/md5crypt.rb",
@@ -47,6 +49,7 @@ Gem::Specification.new do |s|
     "lib/trocla/version.rb",
     "spec/data/.keep",
     "spec/spec_helper.rb",
+    "spec/trocla/encryptions/ssl_spec.rb",
     "spec/trocla/util_spec.rb",
     "spec/trocla_spec.rb",
     "trocla.gemspec"

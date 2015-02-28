@@ -24,6 +24,45 @@ def test_config
   @config
 end
 
+def ssl_test_config
+  return @ssl_config unless @ssl_config.nil?
+  @ssl_config = test_config
+  @ssl_config['encryption'] = :ssl
+  @ssl_config['ssl_options'] = {
+    :private_key => data_dir('trocla.key'),
+    :public_key  => data_dir('trocla.pub')
+  }
+  @ssl_config['adapter'] = :YAML
+  @ssl_config['adapter_options'] = {
+    :file => trocla_yaml_file
+  }
+  @ssl_config
+end
+
 def base_dir
   File.dirname(__FILE__)+'/../'
+end
+
+def data_dir(file = nil)
+  File.expand_path(File.join(base_dir, 'spec/data', file))
+end
+
+def trocla_yaml_file
+  data_dir('trocla_store.yaml')
+end
+
+def generate_ssl_keys
+  require 'openssl'
+  rsa_key = OpenSSL::PKey::RSA.new(4096)
+  File.open(data_dir('trocla.key'), 'w') { |f| f.write(rsa_key.to_pem) }
+  File.open(data_dir('trocla.pub'), 'w') { |f| f.write(rsa_key.public_key.to_pem) }
+end
+
+def remove_ssl_keys
+  File.unlink(data_dir('trocla.key'))
+  File.unlink(data_dir('trocla.pub'))
+end
+
+def remove_yaml_store
+  File.unlink(trocla_yaml_file)
 end

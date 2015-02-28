@@ -1,6 +1,7 @@
 require 'trocla/version'
 require 'trocla/util'
 require 'trocla/formats'
+require 'trocla/encryptions'
 
 class Trocla
 
@@ -30,8 +31,8 @@ class Trocla
     set_password(key,format,self.formats(format).format(plain_pwd,options))
   end
 
-  def get_password(key,format)
-    cache.fetch(key,{})[format]
+  def get_password(key, format)
+    decrypt(cache.fetch(key, {})[format])
   end
 
   def reset_password(key,format,options={})
@@ -41,25 +42,36 @@ class Trocla
 
   def delete_password(key,format=nil)
     if format.nil?
-      cache.delete(key)
+      decrypt(cache.delete(key))
     else
       old_val = (h = cache.fetch(key,{})).delete(format)
       h.empty? ? cache.delete(key) : cache[key] = h
-      old_val
+      decrypt(old_val)
     end
   end
 
   def set_password(key,format,password)
     if (format == 'plain')
-      h = (cache[key] = { 'plain' => password })
+      h = (cache[key] = { 'plain' => encrypt(password) })
     else
-      h = (cache[key] = cache.fetch(key,{}).merge({ format => password }))
+      h = (cache[key] = cache.fetch(key,{}).merge({ format => encrypt(password) }))
     end
-    h[format]
+    decrypt h[format]
   end
 
   def formats(format)
     (@format_cache||={})[format] ||= Trocla::Formats[format].new(self)
+  end
+
+  def encryption
+    enc = config['encryption']
+    enc ||= :none
+    @encryption ||= Trocla::Encryptions[enc].new(self)
+    @encryption
+  end
+
+  def config
+    @config ||= read_config
   end
 
   private
@@ -73,10 +85,6 @@ class Trocla
     Moneta.new(lconfig['adapter'], lconfig['adapter_options']||{})
   end
 
-  def config
-    @config ||= read_config
-  end
-
   def read_config
     if @config_file.nil?
       default_config
@@ -86,9 +94,18 @@ class Trocla
     end
   end
 
+  def encrypt(value)
+    encryption.encrypt(value)
+  end
+
+  def decrypt(value)
+    return nil if value.nil?
+    encryption.decrypt(value)
+  end
+
   def default_config
-      require 'yaml'
-      YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))))
+    require 'yaml'
+    YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))))
   end
 
 end
