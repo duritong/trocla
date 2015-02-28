@@ -11,7 +11,7 @@ describe "Trocla::Encryptions::Ssl" do
   end
  
   before(:each) do
-    Trocla.any_instance.expects(:read_config).returns(ssl_test_config)
+    expect_any_instance_of(Trocla).to receive(:read_config).and_return(ssl_test_config)
     @trocla = Trocla.new
   end
 
