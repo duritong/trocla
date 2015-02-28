@@ -3,8 +3,8 @@ source "http://rubygems.org"
 # Example:
 #   gem "activesupport", ">= 2.3.5"
 
-gem "moneta", "~> 0.7"
-gem "highline"
+gem "moneta", "~> 0.7.20"
+gem "highline", "~> 1.6.2"
 gem "bcrypt"
 
 # Add dependencies to develop your gem here.
@@ -13,5 +13,5 @@ group :development do
   gem "rspec", "~> 2.4"
   gem "rdoc", "~> 3.8"
   gem "mocha"
-  gem "jeweler"
+  gem "jeweler", "~> 1.6"
 end
