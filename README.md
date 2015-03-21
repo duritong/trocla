@@ -177,6 +177,11 @@ ssl_options:
 
 ## Update & Changes
 
+### to 0.1.0
+
+1. Supporting encryption of the backends. Many thanks to Thomas Gelf
+1. Adding a windows safe password charset
+
 ### to 0.0.12
 
 1. change from sha1 signature for the x509 format to sha2
@@ -202,6 +207,6 @@ ssl_options:
 
 ## Copyright
 
-Copyright (c) 2014 mh. See LICENSE.txt for
+Copyright (c) 2015 mh. See LICENSE.txt for
 further details.
 
