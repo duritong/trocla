@@ -21,7 +21,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     sign_with = options['ca'] || nil
     keysize = options['keysize'] || 2048
     serial = options['serial'] || 1
-    days = options['days'] || 365
+    days = options['days'].to_i || 365
     altnames = options['altnames'] || nil
     altnames.collect { |v| "DNS:#{v}" }.join(', ') if altnames
 
