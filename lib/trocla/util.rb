@@ -20,6 +20,7 @@ class Trocla
           'alphanumeric'  => alphanumeric,
           'shellsafe'     => shellsafe,
           'windowssafe'   => windowssafe,
+          'numeric'       => numeric,
         }
       end
 
@@ -34,6 +35,9 @@ class Trocla
       end
       def alphanumeric
         @alphanumeric ||= ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+      end
+      def numeric
+        @numeric ||= ('0'..'9').to_a
       end
       def special_chars
         @special_chars ||= "*()&![]{}-".split(//)
