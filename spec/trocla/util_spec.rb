@@ -20,6 +20,12 @@ describe "Trocla::Util" do
     end
   end
 
+  describe :numeric_generator do
+    it "should create random numeric password" do
+      Trocla::Util.send(:random_str, 12, 'numeric' ).should =~ /^[0-9]{12}$/
+    end
+  end
+
   describe :salt do
     it "should only contain characters and numbers" do
       Trocla::Util.salt =~ /^[a-z0-9]+$/i
