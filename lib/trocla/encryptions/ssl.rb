@@ -3,22 +3,27 @@ require 'base64'
 
 class Trocla::Encryptions::Ssl < Trocla::Encryptions::Base
   def encrypt(value)
-    if option :use_base64
-      Base64.encode64(public_key.public_encrypt(value))
-    else
-      public_key.public_encrypt(value)
+    ciphertext = ''
+    value.scan(/.{0,#{chunksize}}/m).each do |chunk|
+      ciphertext += Base64.encode64(public_key.public_encrypt(chunk)).gsub("\n",'')+"\n" if chunk
     end
+    ciphertext
   end
 
   def decrypt(value)
-    if option :use_base64
-      private_key.private_decrypt(Base64.decode64(value))
-    else
-      private_key.private_decrypt(value)
+    plaintext = ''
+    value.split(/\n/).each do |line|
+      plaintext += private_key.private_decrypt(Base64.decode64(line)) if line
     end
+    plaintext
   end
 
   private
+
+  def chunksize
+      public_key.n.num_bytes - 11
+  end
+
   def private_key
       pass = nil
       file = require_option(:private_key)
