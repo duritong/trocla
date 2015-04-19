@@ -9,7 +9,7 @@ describe "Trocla::Encryptions::Ssl" do
   after(:all) do
     remove_ssl_keys
   end
- 
+
   before(:each) do
     expect_any_instance_of(Trocla).to receive(:read_config).and_return(ssl_test_config)
     @trocla = Trocla.new
@@ -22,6 +22,10 @@ describe "Trocla::Encryptions::Ssl" do
   describe "encrypt" do
     it "should be able to store random passwords" do
       @trocla.password('random1', 'plain').length.should eql(12)
+    end
+
+    it "should be able to store long random passwords" do
+      @trocla.set_password('random1_long','plain',4096.times.collect{|s| 'x' }.join('')).length.should eql(4096)
     end
 
     it "should be able to retrieve stored random passwords" do
@@ -49,5 +53,4 @@ describe "Trocla::Encryptions::Ssl" do
       yaml['one_key']['plain'].should_not eql(yaml['another_key']['plain'])
     end
   end
-  
 end

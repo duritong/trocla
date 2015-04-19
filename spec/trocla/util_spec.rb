@@ -7,11 +7,11 @@ describe "Trocla::Util" do
       it "should be random" do
         Trocla::Util.send(m).should_not eql(Trocla::Util.send(m))
       end
-    
+
       it "should default to length #{length}" do
         Trocla::Util.send(m).length.should == length
       end
-    
+
       it "should be possible to change length" do
         Trocla::Util.send(m,8).length.should == 8
         Trocla::Util.send(m,32).length.should == 32
