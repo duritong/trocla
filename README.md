@@ -177,6 +177,12 @@ ssl_options:
 
 ## Update & Changes
 
+### to 0.1.1
+
+1. fix storing data longer that public Keysize -11. Thanks [Timo Goebel](https://github.com/timogoebel)
+1. add a numeric only charset. Thanks [Jonas Genannt](https://github.com/hggh)
+1. fix reading key expire time. Thanks [asquelt](https://github.com/asquelt)
+
 ### to 0.1.0
 
 1. Supporting encryption of the backends. Many thanks to Thomas Gelf
