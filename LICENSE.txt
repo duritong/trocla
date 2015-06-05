@@ -1,5 +1,5 @@
 Trocla - a simple password generator and storage
-Copyright (C) 2011 Marcel Haerry
+Copyright (C) 2011-2015 Marcel Haerry
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

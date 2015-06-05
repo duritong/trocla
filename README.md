@@ -213,6 +213,6 @@ ssl_options:
 
 ## Copyright
 
-Copyright (c) 2015 mh. See LICENSE.txt for
+Copyright (c) 2011-2015 mh. See LICENSE.txt for
 further details.
 
