@@ -25,19 +25,21 @@ class Trocla::Encryptions::Ssl < Trocla::Encryptions::Base
   end
 
   def private_key
-      pass = nil
-      file = require_option(:private_key)
-      @private_key ||= OpenSSL::PKey::RSA.new(File.read(file), nil)
+      @private_key ||= begin
+        file = require_option(:private_key)
+        OpenSSL::PKey::RSA.new(File.read(file), nil)
+      end
   end
 
   def public_key
-      file = require_option(:public_key)
-      @public_key ||= OpenSSL::PKey::RSA.new(File.read(file), nil)
+      @public_key ||= begin
+        file = require_option(:public_key)
+        OpenSSL::PKey::RSA.new(File.read(file), nil)
+      end
   end
 
   def config
-    @config = @trocla.config['ssl_options']
-    @config ||= Hash.new
+    @config ||= (@trocla.config['ssl_options']||{})
   end
 
   def option(key)
