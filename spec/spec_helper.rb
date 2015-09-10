@@ -25,6 +25,16 @@ def test_config
   @config
 end
 
+def test_config_persistent
+  return @config unless @config.nil?
+  @config = default_config
+  @config['adapter'] = :YAML
+  @config['adapter_options'] = {
+    :file => trocla_yaml_file
+  }
+  @config
+end
+
 def ssl_test_config
   return @ssl_config unless @ssl_config.nil?
   @ssl_config = test_config
