@@ -117,9 +117,10 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     ef.subject_certificate = cert
     ef.issuer_certificate = issuer
     cert.extensions = [ ef.create_extension("subjectKeyIdentifier", "hash") ]
-    cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true) if subject == issuer
-    cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true) if subject != issuer
-    cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
+    cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true) if cert.subject == cert.issuer
+    cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true) if cert.subject != cert.issuer
+    cert.add_extension ef.create_extension("keyUsage", "keyCertSign, cRLSign, nonRepudiation, digitalSignature, keyEncipherment", true) if cert.subject == cert.issuer
+    cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true) if cert.subject != cert.issuer
     cert.add_extension ef.create_extension("subjectAltName", altnames, true) if altnames
     cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 
