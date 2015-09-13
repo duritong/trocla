@@ -21,7 +21,6 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     sign_with = options['ca']
     become_ca = options['become_ca'] || false
     keysize = options['keysize'] || 4096
-    serial = options['serial'] || 1
     days = options['days'].to_i || 365
     if an = options['altnames']
       altnames = an.collect { |v| "DNS:#{v}" }.join(', ')
@@ -40,7 +39,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       begin
         ca = OpenSSL::X509::Certificate.new(getca(sign_with))
         cakey = OpenSSL::PKey::RSA.new(getca(sign_with))
-        caserial = getserial(sign_with, serial)
+        caserial = getserial(sign_with)
       rescue Exception => e
         raise "Value of #{sign_with} can't be loaded as CA: #{e.message}"
       end
@@ -56,7 +55,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       begin
         csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, become_ca)
         csr_cert.sign(cakey, signature(hash))
-        setserial(sign_with, caserial)
+        addserial(sign_with, caserial)
       rescue Exception => e
         raise "Certificate #{subject} signing failed: #{e.message}"
       end
@@ -65,7 +64,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
-        cert = mkcert(serial, subj, nil, key.public_key, days, altnames, become_ca)
+        cert = mkcert(getserial(subj), subj, nil, key.public_key, days, altnames, become_ca)
         cert.sign(key, signature(hash))
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
@@ -140,16 +139,21 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     trocla.get_password(ca,'x509')
   end
 
-  def getserial(ca,serial)
-    newser = trocla.get_password("#{ca}_serial",'plain')
-    if newser
-      newser + 1
+  def getserial(ca)
+    newser = Trocla::Util.random_str(20,'numeric').to_i
+    all_serials(ca).include?(newser) ? getserial(ca) : newser
+  end
+
+  def all_serials(ca)
+    if allser = trocla.get_password("#{ca}_all_serials",'plain')
+      YAML.load(allser)
     else
-      serial
+      []
     end
   end
 
-  def setserial(ca,serial)
-    trocla.set_password("#{ca}_serial",'plain',serial)
+  def addserial(ca,serial)
+    serials = all_serials(ca) << serial
+    trocla.set_password("#{ca}_all_serials",'plain',YAML.dump(serials))
   end
 end

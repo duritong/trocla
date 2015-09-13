@@ -58,7 +58,7 @@ describe "Trocla::Format::X509" do
       ca_str = @trocla.password('my_shiny_selfsigned_ca', 'x509', ca_options)
       @ca = OpenSSL::X509::Certificate.new(ca_str)
     end
-    it 'shold be able to get a cert signed by the ca' do
+    it 'should be able to get a cert signed by the ca' do
       cert_str = @trocla.password('mycert', 'x509', cert_options)
       cert = OpenSSL::X509::Certificate.new(cert_str)
       cert.issuer.should eql(@ca.subject)
@@ -69,7 +69,18 @@ describe "Trocla::Format::X509" do
       ku.should_not match(/CRL Sign/)
     end
 
-    it 'shold be able to get a cert signed by the ca that is again a ca' do
+    it 'should not simply increment the serial' do
+      cert_str = @trocla.password('mycert', 'x509', cert_options)
+      cert1 = OpenSSL::X509::Certificate.new(cert_str)
+      cert_str = @trocla.password('mycert2', 'x509', cert_options)
+      cert2 = OpenSSL::X509::Certificate.new(cert_str)
+
+      cert1.serial.to_i.should_not eql(1)
+      cert2.serial.to_i.should_not eql(2)
+      (cert2.serial - cert1.serial).to_i.should_not eql(1)
+    end
+
+    it 'should be able to get a cert signed by the ca that is again a ca' do
       cert_str = @trocla.password('mycert', 'x509', cert_options.merge({
         'become_ca' => true,
       }))
@@ -82,7 +93,7 @@ describe "Trocla::Format::X509" do
       ku.should match(/CRL Sign/)
     end
 
-    it 'shold be able to get a cert signed by the ca that is again a ca that is able to sign certs' do
+    it 'should be able to get a cert signed by the ca that is again a ca that is able to sign certs' do
       cert_str = @trocla.password('mycert_and_ca', 'x509', cert_options.merge({
         'become_ca' => true,
       }))
@@ -102,7 +113,6 @@ describe "Trocla::Format::X509" do
       co = cert_options.merge({
         'hash'         => 'sha1',
         'keysize'      => 2048,
-        'serial'       => 123456789,
         'days'         => 3650,
         'subject'      => nil,
         'C'            => 'AA',
@@ -121,7 +131,6 @@ describe "Trocla::Format::X509" do
         cert.subject.to_s.should match(/#{field}=#{co[field]}/)
       end
       cert.signature_algorithm.should eql('sha1WithRSAEncryption')
-      cert.serial.should eql(123456789)
       cert.not_before.should < Time.now
       Date.parse(cert.not_after.to_s) == Date.parse((Time.now+3650*24*60*60).to_s)
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
