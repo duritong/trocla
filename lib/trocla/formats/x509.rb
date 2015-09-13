@@ -18,16 +18,21 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       raise "You need to pass \"subject\" or \"CN\" as an option to use this format"
     end
     hash = options['hash'] || 'sha2'
-    sign_with = options['ca'] || nil
+    sign_with = options['ca']
+    become_ca = options['become_ca'] || false
     keysize = options['keysize'] || 2048
     serial = options['serial'] || 1
     days = options['days'].to_i || 365
-    altnames = options['altnames'] || nil
-    altnames.collect { |v| "DNS:#{v}" }.join(', ') if altnames
+    if an = options['altnames']
+      altnames = an.collect { |v| "DNS:#{v}" }.join(', ')
+    else
+      altnames = nil
+    end
 
     begin
       key = mkkey(keysize)
     rescue Exception => e
+      puts e.backtrace
       raise "Private key for #{subject} creation failed: #{e.message}"
     end
 
@@ -49,7 +54,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       end
 
       begin
-        csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames)
+        csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, become_ca)
         csr_cert.sign(cakey, signature(hash))
         setserial(sign_with, caserial)
       rescue Exception => e
@@ -60,7 +65,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
-        cert = mkcert(serial, subj, nil, key.public_key, days, altnames)
+        cert = mkcert(serial, subj, nil, key.public_key, days, altnames, become_ca)
         cert.sign(key, signature(hash))
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
@@ -102,7 +107,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     request
   end
 
-  def mkcert(serial,subject,issuer,public_key,days,altnames)
+  def mkcert(serial,subject,issuer,public_key,days,altnames, become_ca = false)
     cert = OpenSSL::X509::Certificate.new
     issuer = cert if issuer == nil
     cert.subject = subject
@@ -117,9 +122,14 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     ef.subject_certificate = cert
     ef.issuer_certificate = issuer
     cert.extensions = [ ef.create_extension("subjectKeyIdentifier", "hash") ]
-    cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true) if subject == issuer
-    cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true) if subject != issuer
-    cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
+
+    if become_ca
+      cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true)
+      cert.add_extension ef.create_extension("keyUsage", "keyCertSign, cRLSign, nonRepudiation, digitalSignature, keyEncipherment", true)
+    else
+      cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true)
+      cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
+    end
     cert.add_extension ef.create_extension("subjectAltName", altnames, true) if altnames
     cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 

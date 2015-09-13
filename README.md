@@ -177,6 +177,12 @@ ssl_options:
 
 ## Update & Changes
 
+### to 0.1.3
+
+1. CHANGE: Self signed certificates are no longer CAs by default, actually they have never been due to a bug. If you want that a certificate is also a CA, you *must* pass `become_ca: true` to the options hash. But this makes it actually possible, that you can even have certificate chains. Thanks for initial hint to [Adrien Bréfort](https://github.com/abrefort)
+1. Fixing setting of altnames, was not possible due to bug, till now.
+1. Add extended tests for the x509 format, that describe all the internal specialities and should give an idea how it can be used.
+
 ### to 0.1.1
 
 1. fix storing data longer that public Keysize -11. Thanks [Timo Goebel](https://github.com/timogoebel)

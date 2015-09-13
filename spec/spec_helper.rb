@@ -10,7 +10,7 @@ require 'trocla'
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
-  
+
 end
 
 def default_config
@@ -22,6 +22,16 @@ def test_config
   @config = default_config
   @config.delete('adapter_options')
   @config['adapter'] = :Memory
+  @config
+end
+
+def test_config_persistent
+  return @config unless @config.nil?
+  @config = default_config
+  @config['adapter'] = :YAML
+  @config['adapter_options'] = {
+    :file => trocla_yaml_file
+  }
   @config
 end
 
