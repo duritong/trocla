@@ -124,17 +124,63 @@ deleted as well, as the hashes wouldn't match anymore the plain text password.
 
 This will delete the plain password of the key user1 and return it.
 
+### formats
+
+    trocla formats
+
+This will list all available and supported formats.
+
 ## Attention
 
 If you don't feed trocla initially with a hash and/or delete the generated
 plain text passwords trocla will likely create a lot of plain text passwords
 and store them on your machine/server. This is by intend and is all about which
 problems (mainly passwords in configuration management manifests) trocla tries
-to address.
+to address. It is possible to store all passwords encrypted in the specific
+backend.
+See backend encryption for more information, however be aware that the key must
+always also reside on the trocla node. So it mainly makes sense if you store
+them on a remote backend like a central database server.
+
+## Formats
+
+Most formats are straight forward to use. Some formats require some additional
+options to work properly. These are documented here:
+
+### pgsql
+
+Password hashes for PostgreSQL servers. Requires the option `username` to be set
+to the username to which the password will be assigned.
+
+### x509
+
+This format takes a set of additional options. Required are:
+
+    subject: A subject for the target certificate. E.g. /C=ZZ/O=Trocla Inc./CN=test/emailAddress=example@example.com
+    OR
+    CN: The CN of the the target certificate. E.g. 'This is my self-signed certificate which doubles as CA'
+
+Additional options are:
+
+    ca:          The trocla key of CA (imported into or generated within trocla) that
+                 will be used to sign that certificate.
+    become_ca:   Whether the certificate should become a CA or not. Default: false,
+                 to enable set it to true.
+    hash:        Hash to be used. Default sha2
+    keysize      Keysize for the new key. Default is: 4096
+    serial       Serial to be used, default is selecting a random one.
+    days         How many days should the certificate be valid. Default 365
+    C            instead within the subject string
+    ST           instead within the subject string
+    L            instead within the subject string
+    O            instead within the subject string
+    OU           instead within the subject string
+    emailAddress instead within the subject string
+    altnames     An array of subjectAltNames
 
 ## Installation
 
-Simply build and install the gem. 
+Simply build and install the gem.
 
 ## Configuration
 
@@ -164,9 +210,13 @@ adapter_options:
 
 These examples are by no way complete, moneta has much more to offer.
 
-### SSL encryption
+### Backend encryption
 
-You might want to let Trocla encrypt all your passwords
+You might want to let Trocla encrypt all your passwords, at the moment the only supported way is SSL. By default trocla does not encrypt any passwords stored on the disk.
+
+### Backend SSL encryption
+
+Required configuration to enable ssl based encryption of all passwords:
 
 ```YAML
 encryption: :ssl
@@ -180,8 +230,11 @@ ssl_options:
 ### to 0.1.3
 
 1. CHANGE: Self signed certificates are no longer CAs by default, actually they have never been due to a bug. If you want that a certificate is also a CA, you *must* pass `become_ca: true` to the options hash. But this makes it actually possible, that you can even have certificate chains. Thanks for initial hint to [Adrien Bréfort](https://github.com/abrefort)
+1. Default keysize is now 4096
+1. SECURITY: Do not increment serial, rather choose a random one.
 1. Fixing setting of altnames, was not possible due to bug, till now.
 1. Add extended tests for the x509 format, that describe all the internal specialities and should give an idea how it can be used.
+1. Add cli option to list all formats
 
 ### to 0.1.1
 
