@@ -23,16 +23,19 @@ describe "Trocla::Format::X509" do
 
   describe "x509 selfsigned" do
     it "should be able to create self signed cert without being a ca by default" do
-      ca_str = @trocla.password('my_shiny_selfsigned_ca', 'x509', {
+      cert_str = @trocla.password('my_shiny_selfsigned_ca', 'x509', {
         'CN'        => 'This is my self-signed certificate',
         'become_ca' => false,
       })
-      ca = OpenSSL::X509::Certificate.new(ca_str)
+      cert = OpenSSL::X509::Certificate.new(cert_str)
       # selfsigned?
-      ca.issuer.should eql(ca.subject)
+      cert.issuer.should eql(cert.subject)
+      # default size
+      # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
+      (cert.public_key.n.num_bytes * 8).should eql(4096)
 
-      ca.extensions.find{|e| e.oid == 'basicConstraints' }.value.should eql('CA:FALSE')
-      ku = ca.extensions.find{|e| e.oid == 'keyUsage' }.value
+      cert.extensions.find{|e| e.oid == 'basicConstraints' }.value.should eql('CA:FALSE')
+      ku = cert.extensions.find{|e| e.oid == 'keyUsage' }.value
       ku.should_not match(/Certificate Sign/)
       ku.should_not match(/CRL Sign/)
     end
@@ -98,7 +101,7 @@ describe "Trocla::Format::X509" do
     it 'should respect all options' do
       co = cert_options.merge({
         'hash'         => 'sha1',
-        'keysize'      => 4096,
+        'keysize'      => 2048,
         'serial'       => 123456789,
         'days'         => 3650,
         'subject'      => nil,
@@ -122,7 +125,7 @@ describe "Trocla::Format::X509" do
       cert.not_before.should < Time.now
       Date.parse(cert.not_after.to_s) == Date.parse((Time.now+3650*24*60*60).to_s)
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
-      (cert.public_key.n.num_bytes * 8).should eql(4096)
+      (cert.public_key.n.num_bytes * 8).should eql(2048)
       cert.extensions.find{|e| e.oid == 'subjectAltName' }.value.should eql('DNS:test, DNS:test1, DNS:test2, DNS:test3')
 
       cert.extensions.find{|e| e.oid == 'basicConstraints' }.value.should eql('CA:FALSE')

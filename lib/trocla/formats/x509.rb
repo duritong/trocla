@@ -20,7 +20,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     hash = options['hash'] || 'sha2'
     sign_with = options['ca']
     become_ca = options['become_ca'] || false
-    keysize = options['keysize'] || 2048
+    keysize = options['keysize'] || 4096
     serial = options['serial'] || 1
     days = options['days'].to_i || 365
     if an = options['altnames']
