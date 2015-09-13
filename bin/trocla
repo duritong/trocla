@@ -93,6 +93,10 @@ def delete(options)
   )
 end
 
+def formats(options)
+  "Available formats: #{Trocla::Formats.all.join(', ')}"
+end
+
 def check_format(format_name)
   if format_name.nil?
     STDERR.puts "Missing format, exiting..."
@@ -103,13 +107,13 @@ def check_format(format_name)
   end
 end
 
-actions=['create','get','set','reset','delete']
+actions=['create','get','set','reset','delete', 'formats' ]
 
-if !(ARGV.length < 2) && (action=ARGV.shift) && actions.include?(action)
+if (action=ARGV.shift) && actions.include?(action)
     options[:trocla_key] = ARGV.shift
     options[:trocla_format] = ARGV.shift
     options[:other_options] = ARGV
-    check_format(options[:trocla_format]) unless action == 'delete'
+    check_format(options[:trocla_format]) unless ['delete','formats'].include?(action)
     begin
       if result = send(action,options)
         puts result.is_a?(String) ? result : result.inspect
