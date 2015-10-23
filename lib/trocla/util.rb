@@ -16,11 +16,12 @@ class Trocla
 
       def charsets
         @charsets ||= {
-          'default'       => chars,
-          'alphanumeric'  => alphanumeric,
-          'shellsafe'     => shellsafe,
-          'windowssafe'   => windowssafe,
-          'numeric'       => numeric,
+          'default'      => chars,
+          'alphanumeric' => alphanumeric,
+          'shellsafe'    => shellsafe,
+          'windowssafe'  => windowssafe,
+          'numeric'      => numeric,
+          'consolesafe'  => consolesafe,
         }
       end
 
@@ -32,6 +33,9 @@ class Trocla
       end
       def windowssafe
         @windowssafe ||= alphanumeric + windowssafe_chars
+      end
+      def consolesafe
+        @consolesafe ||= alphanumeric + consolesafe_chars
       end
       def alphanumeric
         @alphanumeric ||= ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
@@ -47,6 +51,9 @@ class Trocla
       end
       def windowssafe_chars
         @windowssafe_chars ||= "+%/@=?_.,".split(//)
+      end
+      def consolesafe_chars
+        @consolesafe_chars ||= '+.-,_'.split(//)
       end
     end
   end
