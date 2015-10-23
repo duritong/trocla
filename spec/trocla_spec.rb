@@ -51,26 +51,26 @@ describe "Trocla" do
         pwd = @trocla.password('some_test','plain', 'profiles' => 'rootpw')
         pwd.should_not be_empty
         pwd.length.should eql(32)
-        pwd.should_not =~ /[={}\[\]]+/
+        pwd.should_not =~ /[={}\[\]\?%\*()&!]+/
       end
 
       it 'should possible to combine profiles but first profile wins' do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['rootpw','login'])
         pwd.should_not be_empty
         pwd.length.should eql(32)
-        pwd.should_not =~ /[={}\[\]]+/
+        pwd.should_not =~ /[={}\[\]\?%\*()&!]+/
       end
       it 'should possible to combine profiles but first profile wins 2' do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['login','mysql'])
         pwd.should_not be_empty
         pwd.length.should eql(16)
-        pwd.should_not =~ /[={}\[\]]+/
+        pwd.should_not =~ /[={}\[\]\?%\*()&!]+/
       end
       it 'should possible to combine profiles but first profile wins 3' do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['mysql','login'])
         pwd.should_not be_empty
         pwd.length.should eql(32)
-        pwd.should =~ /[={}\[\]]+/
+        pwd.should =~ /[={}\[\]\?%\*()&!\,\+\.]+/
       end
     end
   end
