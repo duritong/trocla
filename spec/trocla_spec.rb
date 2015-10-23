@@ -30,14 +30,47 @@ describe "Trocla" do
         it "should also store the plain password by default" do
           pwd = @trocla.password('some_test','plain')
           pwd.should_not be_empty
-          pwd.length.should eql(12)
+          pwd.length.should eql(16)
         end
       end
     end
 
     Trocla::Formats.all.reject{|f| f == 'plain' }.each do |format|
       it "should raise an exception if not a random password is asked but plain password is not present for format #{format}" do
-        lambda{ @trocla.password('not_random',format, 'random' => false) }.should raise_error
+        lambda{ @trocla.password('not_random',format, 'random' => false) }.should raise_error /Password must be present as plaintext/
+      end
+    end
+
+    describe 'with profiles' do
+      it 'should raise an exception on unknown profile' do
+        lambda{ @trocla.password('no profile known','plain',
+          'profiles' => 'unknown_profile') }.should raise_error /No such profile unknown_profile defined/
+      end
+
+      it 'should take a profile and merge its options' do
+        pwd = @trocla.password('some_test','plain', 'profiles' => 'rootpw')
+        pwd.should_not be_empty
+        pwd.length.should eql(32)
+        pwd.should_not =~ /[={}\[\]]+/
+      end
+
+      it 'should possible to combine profiles but first profile wins' do
+        pwd = @trocla.password('some_test','plain', 'profiles' => ['rootpw','login'])
+        pwd.should_not be_empty
+        pwd.length.should eql(32)
+        pwd.should_not =~ /[={}\[\]]+/
+      end
+      it 'should possible to combine profiles but first profile wins 2' do
+        pwd = @trocla.password('some_test','plain', 'profiles' => ['login','mysql'])
+        pwd.should_not be_empty
+        pwd.length.should eql(16)
+        pwd.should_not =~ /[={}\[\]]+/
+      end
+      it 'should possible to combine profiles but first profile wins 3' do
+        pwd = @trocla.password('some_test','plain', 'profiles' => ['mysql','login'])
+        pwd.should_not be_empty
+        pwd.length.should eql(32)
+        pwd.should =~ /[={}\[\]]+/
       end
     end
   end

@@ -59,8 +59,10 @@ This will create a pgsql password hash using the username user1.
 
 Valid global options are:
 
-* length: int - Define any lenght that a newly created password should have. Default: 12 - or whatever you define in your global settings.
+* length: int - Define any lenght that a newly created password should have. Default: 16 - or whatever you define in your global settings.
 * charset: (default|alphanumeric|shellsafe) - Which set of chars should be used for a random password? Default: default - or whatever you define in your global settings.
+* profiles: a profile name or an array of profiles matching a profile_name in your configuration. Learn more about profiles below.
+* random: boolean - Whether we allow creation of random passwords or we expect a password to be preset. Default: true - or whatever you define in your global settings.
 
 Example:
 
@@ -162,11 +164,11 @@ This format takes a set of additional options. Required are:
 
 Additional options are:
 
-    ca:          The trocla key of CA (imported into or generated within trocla) that
+    ca           The trocla key of CA (imported into or generated within trocla) that
                  will be used to sign that certificate.
-    become_ca:   Whether the certificate should become a CA or not. Default: false,
+    become_ca    Whether the certificate should become a CA or not. Default: false,
                  to enable set it to true.
-    hash:        Hash to be used. Default sha2
+    hash         Hash to be used. Default sha2
     keysize      Keysize for the new key. Default is: 4096
     serial       Serial to be used, default is selecting a random one.
     days         How many days should the certificate be valid. Default 365
@@ -185,6 +187,30 @@ Simply build and install the gem.
 ## Configuration
 
 Trocla can be configured in /etc/troclarc.yaml and in ~/.troclarc.yaml. A sample configuration file can be found in `lib/trocla/default_config.yaml`.
+By default trocla stores all data in /tmp/trocla.yaml
+
+### Profiles
+
+It is possible to define profiles within the configuration file. The idea behind profiles are to make it easy to group together certain options for
+automatic password generation.
+
+Trocla ships with a default set of profiles, which are part of the `lib/trocla/default_config.yaml` configuration file. It is possible to override
+the existing profiles within your own configuration file, as well as adding more. Note that the profiles part of the configuration file is merged
+together and your configuration file has precedence.
+
+The profiles part in the config is a hash where each entry consist of a name (key) and a hash of options (value).
+
+Profiles make it especially easy to define a preset of options for SSL certificates as you will only need to set the certificate specific options,
+while global options such as C, O or OU can be preset within the profile.
+
+Profiles are used by setting the profiles option to a name of the pre-configured profiles, when passing options to the password option. On the cli
+this looks like:
+
+    trocla create foo plain 'profiles: rootpw'
+
+It is possible to pass mutliple profiles as an array, while the order will also reflect the precedence of the options.
+
+Also it is possible to set a default profiles option in the options part of the configuration file.
 
 ### Storage backends
 
@@ -226,6 +252,12 @@ ssl_options:
 ```
 
 ## Update & Changes
+
+### to 0.2
+
+1. Feature: Introduce profiles
+1. Increase default password length to 16
+1. Add a console safe password charset that should provide a subset of chars that easier to type on a physical keyboard.
 
 ### to 0.1.3
 

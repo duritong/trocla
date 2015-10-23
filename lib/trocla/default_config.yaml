@@ -1,8 +1,20 @@
 ---
-options:
-    random: true
-    length: 12
-    charset: default
 adapter: :YAML
 adapter_options:
     :file: '/tmp/trocla.yaml'
+
+options:
+    random: true
+    length: 16
+    charset: default
+
+profiles:
+  rootpw:
+    charset: consolesafe
+    length: 32
+  mysql:
+    charset: shellsafe
+    length: 32
+  login:
+    charset: consolesafe
+    length: 16

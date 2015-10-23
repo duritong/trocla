@@ -14,7 +14,14 @@ class Trocla
   end
 
   def password(key,format,options={})
+    # respect a default profile, but let the
+    # profiles win over the default options
+    options['profiles'] ||= config['options']['profiles']
+    if options['profiles']
+      options = merge_profiles(options['profiles']).merge(options)
+    end
     options = config['options'].merge(options)
+
     raise "Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
 
     unless (password=get_password(key,format)).nil?
@@ -90,7 +97,9 @@ class Trocla
       default_config
     else
       raise "Configfile #{@config_file} does not exist!" unless File.exists?(@config_file)
-      default_config.merge(YAML.load(File.read(@config_file)))
+      c = default_config.merge(YAML.load(File.read(@config_file)))
+      c['profiles'] = default_config['profiles'].merge(c['profiles'])
+      c
     end
   end
 
@@ -106,6 +115,13 @@ class Trocla
   def default_config
     require 'yaml'
     YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__),'trocla','default_config.yaml'))))
+  end
+
+  def merge_profiles(profiles)
+    Array(profiles).inject({}) do |res,profile|
+      raise "No such profile #{profile} defined" unless profile_hash = config['profiles'][profile]
+      profile_hash.merge(res)
+    end
   end
 
 end

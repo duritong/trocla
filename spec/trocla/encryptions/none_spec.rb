@@ -13,7 +13,7 @@ describe "Trocla::Encryptions::None" do
 
   describe "none" do
     it "should be able to store random passwords" do
-      @trocla.password('random1', 'plain').length.should eql(12)
+      @trocla.password('random1', 'plain').length.should eql(16)
     end
 
     it "should be able to store long random passwords" do
