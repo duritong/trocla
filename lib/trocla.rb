@@ -39,7 +39,7 @@ class Trocla
   end
 
   def get_password(key, format)
-    decrypt(cache.fetch(key, {})[format])
+    decrypt(store.fetch(key, {})[format])
   end
 
   def reset_password(key,format,options={})
@@ -49,19 +49,19 @@ class Trocla
 
   def delete_password(key,format=nil)
     if format.nil?
-      decrypt(cache.delete(key))
+      decrypt(store.delete(key))
     else
-      old_val = (h = cache.fetch(key,{})).delete(format)
-      h.empty? ? cache.delete(key) : cache[key] = h
+      old_val = (h = store.fetch(key,{})).delete(format)
+      h.empty? ? store.delete(key) : store[key] = h
       decrypt(old_val)
     end
   end
 
   def set_password(key,format,password)
     if (format == 'plain')
-      h = (cache[key] = { 'plain' => encrypt(password) })
+      h = (store[key] = { 'plain' => encrypt(password) })
     else
-      h = (cache[key] = cache.fetch(key,{}).merge({ format => encrypt(password) }))
+      h = (store[key] = store.fetch(key,{}).merge({ format => encrypt(password) }))
     end
     decrypt h[format]
   end
@@ -82,11 +82,11 @@ class Trocla
   end
 
   private
-  def cache
-    @cache ||= build_cache
+  def store
+    @store ||= build_store
   end
 
-  def build_cache
+  def build_store
     require 'moneta'
     lconfig = config
     Moneta.new(lconfig['adapter'], lconfig['adapter_options']||{})
