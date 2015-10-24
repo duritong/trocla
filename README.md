@@ -11,7 +11,7 @@ Furthermore it provides you a simple cli that helps you to modify the password
 storage from the cli.
 
 Trocla does not only create and/or store a plain password, it is also able to
-generate (and store) any kind hashed passwords based on the plain password.
+generate (and store) any kind of hashed passwords based on the plain password.
 As long as the plain password is preset, trocla is able to generate any kind
 of hashed passwords through an easy extendible plugin system.
 
@@ -24,8 +24,11 @@ retrieve (by deleting) the plain password and send it to the user. Puppet
 will still simply retrieve the hashed password that is stored in trocla,
 while the plain password is not anymore stored on the server.
 
-You can use any kind of key/value based storage supported by moneta for
-trocla. By default it uses a simple yaml file.
+Be default trocla uses moneta to store the passwords and can use any kind of
+key/value based storage supported by moneta for trocla. By default it uses a
+simple yaml file.
+However, since version 0.2.0 trocla also supports a pluggable store backend
+which allows you to write your custom backend. See more about stores below.
 
 ## Usage
 
@@ -187,7 +190,7 @@ Simply build and install the gem.
 ## Configuration
 
 Trocla can be configured in /etc/troclarc.yaml and in ~/.troclarc.yaml. A sample configuration file can be found in `lib/trocla/default_config.yaml`.
-By default trocla stores all data in /tmp/trocla.yaml
+By default trocla configures moneta to store all data in /tmp/trocla.yaml
 
 ### Profiles
 
@@ -214,19 +217,33 @@ Also it is possible to set a default profiles option in the options part of the 
 
 ### Storage backends
 
+Trocla has a pluggable storage backend, which allows you to choose the way that values are stored (persistently).
+Such a store is a simple class that implements Trocla::Store and at the moment there are the following store implementations:
+
+* Moneta - the default store using [moneta](https://rubygems.org/gems/moneta) to delegate storing the values
+* Memory - simple inmemory backend. Mainly used for testing.
+
+The backend is chosen based on the `store` configuration option. If it is a symbol, we expect it to be a store that we ship with trocla. Otherwise, we assume it to be a fully qualified ruby class name, that inherits from Trocla::Store. If trocla should load an additional library to be able to find your custom store class, you can set `store_require` to whatever should be passed to a ruby require statement.
+
+Store backends can be configured through the `store_options` configuration.
+
+#### Moneta backends
+
 Trocla can store your passwords in all backends supported by moneta. A simple YAML file configuration may look as follows:
 
 ```YAML
-adapter: :YAML
-adapter_options:
+store_options:
+  adapter: :YAML
+  adapter_options:
     :file: '/tmp/trocla.yaml'
 ```
 
 In environments with multiple Puppet masters using an existing DB cluster might make sense. The configured user needs to be granted at least SELECT, INSERT, UPDATE, DELETE and CREATE permissions on your database:
 
 ```YAML
-adapter: :Sequel
-adapter_options:
+store_options:
+  adapter: :Sequel
+  adapter_options:
     :db: 'mysql://db.server.name'
     :user: 'trocla'
     :password: '***'
@@ -246,19 +263,22 @@ Required configuration to enable ssl based encryption of all passwords:
 
 ```YAML
 encryption: :ssl
-ssl_options:
+encryption_options:
     :private_key: '/var/lib/puppet/ssl/private_keys/trocla.pem'
     :public_key: '/var/lib/puppet/ssl/public_keys/trocla.pem'
 ```
 
 ## Update & Changes
 
-### to 0.2
+### to 0.2.0
 
 1. Feature: Introduce profiles
 1. Increase default password length to 16
 1. Add a console safe password charset that should provide a subset of chars that easier to type on a physical keyboard.
 1. Fix a bug with encryptions when deleting all formats
+1. Introduce pluggable stores, so we can talk to other backends and not only moneta in the future
+1. CHANGE: moneta adapter & adapter_options now live under store_options in the configuration file. Till 0.3.0 old configuration entries will be migrated on the fly.
+1. CHANGE: ssl_options is now known as encryption_options. Till 0.3.0 old configuration entries will be migrated on the fly.
 
 ### to 0.1.3
 

@@ -1,6 +1,8 @@
 ---
-adapter: :YAML
-adapter_options:
+store: :moneta
+store_options:
+  adapter: :YAML
+  adapter_options:
     :file: '/tmp/trocla.yaml'
 
 encryption: :none

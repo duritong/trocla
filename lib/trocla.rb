@@ -2,6 +2,7 @@ require 'trocla/version'
 require 'trocla/util'
 require 'trocla/formats'
 require 'trocla/encryptions'
+require 'trocla/stores'
 
 class Trocla
   def initialize(config_file=nil)
@@ -30,41 +31,36 @@ class Trocla
     plain_pwd = get_password(key,'plain')
     if options['random'] && plain_pwd.nil?
       plain_pwd = Trocla::Util.random_str(options['length'].to_i,options['charset'])
-      set_password(key,'plain',plain_pwd) unless format == 'plain'
+      set_password(key,'plain',plain_pwd,options) unless format == 'plain'
     elsif !options['random'] && plain_pwd.nil?
       raise "Password must be present as plaintext if you don't want a random password"
     end
-    set_password(key,format,self.formats(format).format(plain_pwd,options))
+    set_password(key,format,self.formats(format).format(plain_pwd,options),options)
   end
 
   def get_password(key, format)
-    decrypt(store.fetch(key, {})[format])
+    decrypt(store.get(key,format))
   end
 
   def reset_password(key,format,options={})
-    set_password(key,format,nil)
+    set_password(key,format,nil,options)
     password(key,format,options)
   end
 
   def delete_password(key,format=nil)
-    if format.nil?
-      Hash[*store.delete(key).map do |format,encrypted_value|
-        [format,decrypt(encrypted_value)]
+    v = store.delete(key,format)
+    if v.is_a?(Hash)
+      Hash[*v.map do |f,encrypted_value|
+        [f,decrypt(encrypted_value)]
       end.flatten]
     else
-      old_val = (h = store.fetch(key,{})).delete(format)
-      h.empty? ? store.delete(key) : store[key] = h
-      decrypt(old_val)
+      decrypt(v)
     end
   end
 
-  def set_password(key,format,password)
-    if (format == 'plain')
-      h = (store[key] = { 'plain' => encrypt(password) })
-    else
-      h = (store[key] = store.fetch(key,{}).merge({ format => encrypt(password) }))
-    end
-    decrypt h[format]
+  def set_password(key,format,password,options={})
+    store.set(key,format,encrypt(password),options)
+    password
   end
 
   def formats(format)
@@ -72,7 +68,7 @@ class Trocla
   end
 
   def encryption
-    @encryption ||= Trocla::Encryptions[config['encryption']].new(self)
+    @encryption ||= Trocla::Encryptions[config['encryption']].new(config['encryption_options'],self)
   end
 
   def config
@@ -85,9 +81,14 @@ class Trocla
   end
 
   def build_store
-    require 'moneta'
-    lconfig = config
-    Moneta.new(lconfig['adapter'], lconfig['adapter_options']||{})
+    s = config['store']
+    clazz = if s.is_a?(Symbol)
+      Trocla::Stores[s]
+    else
+      require config['store_require'] if config['store_require']
+      eval(s)
+    end
+    clazz.new(config['store_options'],self)
   end
 
   def read_config
@@ -97,6 +98,11 @@ class Trocla
       raise "Configfile #{@config_file} does not exist!" unless File.exists?(@config_file)
       c = default_config.merge(YAML.load(File.read(@config_file)))
       c['profiles'] = default_config['profiles'].merge(c['profiles'])
+      # migrate all options to new store options
+      # TODO: remove workaround in 0.3.0
+      c['store_options']['adapter'] = c['adapter'] if c['adapter']
+      c['store_options']['adapter_options'] = c['adapter_options'] if c['adapter_options']
+      c['encryption_options'] = c['ssl_options'] if c['ssl_options']
       c
     end
   end

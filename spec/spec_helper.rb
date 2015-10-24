@@ -9,10 +9,6 @@ require 'trocla'
 # in ./support/ and its subdirectories.
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 
-RSpec.configure do |config|
-
-end
-
 RSpec.shared_examples "encryption_basics" do
   describe 'storing' do
     it "random passwords" do
@@ -78,41 +74,87 @@ RSpec.shared_examples "verify_encryption" do
   end
 end
 
+RSpec.shared_examples 'store_validation' do |store|
+  describe '.get' do
+    it { expect(store.get('some_key','plain')).to be_nil }
+  end
+  describe '.set' do
+    it 'stores nil values' do
+      store.set('some_nil_value','plain',nil)
+      expect(store.get('some_nil_value','plain')).to be_nil
+    end
+    it 'stores plain format' do
+      store.set('some_value','plain','value')
+      expect(store.get('some_value','plain')).to eql('value')
+    end
+    it 'stores other formats' do
+      store.set('some_value','foo','bla')
+      expect(store.get('some_value','foo')).to eql('bla')
+    end
+    it 'resets other formats on setting plain' do
+      store.set('some_value','foo','bla')
+      store.set('some_value','plain','value')
+      expect(store.get('some_value','plain')).to eql('value')
+      expect(store.get('some_value','foo')).to be_nil
+    end
+  end
+  describe '.delete' do
+    it { expect(store.delete('something','foo')).to be_nil }
+    it { expect(store.delete('something')).to be_empty }
+    it 'deletes the value of a format' do
+      store.set('some_value','foo','bla')
+      expect(store.delete('some_value','foo')).to eql('bla')
+      expect(store.get('some_value','foo')).to be_nil
+    end
+    it 'deletes only the value of a format' do
+      store.set('some_value','plain','value')
+      store.set('some_value','foo','bla')
+      expect(store.delete('some_value','plain')).to eql('value')
+      expect(store.get('some_value','plain')).to be_nil
+      expect(store.get('some_value','foo')).to eql('bla')
+    end
+    it 'deletes all values without a format' do
+      store.set('some_value','plain','value')
+      store.set('some_value','foo','bla')
+      hash = store.delete('some_value')
+      expect(hash).to be_a_kind_of(Hash)
+      expect(hash['plain']).to eql('value')
+      expect(hash['foo']).to eql('bla')
+      expect(store.get('some_value','plain')).to be_nil
+      expect(store.get('some_value','foo')).to be_nil
+    end
+  end
+end
+
 def default_config
   @default_config ||= YAML.load(File.read(File.expand_path(base_dir+'/lib/trocla/default_config.yaml')))
 end
 
 def test_config
-  return @config unless @config.nil?
-  @config = default_config
-  @config.delete('adapter_options')
-  @config['adapter'] = :Memory
-  @config
+  @config ||= default_config.merge({
+    'store' => :memory,
+  })
 end
 
 def test_config_persistent
-  return @config unless @config.nil?
-  @config = default_config
-  @config['adapter'] = :YAML
-  @config['adapter_options'] = {
-    :file => trocla_yaml_file
-  }
-  @config
+  @config ||= default_config.merge({
+    'store_options' => {
+      'adapter'         => :YAML,
+      'adapter_options' => {
+        :file => trocla_yaml_file
+      },
+    },
+  })
 end
 
 def ssl_test_config
-  return @ssl_config unless @ssl_config.nil?
-  @ssl_config = test_config
-  @ssl_config['encryption'] = :ssl
-  @ssl_config['ssl_options'] = {
-    :private_key => data_dir('trocla.key'),
-    :public_key  => data_dir('trocla.pub')
-  }
-  @ssl_config['adapter'] = :YAML
-  @ssl_config['adapter_options'] = {
-    :file => trocla_yaml_file
-  }
-  @ssl_config
+  @ssl_config ||= test_config_persistent.merge({
+    'encryption' => :ssl,
+    'encryption_options' => {
+      :private_key => data_dir('trocla.key'),
+      :public_key  => data_dir('trocla.pub'),
+    },
+  })
 end
 
 def base_dir

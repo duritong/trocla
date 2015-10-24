@@ -38,10 +38,6 @@ class Trocla::Encryptions::Ssl < Trocla::Encryptions::Base
       end
   end
 
-  def config
-    @config ||= (@trocla.config['ssl_options']||{})
-  end
-
   def option(key)
     config[key]
   end
