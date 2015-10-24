@@ -4,7 +4,6 @@ require 'trocla/formats'
 require 'trocla/encryptions'
 
 class Trocla
-
   def initialize(config_file=nil)
     if config_file
       @config_file = File.expand_path(config_file)
@@ -71,10 +70,7 @@ class Trocla
   end
 
   def encryption
-    enc = config['encryption']
-    enc ||= :none
-    @encryption ||= Trocla::Encryptions[enc].new(self)
-    @encryption
+    @encryption ||= Trocla::Encryptions[config['encryption']].new(self)
   end
 
   def config

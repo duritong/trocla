@@ -3,6 +3,7 @@ adapter: :YAML
 adapter_options:
     :file: '/tmp/trocla.yaml'
 
+encryption: :none
 options:
     random: true
     length: 16
