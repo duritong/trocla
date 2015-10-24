@@ -48,7 +48,9 @@ class Trocla
 
   def delete_password(key,format=nil)
     if format.nil?
-      decrypt(store.delete(key))
+      Hash[*store.delete(key).map do |format,encrypted_value|
+        [format,decrypt(encrypted_value)]
+      end.flatten]
     else
       old_val = (h = store.fetch(key,{})).delete(format)
       h.empty? ? store.delete(key) : store[key] = h

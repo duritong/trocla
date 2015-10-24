@@ -258,6 +258,7 @@ ssl_options:
 1. Feature: Introduce profiles
 1. Increase default password length to 16
 1. Add a console safe password charset that should provide a subset of chars that easier to type on a physical keyboard.
+1. Fix a bug with encryptions when deleting all formats
 
 ### to 0.1.3
 
