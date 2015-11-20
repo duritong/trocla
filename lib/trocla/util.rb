@@ -21,6 +21,7 @@ class Trocla
           'shellsafe'    => shellsafe,
           'windowssafe'  => windowssafe,
           'numeric'      => numeric,
+          'hexadecimal'  => hexadecimal,
           'consolesafe'  => consolesafe,
         }
       end
@@ -37,8 +38,11 @@ class Trocla
       def consolesafe
         @consolesafe ||= alphanumeric + consolesafe_chars
       end
+      def hexadecimal
+        @hexadecimal ||= numeric + ('a'..'f').to_a
+      end
       def alphanumeric
-        @alphanumeric ||= ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a
+        @alphanumeric ||= ('a'..'z').to_a + ('A'..'Z').to_a + numeric
       end
       def numeric
         @numeric ||= ('0'..'9').to_a

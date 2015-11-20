@@ -23,7 +23,15 @@ describe "Trocla::Util" do
   describe :numeric_generator do
     10.times.each do |i|
       it "should create random numeric password #{i}" do
-        Trocla::Util.random_str(12, 'numeric' ).should =~ /^[0-9]{12}$/
+        Trocla::Util.random_str(12, 'numeric').should =~ /^[0-9]{12}$/
+      end
+    end
+  end
+
+  describe :hexadecimal_generator do
+    10.times.each do |i|
+      it "should create random hexadecimal password #{i}" do
+        Trocla::Util.random_str(12, 'hexadecimal').should =~ /^[0-9a-f]{12}$/
       end
     end
   end

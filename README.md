@@ -279,6 +279,8 @@ encryption_options:
 1. Introduce pluggable stores, so we can talk to other backends and not only moneta in the future
 1. CHANGE: moneta adapter & adapter_options now live under store_options in the configuration file. Till 0.3.0 old configuration entries will be migrated on the fly.
 1. CHANGE: ssl_options is now known as encryption_options. Till 0.3.0 old configuration entries will be migrated on the fly.
+1. Improve randomness when creating a serial number
+1. Add a new charset: hexadecimal
 
 ### to 0.1.3
 

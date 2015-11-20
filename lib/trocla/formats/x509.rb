@@ -140,7 +140,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
   end
 
   def getserial(ca)
-    newser = Trocla::Util.random_str(20,'numeric').to_i
+    newser = Trocla::Util.random_str(20,'hexadecimal').to_i(16)
     all_serials(ca).include?(newser) ? getserial(ca) : newser
   end
 
