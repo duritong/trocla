@@ -15,15 +15,18 @@ class Trocla
       private
 
       def charsets
-        @charsets ||= {
-          'default'      => chars,
-          'alphanumeric' => alphanumeric,
-          'shellsafe'    => shellsafe,
-          'windowssafe'  => windowssafe,
-          'numeric'      => numeric,
-          'hexadecimal'  => hexadecimal,
-          'consolesafe'  => consolesafe,
-        }
+        @charsets ||= begin
+          h = {
+            'default'      => chars,
+            'alphanumeric' => alphanumeric,
+            'shellsafe'    => shellsafe,
+            'windowssafe'  => windowssafe,
+            'numeric'      => numeric,
+            'hexadecimal'  => hexadecimal,
+            'consolesafe'  => consolesafe,
+          }
+          h.each { |k, v| h[k] = v.uniq }
+        end
       end
 
       def chars

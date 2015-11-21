@@ -70,7 +70,7 @@ describe "Trocla" do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['mysql','login'])
         pwd.should_not be_empty
         pwd.length.should eql(32)
-        pwd.should =~ /[={}\[\]\?%\*()&!\,\+\.]+/
+        pwd.should =~ /[+%\/@=\?_.,:]+/
       end
     end
   end
