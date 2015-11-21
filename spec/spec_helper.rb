@@ -124,6 +124,104 @@ RSpec.shared_examples 'store_validation' do |store|
       expect(store.get('some_value','foo')).to be_nil
     end
   end
+  describe 'expiration' do
+    it 'will not return an expired key' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to be_nil
+    end
+    it 'increases expiration when setting anything for that key' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 1
+      store.set('some_expiring_value','bla','bla_to_be_expired',{ 'expires' => 3 })
+      sleep 2
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 2
+      expect(store.get('some_expiring_value','plain')).to be_nil
+    end
+    it 'keeps expiration when setting another value' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 2 })
+      store.set('some_expiring_value','foo','to_be_expired_foo')
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to be_nil
+      expect(store.get('some_expiring_value','foo')).to be_nil
+    end
+    it 'setting plain clears everything including expiration' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 2 })
+      sleep 1
+      store.set('some_expiring_value','plain','to_be_expired2')
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+    end
+    it 'extends expiration when setting another value' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 4 })
+      sleep 2
+      store.set('some_expiring_value','foo','to_be_expired_foo')
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 2
+      expect(store.get('some_expiring_value','plain')).to be_nil
+    end
+    it 'extends expiration when deleting a format' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 4 })
+      store.set('some_expiring_value','foo','to_be_expired2')
+      sleep 2
+      expect(store.delete('some_expiring_value','foo')).to eql('to_be_expired2')
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 2
+      expect(store.get('some_expiring_value','plain')).to be_nil
+    end
+    it 'keeps expiration although we\'re fetching a value' do
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 3 })
+      sleep 2
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+      sleep 2
+      expect(store.get('some_expiring_value','plain')).to be_nil
+    end
+    it 'readding a value with an expiration makes it expiring in the future' do
+      store.set('some_expiring_value','plain','to_be_expired')
+      store.set('some_expiring_value','plain','to_be_expired2',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to be_nil
+    end
+    it 'setting an expires of false removes expiration' do
+      store.set('some_expiring_value','plain','to_be_expired2',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => false })
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+    end
+    it 'setting an expires of 0 removes expiration' do
+      store.set('some_expiring_value','plain','to_be_expired2',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      store.set('some_expiring_value','plain','to_be_expired',{ 'expires' => 0 })
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired')
+    end
+    it 'setting an expires of false removes expiration even if it\'s for a different format' do
+      store.set('some_expiring_value','plain','to_be_expired2',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      store.set('some_expiring_value','foo','to_be_expired_foo',{ 'expires' => false })
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      expect(store.get('some_expiring_value','foo')).to eql('to_be_expired_foo')
+    end
+    it 'setting an expires of 0 removes expiration even if it\'s for a different format' do
+      store.set('some_expiring_value','plain','to_be_expired2',{ 'expires' => 2 })
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      store.set('some_expiring_value','foo','to_be_expired_foo',{ 'expires' => 0 })
+      sleep 3
+      expect(store.get('some_expiring_value','plain')).to eql('to_be_expired2')
+      expect(store.get('some_expiring_value','foo')).to eql('to_be_expired_foo')
+    end
+  end
 end
 
 def default_config

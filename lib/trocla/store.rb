@@ -9,6 +9,7 @@ class Trocla::Store
   # should return value for key & format
   # returns nil if nothing or a nil value
   # was found.
+  # If a key is expired it must return nil.
   def get(key,format)
     raise 'not implemented'
   end
@@ -18,7 +19,14 @@ class Trocla::Store
   # all other formats as they should either
   # be derived from plain or set directly.
   # options is a hash containing further
-  # information for the store. e.g. timeouts
+  # information for the store. e.g. expiration
+  # of a key. Keys can have an expiration /
+  # timeout by setting `expires` within
+  # the options hashs. Value of `expires`
+  # must be an integer indicating the
+  # amount of seconds a key can live with.
+  # This mechanism is expected to be
+  # be implemented by the backend.
   def set(key,format,value,options={})
     if format == 'plain'
       set_plain(key,value,options)

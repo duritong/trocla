@@ -4,8 +4,10 @@ class Trocla::Stores::Moneta < Trocla::Store
   def initialize(config,trocla)
     super(config,trocla)
     require 'moneta'
-    @moneta = Moneta.new(store_config['adapter'],
-                         store_config['adapter_options']||{})
+    # load expire support by default
+    adapter_options = { :expires => true }.merge(
+                          store_config['adapter_options']||{})
+    @moneta = Moneta.new(store_config['adapter'],adapter_options)
   end
 
   def get(key,format)
@@ -14,11 +16,22 @@ class Trocla::Stores::Moneta < Trocla::Store
 
   private
   def set_plain(key,value,options)
-    moneta[key] = { 'plain' => value }
+    h = { 'plain' => value }
+    mo = moneta_options(key,options)
+    if options['expires'] && options['expires'] > 0
+      h['_expires'] = options['expires']
+    else
+      # be sure that we disable the existing
+      # expires if nothing is set.
+      mo[:expires] = false
+    end
+    moneta.store(key,h,mo)
   end
 
   def set_format(key,format,value,options)
-    moneta[key] = moneta.fetch(key,{}).merge({ format => value })
+    moneta.store(key,
+                 moneta.fetch(key,{}).merge({ format => value }),
+                 moneta_options(key,options))
   end
 
   def delete_all(key)
@@ -26,7 +39,16 @@ class Trocla::Stores::Moneta < Trocla::Store
   end
   def delete_format(key,format)
     old_val = (h = moneta.fetch(key,{})).delete(format)
-    h.empty? ? moneta.delete(key) : moneta[key] = h
+    h.empty? ? moneta.delete(key) : moneta.store(key,h,moneta_options(key,{}))
     old_val
+  end
+  def moneta_options(key,options)
+    res = {}
+    if options.key?('expires')
+      res[:expires] = options['expires']
+    elsif e = moneta.fetch(key, {})['_expires']
+      res[:expires] = e
+    end
+    res
   end
 end
