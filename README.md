@@ -27,7 +27,7 @@ while the plain password is not anymore stored on the server.
 Be default trocla uses moneta to store the passwords and can use any kind of
 key/value based storage supported by moneta for trocla. By default it uses a
 simple yaml file.
-However, since version 0.2.0 trocla also supports a pluggable store backend
+However, since version 0.2.0 trocla also supports a pluggable storage backend
 which allows you to write your custom backend. See more about stores below.
 
 ## Usage
@@ -66,6 +66,7 @@ Valid global options are:
 * charset: (default|alphanumeric|shellsafe) - Which set of chars should be used for a random password? Default: default - or whatever you define in your global settings.
 * profiles: a profile name or an array of profiles matching a profile_name in your configuration. Learn more about profiles below.
 * random: boolean - Whether we allow creation of random passwords or we expect a password to be preset. Default: true - or whatever you define in your global settings.
+* expires: An integer indicating the amount of seconds a value (e.g. password) is available. After expiration a value will not be available anymore and trying to `get` this key will return no value (nil). Meaning that calling create after expiration, would create a new password automatically. There is more about expiration in the storage backends section.
 
 Example:
 
@@ -227,9 +228,20 @@ The backend is chosen based on the `store` configuration option. If it is a symb
 
 Store backends can be configured through the `store_options` configuration.
 
+#### Expiration
+
+We expect storage backends to implement support for the `expires` option, so that keys expire after the passed amount of seconds. Furthermore a storage backend needs to implement the behaviour described by the rspec shared_example 'store_validation' section 'expiration'. Mainly:
+
+* Expiration is always for all formats per key.
+* Adding, deleting or updating a format will keep the existing expiration, but reset the planned expiration.
+* While setting a new plain format will not only erase all other formats, but also erase/reset any expires.
+* Setting a value with an expires option of 0 or false, will remove any existent expiration.
+
+New backends should be tested using the provided shared example.
+
 #### Moneta backends
 
-Trocla can store your passwords in all backends supported by moneta. A simple YAML file configuration may look as follows:
+Trocla uses moneta as its default storage backend and hence can store your passwords in any of moneta's supported backends. By default it uses the yaml backend, which is configured as followed:
 
 ```YAML
 store_options:
@@ -251,15 +263,16 @@ store_options:
     :table: 'trocla'
 ```
 
-These examples are by no way complete, moneta has much more to offer.
+These examples are by no way complete, moneta has much more to offer. Please have a look at [moneta's documentation](https://github.com/minad/moneta/blob/master/README.md) for further information.
 
 ### Backend encryption
 
-You might want to let Trocla encrypt all your passwords, at the moment the only supported way is SSL. By default trocla does not encrypt any passwords stored on the disk.
+By default trocla does not encrypt anything it stores. You might want to let Trocla encrypt all your passwords, at the moment the only supported way is SSL.
+Given that often trocla's store is on the same system at it's being used, there might be little sense to encrypt everything while the encryption keys are on the same system. However, if you are for example using an existing DB cluster using backend encryption you won't store any plaintext passwords within the database system.
 
 ### Backend SSL encryption
 
-Required configuration to enable ssl based encryption of all passwords:
+To enable SSL encryption (e.g. by using your puppet masters SSL keys), you need to set the following configuration options:
 
 ```YAML
 encryption: :ssl
@@ -272,14 +285,15 @@ encryption_options:
 
 ### to 0.2.0
 
-1. Feature: Introduce profiles
-1. Increase default password length to 16
-1. Add a console safe password charset that should provide a subset of chars that easier to type on a physical keyboard.
-1. Fix a bug with encryptions when deleting all formats
-1. Introduce pluggable stores, so we can talk to other backends and not only moneta in the future
-1. CHANGE: moneta adapter & adapter_options now live under store_options in the configuration file. Till 0.3.0 old configuration entries will be migrated on the fly.
-1. CHANGE: ssl_options is now known as encryption_options. Till 0.3.0 old configuration entries will be migrated on the fly.
-1. Improve randomness when creating a serial number
+1. New feature profiles: Introduce profiles to make it easy to have a default set of properties. See the profiles section for more information.
+1. New feature expiration: Make it possible that keys can have an expiration. See the expiration section for more information.
+1. Increase default password length to 16.
+1. Add a console safe password charset. It should provide a subset of chars that are easier to type on a physical keyboard.
+1. Fix a bug with encryptions while deleting all formats.
+1. Introduce pluggable stores, so in the future we are able to talk to different backends and not only moneta. For testing and inspiration a simple in memory storage backend was added.
+1. CHANGE: moneta's configuration for `adapter` & `adapter_options` now live under store_options in the configuration file. Till 0.3.0 old configuration entries will still be accepted.
+1. CHANGE: ssl_options is now known as encryption_options. Till 0.3.0 old configuration entries will still be accepted.
+1. Improve randomness when creating a serial number.
 1. Add a new charset: hexadecimal
 
 ### to 0.1.3
