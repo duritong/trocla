@@ -18,7 +18,7 @@ of hashed passwords through an easy extendible plugin system.
 It is not necessary to store the plain password on the server, you can also
 just feed trocla with the hashed password and use that in your other tools.
 A common example for that is that you let puppet retrieve (and hence create)
-a salted md5 password for a user. This will then store the salted md5 of
+a salted sha512 password for a user. This will then store the salted sha512 of
 a random password AND the plain text password in trocla. Later you can
 retrieve (by deleting) the plain password and send it to the user. Puppet
 will still simply retrieve the hashed password that is stored in trocla,
@@ -29,6 +29,8 @@ key/value based storage supported by moneta for trocla. By default it uses a
 simple yaml file.
 However, since version 0.2.0 trocla also supports a pluggable storage backend
 which allows you to write your custom backend. See more about stores below.
+
+Trocla can also be integrated into [Hiera](https://docs.puppetlabs.com/hiera/) by using ZeroPointEnergy's [hiera-backend](https://github.com/ZeroPointEnergy/hiera-backend-trocla).
 
 ## Usage
 
