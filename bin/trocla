@@ -9,12 +9,12 @@ require 'yaml'
 options = { :config_file => nil, :ask_password => true, :trace => false }
 
 OptionParser.new do |opts|
-  opts.on("--version", "-V", "Version information") do
+  opts.on('--version', '-V', 'Version information') do
     puts Trocla::VERSION::STRING
     exit
   end
 
-  opts.on("--config CONFIG", "-c", "Configuration file") do |v|
+  opts.on('--config CONFIG', '-c', 'Configuration file') do |v|
     if File.exist?(v)
       options[:config_file] = v
     else
@@ -23,23 +23,23 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on("--trace", "Show stack trace on failure") do
+  opts.on('--trace', 'Show stack trace on failure') do
     options[:trace] = true
   end
 
-  opts.on("--no-random") do
+  opts.on('--no-random', 'Do not generate a random password if there is no plain text password available') do
     options['random'] = false
   end
 
-  opts.on("--no-format", 'Do not format a password when setting it using `set`') do
+  opts.on('--no-format', 'Do not format a password when setting it using `set`') do
     options['no_format'] = true
   end
 
-  opts.on("--length LENGTH") do |v|
+  opts.on('--length LENGTH', 'Length for a randomly created password') do |v|
     options['length'] = v.to_i
   end
 
-  opts.on("--password [PASSWORD]", "-p", "Provide password at command line") do |pass|
+  opts.on('--password [PASSWORD]', '-p', 'Provide password at command line or STDIN') do |pass|
     options[:ask_password] = false
     options[:password] = pass
   end
@@ -63,10 +63,10 @@ end
 def set(options)
   if options.delete(:ask_password)
     require 'highline/import'
-    password = ask("Enter your password: ") { |q| q.echo = "x" }.to_s
-    pwd2 = ask("Repeat password: ") { |q| q.echo = "x" }.to_s
+    password = ask('Enter your password: ') { |q| q.echo = 'x' }.to_s
+    pwd2 = ask('Repeat password: ') { |q| q.echo = 'x' }.to_s
     unless password == pwd2
-      STDERR.puts "Passwords did not match, exiting!"
+      STDERR.puts 'Passwords did not match, exiting!'
       exit 1
     end
   else
@@ -85,7 +85,7 @@ def set(options)
     format,
     value
   )
-  ""
+  ''
 end
 
 def reset(options)
@@ -109,7 +109,7 @@ end
 
 def check_format(format_name)
   if format_name.nil?
-    STDERR.puts "Missing format, exiting..."
+    STDERR.puts 'Missing format, exiting...'
     exit 1
   elsif !Trocla::Formats.available?(format_name)
     STDERR.puts "Error: The format #{format_name} is not available"
@@ -131,13 +131,14 @@ if (action=ARGV.shift) && actions.include?(action)
     rescue Exception => e
       unless e.message == 'exit'
         STDERR.puts "Action failed with the following message: #{e.message}"
-        STDERR.puts "(See full trace by running task with --trace)"
+        STDERR.puts '(See full trace by running task with --trace)'
       end
       raise e if options[:trace]
       exit 1
     end
 else
     STDERR.puts "Please supply one of the following actions: #{actions.join(', ')}"
+    STDERR.puts "Use #{$0} --help to get a list of options for these actions"
     exit 1
 end
 
