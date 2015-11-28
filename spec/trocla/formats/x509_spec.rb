@@ -118,7 +118,9 @@ describe "Trocla::Format::X509" do
 
     it 'should support simple name constraints for CAs' do
       ca2_str = @trocla.password('mycert_with_nc', 'x509', cert_options.merge({
-        'name_constraints' => ['.example.com'],
+        # TODO: reintroduce leading dot if openssl versions supporting that
+        # are more mainstream.
+        'name_constraints' => ['example.com'],
         'become_ca' => true,
       }))
       ca2 = OpenSSL::X509::Certificate.new(ca2_str)
@@ -131,7 +133,7 @@ describe "Trocla::Format::X509" do
       expect(ku).to match(/Certificate Sign/)
       expect(ku).to match(/CRL Sign/)
       nc = ca2.extensions.find{|e| e.oid == 'nameConstraints' }.value
-      expect(nc).to match(/Permitted:\n  DNS:.example.com/)
+      expect(nc).to match(/Permitted:\n  DNS:example.com/)
       valid_cert_str = @trocla.password('myvalidexamplecert','x509', {
         'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.com/emailAddress=example@example.com',
         'ca' => 'mycert_with_nc'

@@ -197,7 +197,9 @@ Additional options are:
     name_constraints  An array of domains that are added as permitted x509 NameConstraint.
                       By default, we do not add any contraint, meaning all domains are
                       signable by the CA, as soon as we have one item in the list, only
-                      DNS entries matching this list are allowed.
+                      DNS entries matching this list are allowed. Be aware, that older
+                      openssl versions have a bug with [leading dots](https://rt.openssl.org/Ticket/Display.html?id=3562) for name
+                      constraints. So using them might not work everywhere as expected.
 
 ## Installation
 
