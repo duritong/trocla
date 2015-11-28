@@ -94,15 +94,22 @@ far.
     trocla set user3 plain
 
 This will ask you for a password and set it under the appropriate key/format.
+We expect a plain password to be entered and will format the password with
+the selected format before storing it.
 
     trocla set --password mysupersecretpassword user4 plain
 
 This will take the password from the cli without asking you.
 
-    trocla set user5 mysql -p *ABC....
+    trocla set user5 mysql -p mysuperdbpassword
 
 This will store a mysql sha1 hash for the key user5, without storing any kind
 of plain text password.
+If you like trocla not to format a password, as you are passing in an already
+formatted password (like the sha512 hash), then you must use `--no-format` to
+skip formatting. Like:
+
+    trocla set user5 sha512crypt --no-format -p '$6$1234$xxxx....'
 
 You can also pipe in a password:
 
@@ -302,6 +309,7 @@ encryption_options:
 1. Improve randomness when creating a serial number.
 1. Add a new charset: hexadecimal
 1. Add support for name constraints within the x509 format
+1. Clarify documentation of the set action, as well as introduce `--no-format` for the set action.
 
 ### to 0.1.3
 

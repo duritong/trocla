@@ -31,6 +31,10 @@ OptionParser.new do |opts|
     options['random'] = false
   end
 
+  opts.on("--no-format", 'Do not format a password when setting it using `set`') do
+    options['no_format'] = true
+  end
+
   opts.on("--length LENGTH") do |v|
     options['length'] = v.to_i
   end
@@ -69,11 +73,17 @@ def set(options)
     password = options.delete(:password) || STDIN.read.chomp
   end
   format = options.delete(:trocla_format)
+  no_format = options.delete('no_format')
   trocla = Trocla.new(options.delete(:config_file))
+  value = if no_format
+    password
+  else
+    trocla.formats(format).format(password, options.delete(:other_options).shift.to_s)
+  end
   trocla.set_password(
     options.delete(:trocla_key),
     format,
-    trocla.formats(format).format(password, options.delete(:other_options).shift.to_s)
+    value
   )
   ""
 end
