@@ -7,10 +7,15 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       return plain_password
     end
 
+    cn = nil
     if options['subject']
       subject = options['subject']
+      if cna = OpenSSL::X509::Name.parse(subject).to_a.find{|e| e[0] == 'CN' }
+        cn = cna[1]
+      end
     elsif options['CN']
       subject = ''
+      cn = options['CN']
       ['C','ST','L','O','OU','CN','emailAddress'].each do |field|
         subject << "/#{field}=#{options[field]}" if options[field]
       end
@@ -21,11 +26,20 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     sign_with = options['ca']
     become_ca = options['become_ca'] || false
     keysize = options['keysize'] || 4096
-    days = options['days'].to_i || 365
-    if an = options['altnames']
-      altnames = an.collect { |v| "DNS:#{v}" }.join(', ')
+    days = options['days'].nil? ? 365 : options['days'].to_i
+    name_constraints = Array(options['name_constraints'])
+
+    altnames = if become_ca || (an = options['altnames']) && Array(an).empty?
+      []
     else
-      altnames = nil
+      # ensure that we have the CN with us, but only if it
+      # it's like a hostname.
+      # This might have to be improved.
+      if cn.include?(' ')
+        Array(an).collect { |v| "DNS:#{v}" }.join(', ')
+      else
+        (["DNS:#{cn}"] + Array(an).collect { |v| "DNS:#{v}" }).uniq.join(', ')
+      end
     end
 
     begin
@@ -53,24 +67,24 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       end
 
       begin
-        csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, become_ca)
+        csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, name_constraints, become_ca)
         csr_cert.sign(cakey, signature(hash))
         addserial(sign_with, caserial)
       rescue Exception => e
         raise "Certificate #{subject} signing failed: #{e.message}"
       end
 
-      key.send("to_pem") + csr_cert.send("to_pem")
+      key.to_pem + csr_cert.to_pem
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
-        cert = mkcert(getserial(subj), subj, nil, key.public_key, days, altnames, become_ca)
+        cert = mkcert(getserial(subj), subj, nil, key.public_key, days, altnames, name_constraints, become_ca)
         cert.sign(key, signature(hash))
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
       end
 
-      key.send("to_pem") + cert.send("to_pem")
+      key.to_pem + cert.to_pem
     end
   end
   private
@@ -106,7 +120,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     request
   end
 
-  def mkcert(serial,subject,issuer,public_key,days,altnames, become_ca = false)
+  def mkcert(serial,subject,issuer,public_key,days,altnames, name_constraints = [], become_ca = false)
     cert = OpenSSL::X509::Certificate.new
     issuer = cert if issuer == nil
     cert.subject = subject
@@ -125,11 +139,14 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     if become_ca
       cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true)
       cert.add_extension ef.create_extension("keyUsage", "keyCertSign, cRLSign, nonRepudiation, digitalSignature, keyEncipherment", true)
+      if name_constraints && !name_constraints.empty?
+        cert.add_extension ef.create_extension("nameConstraints","permitted;DNS:#{name_constraints.join(',permitted;DNS:')}",true)
+      end
     else
+      cert.add_extension ef.create_extension("subjectAltName", altnames, true) unless altnames.empty?
       cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true)
       cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
     end
-    cert.add_extension ef.create_extension("subjectAltName", altnames, true) if altnames
     cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 
     cert

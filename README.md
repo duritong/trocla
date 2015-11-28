@@ -168,21 +168,27 @@ This format takes a set of additional options. Required are:
 
 Additional options are:
 
-    ca           The trocla key of CA (imported into or generated within trocla) that
-                 will be used to sign that certificate.
-    become_ca    Whether the certificate should become a CA or not. Default: false,
-                 to enable set it to true.
-    hash         Hash to be used. Default sha2
-    keysize      Keysize for the new key. Default is: 4096
-    serial       Serial to be used, default is selecting a random one.
-    days         How many days should the certificate be valid. Default 365
-    C            instead within the subject string
-    ST           instead within the subject string
-    L            instead within the subject string
-    O            instead within the subject string
-    OU           instead within the subject string
-    emailAddress instead within the subject string
-    altnames     An array of subjectAltNames
+    ca                The trocla key of CA (imported into or generated within trocla) that
+                      will be used to sign that certificate.
+    become_ca         Whether the certificate should become a CA or not. Default: false,
+                      to enable set it to true.
+    hash              Hash to be used. Default sha2
+    keysize           Keysize for the new key. Default is: 4096
+    serial            Serial to be used, default is selecting a random one.
+    days              How many days should the certificate be valid. Default 365
+    C                 instead within the subject string
+    ST                instead within the subject string
+    L                 instead within the subject string
+    O                 instead within the subject string
+    OU                instead within the subject string
+    emailAddress      instead within the subject string
+    altnames          An array of subjectAltNames. By default for non CA certificates we
+                      ensure that the CN ends up here as well. If you don't want that.
+                      You need to pass an empty array.
+    name_constraints  An array of domains that are added as permitted x509 NameConstraint.
+                      By default, we do not add any contraint, meaning all domains are
+                      signable by the CA, as soon as we have one item in the list, only
+                      DNS entries matching this list are allowed.
 
 ## Installation
 
@@ -295,6 +301,7 @@ encryption_options:
 1. CHANGE: ssl_options is now known as encryption_options. Till 0.3.0 old configuration entries will still be accepted.
 1. Improve randomness when creating a serial number.
 1. Add a new charset: hexadecimal
+1. Add support for name constraints within the x509 format
 
 ### to 0.1.3
 
