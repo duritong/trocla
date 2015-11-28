@@ -42,7 +42,7 @@ describe "Trocla::Format::X509" do
       # default size
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
       expect(cert.public_key.n.num_bytes * 8).to eq(4096)
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       # it's a self signed cert and NOT a CA
       expect(verify(cert,cert)).to be false
 
@@ -60,7 +60,7 @@ describe "Trocla::Format::X509" do
       ca = OpenSSL::X509::Certificate.new(ca_str)
       # selfsigned?
       expect(ca.issuer.to_s).to eq(ca.subject.to_s)
-      expect((ca.not_after.to_date - Date.today).to_i).to eq(365)
+      expect((Date.parse(ca.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(ca,ca)).to be true
 
       v = ca.extensions.find{|e| e.oid == 'basicConstraints' }.value
@@ -80,7 +80,7 @@ describe "Trocla::Format::X509" do
       cert_str = @trocla.password('mycert', 'x509', cert_options)
       cert = OpenSSL::X509::Certificate.new(cert_str)
       expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
 
       v = cert.extensions.find{|e| e.oid == 'basicConstraints' }.value
@@ -106,8 +106,8 @@ describe "Trocla::Format::X509" do
         'become_ca' => true,
       }))
       cert = OpenSSL::X509::Certificate.new(cert_str)
-      expect(cert.issuer).to eq(@ca.subject)
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
 
       expect(cert.extensions.find{|e| e.oid == 'basicConstraints' }.value).to eq('CA:TRUE')
@@ -122,8 +122,8 @@ describe "Trocla::Format::X509" do
         'become_ca' => true,
       }))
       ca2 = OpenSSL::X509::Certificate.new(ca2_str)
-      expect(ca2.issuer).to eq(@ca.subject)
-      expect((ca2.not_after.to_date - Date.today).to_i).to eq(365)
+      expect(ca2.issuer.to_s).to eq(@ca.subject.to_s)
+      expect((Date.parse(ca2.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,ca2)).to be true
 
       expect(ca2.extensions.find{|e| e.oid == 'basicConstraints' }.value).to eq('CA:TRUE')
@@ -137,18 +137,18 @@ describe "Trocla::Format::X509" do
         'ca' => 'mycert_with_nc'
       })
       valid_cert = OpenSSL::X509::Certificate.new(valid_cert_str)
-      expect(valid_cert.issuer).to eq(ca2.subject)
+      expect(valid_cert.issuer.to_s).to eq(ca2.subject.to_s)
       expect(verify([@ca,ca2],valid_cert)).to be true
-      expect((valid_cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect((Date.parse(valid_cert.not_after.to_s) - Date.today).to_i).to eq(365)
       false_cert_str = @trocla.password('myfalseexamplecert','x509', {
         'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.net/emailAddress=example@example.com',
         'ca' => 'mycert_with_nc'
       })
 
       false_cert = OpenSSL::X509::Certificate.new(false_cert_str)
-      expect(false_cert.issuer).to eq(ca2.subject)
+      expect(false_cert.issuer.to_s).to eq(ca2.subject.to_s)
       expect(verify([@ca,ca2],false_cert)).to be false
-      expect((false_cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect((Date.parse(false_cert.not_after.to_s) - Date.today).to_i).to eq(365)
     end
 
     it 'should be able to get a cert signed by the ca that is again a ca that is able to sign certs' do
@@ -156,8 +156,8 @@ describe "Trocla::Format::X509" do
         'become_ca' => true,
       }))
       cert = OpenSSL::X509::Certificate.new(cert_str)
-      expect(cert.issuer).to eq(@ca.subject)
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
 
       cert2_str = @trocla.password('mycert', 'x509', {
@@ -166,8 +166,8 @@ describe "Trocla::Format::X509" do
         'become_ca' => true,
       })
       cert2 = OpenSSL::X509::Certificate.new(cert2_str)
-      expect(cert2.issuer).to eq(cert.subject)
-      expect((cert2.not_after.to_date - Date.today).to_i).to eq(365)
+      expect(cert2.issuer.to_s).to eq(cert.subject.to_s)
+      expect((Date.parse(cert2.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify([@ca,cert],cert2)).to be true
     end
 
@@ -188,13 +188,13 @@ describe "Trocla::Format::X509" do
       })
       cert_str = @trocla.password('mycert', 'x509', co)
       cert = OpenSSL::X509::Certificate.new(cert_str)
-      expect(cert.issuer).to eq(@ca.subject)
+      expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
       ['C','ST','L','O','OU','CN','emailAddress'].each do |field|
         expect(cert.subject.to_s).to match(/#{field}=#{co[field]}/)
       end
       expect(cert.signature_algorithm).to eq('sha1WithRSAEncryption')
       expect(cert.not_before).to be < Time.now
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(3650)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(3650)
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
       expect(cert.public_key.n.num_bytes * 8).to eq(2048)
       expect(verify(@ca,cert)).to be true
@@ -213,8 +213,8 @@ describe "Trocla::Format::X509" do
       })
       cert_str = @trocla.password('mycert', 'x509', co)
       cert = OpenSSL::X509::Certificate.new(cert_str)
-      expect(cert.issuer).to eq(@ca.subject)
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
       expect(cert.extensions.find{|e| e.oid == 'subjectAltName' }).to be_nil
     end
@@ -234,7 +234,7 @@ describe "Trocla::Format::X509" do
       ['C','ST','L','O','OU','CN','emailAddress'].each do |field|
         expect(cert.subject.to_s).not_to match(/#{field}=#{co[field]}/)
       end
-      expect((cert.not_after.to_date - Date.today).to_i).to eq(365)
+      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
     end
   end
