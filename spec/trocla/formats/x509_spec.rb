@@ -31,7 +31,7 @@ describe "Trocla::Format::X509" do
   end
 
   describe "x509 selfsigned" do
-    it "should be able to create self signed cert without being a ca by default" do
+    it "is able to create self signed cert without being a ca by default" do
       cert_str = @trocla.password('my_shiny_selfsigned_ca', 'x509', {
         'CN'        => 'This is my self-signed certificate',
         'become_ca' => false,
@@ -55,7 +55,7 @@ describe "Trocla::Format::X509" do
       expect(ku).not_to match(/CRL Sign/)
     end
 
-    it "should be able to create a self signed cert that is a CA" do
+    it "is able to create a self signed cert that is a CA" do
       ca_str = @trocla.password('my_shiny_selfsigned_ca', 'x509', ca_options)
       ca = OpenSSL::X509::Certificate.new(ca_str)
       # selfsigned?
@@ -76,7 +76,7 @@ describe "Trocla::Format::X509" do
       ca_str = @trocla.password('my_shiny_selfsigned_ca', 'x509', ca_options)
       @ca = OpenSSL::X509::Certificate.new(ca_str)
     end
-    it 'should be able to get a cert signed by the ca' do
+    it 'is able to get a cert signed by the ca' do
       cert_str = @trocla.password('mycert', 'x509', cert_options)
       cert = OpenSSL::X509::Certificate.new(cert_str)
       expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
@@ -90,7 +90,7 @@ describe "Trocla::Format::X509" do
       expect(ku).not_to match(/CRL Sign/)
     end
 
-    it 'should not simply increment the serial' do
+    it 'does not simply increment the serial' do
       cert_str = @trocla.password('mycert', 'x509', cert_options)
       cert1 = OpenSSL::X509::Certificate.new(cert_str)
       cert_str = @trocla.password('mycert2', 'x509', cert_options)
@@ -101,7 +101,7 @@ describe "Trocla::Format::X509" do
       expect((cert2.serial - cert1.serial).to_i).not_to eq(1)
     end
 
-    it 'should be able to get a cert signed by the ca that is again a ca' do
+    it 'is able to get a cert signed by the ca that is again a ca' do
       cert_str = @trocla.password('mycert', 'x509', cert_options.merge({
         'become_ca' => true,
       }))
@@ -116,24 +116,26 @@ describe "Trocla::Format::X509" do
       expect(ku).to match(/CRL Sign/)
     end
 
-    it 'should support simple name constraints for CAs' do
+    it 'supports simple name constraints for CAs' do
       ca2_str = @trocla.password('mycert_with_nc', 'x509', cert_options.merge({
-        # TODO: reintroduce leading dot if openssl versions supporting that
-        # are more mainstream.
-        'name_constraints' => ['example.com'],
+        'name_constraints' => ['example.com','bla.example.net'],
         'become_ca' => true,
       }))
       ca2 = OpenSSL::X509::Certificate.new(ca2_str)
       expect(ca2.issuer.to_s).to eq(@ca.subject.to_s)
       expect((Date.parse(ca2.not_after.to_s) - Date.today).to_i).to eq(365)
-      expect(verify(@ca,ca2)).to be true
+      pending_for(:engine => 'jruby',:reason => 'NameConstraints verification seem to be broken in jRuby: https://github.com/jruby/jruby/issues/3502') do
+        expect(verify(@ca,ca2)).to be true
+      end
 
       expect(ca2.extensions.find{|e| e.oid == 'basicConstraints' }.value).to eq('CA:TRUE')
       ku = ca2.extensions.find{|e| e.oid == 'keyUsage' }.value
       expect(ku).to match(/Certificate Sign/)
       expect(ku).to match(/CRL Sign/)
       nc = ca2.extensions.find{|e| e.oid == 'nameConstraints' }.value
-      expect(nc).to match(/Permitted:\n  DNS:example.com/)
+      pending_for(:engine => 'jruby',:reason => 'NameConstraints verification seem to be broken in jRuby: https://github.com/jruby/jruby/issues/3502') do
+        expect(nc).to match(/Permitted:\n  DNS:example.com\n  DNS:bla.example.net/)
+      end
       valid_cert_str = @trocla.password('myvalidexamplecert','x509', {
         'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.com/emailAddress=example@example.com',
         'ca' => 'mycert_with_nc'
@@ -142,6 +144,7 @@ describe "Trocla::Format::X509" do
       expect(valid_cert.issuer.to_s).to eq(ca2.subject.to_s)
       expect(verify([@ca,ca2],valid_cert)).to be true
       expect((Date.parse(valid_cert.not_after.to_s) - Date.today).to_i).to eq(365)
+
       false_cert_str = @trocla.password('myfalseexamplecert','x509', {
         'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.net/emailAddress=example@example.com',
         'ca' => 'mycert_with_nc'
@@ -153,14 +156,60 @@ describe "Trocla::Format::X509" do
       expect((Date.parse(false_cert.not_after.to_s) - Date.today).to_i).to eq(365)
     end
 
-    it 'should be able to get a cert signed by the ca that is again a ca that is able to sign certs' do
-      cert_str = @trocla.password('mycert_and_ca', 'x509', cert_options.merge({
+    it 'supports simple name constraints for CAs with leading dots' do
+      ca2_str = @trocla.password('mycert_with_nc', 'x509', cert_options.merge({
+        'name_constraints' => ['.example.com','.bla.example.net'],
         'become_ca' => true,
       }))
-      cert = OpenSSL::X509::Certificate.new(cert_str)
-      expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
-      expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
-      expect(verify(@ca,cert)).to be true
+      ca2 = OpenSSL::X509::Certificate.new(ca2_str)
+      expect(ca2.issuer.to_s).to eq(@ca.subject.to_s)
+      expect((Date.parse(ca2.not_after.to_s) - Date.today).to_i).to eq(365)
+      pending_for(:engine => 'jruby',:reason => 'NameConstraints verification seem to be broken in jRuby: https://github.com/jruby/jruby/issues/3502') do
+        expect(verify(@ca,ca2)).to be true
+      end
+
+      expect(ca2.extensions.find{|e| e.oid == 'basicConstraints' }.value).to eq('CA:TRUE')
+      ku = ca2.extensions.find{|e| e.oid == 'keyUsage' }.value
+      expect(ku).to match(/Certificate Sign/)
+      expect(ku).to match(/CRL Sign/)
+      nc = ca2.extensions.find{|e| e.oid == 'nameConstraints' }.value
+      pending_for(:engine => 'jruby',:reason => 'NameConstraints verification seem to be broken in jRuby: https://github.com/jruby/jruby/issues/3502') do
+        expect(nc).to match(/Permitted:\n  DNS:.example.com\n  DNS:.bla.example.net/)
+      end
+      valid_cert_str = @trocla.password('myvalidexamplecert','x509', {
+        'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.com/emailAddress=example@example.com',
+        'ca' => 'mycert_with_nc'
+      })
+      valid_cert = OpenSSL::X509::Certificate.new(valid_cert_str)
+      expect(valid_cert.issuer.to_s).to eq(ca2.subject.to_s)
+      expect((Date.parse(valid_cert.not_after.to_s) - Date.today).to_i).to eq(365)
+      # workaround broken openssl
+      if %x{openssl version} =~ /1\.0\.[2-9]/
+        expect(verify([@ca,ca2],valid_cert)).to be true
+      else
+        skip_for(:engine => 'ruby',:reason => 'NameConstraints verification is broken on older openssl versions https://rt.openssl.org/Ticket/Display.html?id=3562') do
+          expect(verify([@ca,ca2],valid_cert)).to be true
+        end
+      end
+
+      false_cert_str = @trocla.password('myfalseexamplecert','x509', {
+        'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.net/emailAddress=example@example.com',
+        'ca' => 'mycert_with_nc'
+      })
+      false_cert = OpenSSL::X509::Certificate.new(false_cert_str)
+      expect(false_cert.issuer.to_s).to eq(ca2.subject.to_s)
+      expect((Date.parse(false_cert.not_after.to_s) - Date.today).to_i).to eq(365)
+      expect(verify([@ca,ca2],false_cert)).to be false
+    end
+
+    it 'is able to get a cert signed by the ca that is again a ca that is able to sign certs' do
+      ca2_str = @trocla.password('mycert_and_ca', 'x509', cert_options.merge({
+        'become_ca' => true,
+      }))
+      ca2 = OpenSSL::X509::Certificate.new(ca2_str)
+      expect(ca2.issuer.to_s).to eq(@ca.subject.to_s)
+      expect((Date.parse(ca2.not_after.to_s) - Date.today).to_i).to eq(365)
+      expect(verify(@ca,ca2)).to be true
 
       cert2_str = @trocla.password('mycert', 'x509', {
         'ca'        => 'mycert_and_ca',
@@ -168,12 +217,14 @@ describe "Trocla::Format::X509" do
         'become_ca' => true,
       })
       cert2 = OpenSSL::X509::Certificate.new(cert2_str)
-      expect(cert2.issuer.to_s).to eq(cert.subject.to_s)
+      expect(cert2.issuer.to_s).to eq(ca2.subject.to_s)
       expect((Date.parse(cert2.not_after.to_s) - Date.today).to_i).to eq(365)
-      expect(verify([@ca,cert],cert2)).to be true
+      skip_for(:engine => 'jruby',:reason => 'Chained CA validation seems to be broken on jruby atm.') do
+        expect(verify([@ca,ca2],cert2)).to be true
+      end
     end
 
-    it 'should respect all options' do
+    it 'respects all options' do
       co = cert_options.merge({
         'hash'         => 'sha1',
         'keysize'      => 2048,
@@ -191,10 +242,12 @@ describe "Trocla::Format::X509" do
       cert_str = @trocla.password('mycert', 'x509', co)
       cert = OpenSSL::X509::Certificate.new(cert_str)
       expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
-      ['C','ST','L','O','OU','CN','emailAddress'].each do |field|
+      ['C','ST','L','O','OU','CN'].each do |field|
         expect(cert.subject.to_s).to match(/#{field}=#{co[field]}/)
       end
-      expect(cert.signature_algorithm).to eq('sha1WithRSAEncryption')
+      expect(cert.subject.to_s).to match(/(Email|emailAddress)=#{co['emailAddress']}/)
+      hash_match = (defined?(RUBY_ENGINE) &&RUBY_ENGINE == 'jruby') ? 'RSA-SHA1' : 'sha1WithRSAEncryption'
+      expect(cert.signature_algorithm).to eq(hash_match)
       expect(cert.not_before).to be < Time.now
       expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(3650)
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
@@ -221,7 +274,7 @@ describe "Trocla::Format::X509" do
       expect(cert.extensions.find{|e| e.oid == 'subjectAltName' }).to be_nil
     end
 
-    it 'should prefer full subject of single subject parts' do
+    it 'prefers full subject of single subject parts' do
       co = cert_options.merge({
         'C'            => 'AA',
         'ST'           => 'Earth',
@@ -229,13 +282,14 @@ describe "Trocla::Format::X509" do
         'O'            => 'SSLTrocla',
         'OU'           => 'root',
         'CN'           => 'www.test',
-        'emailAddress' => 'test@example.com',
+        'emailAddress' => 'test@example.net',
       })
       cert_str = @trocla.password('mycert', 'x509', co)
       cert = OpenSSL::X509::Certificate.new(cert_str)
-      ['C','ST','L','O','OU','CN','emailAddress'].each do |field|
+      ['C','ST','L','O','OU','CN'].each do |field|
         expect(cert.subject.to_s).not_to match(/#{field}=#{co[field]}/)
       end
+      expect(cert.subject.to_s).not_to match(/(Email|emailAddress)=#{co['emailAddress']}/)
       expect((Date.parse(cert.not_after.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
     end

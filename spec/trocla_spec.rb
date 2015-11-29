@@ -8,140 +8,140 @@ describe "Trocla" do
   end
 
   describe "password" do
-    it "should generate random passwords by default" do
-      @trocla.password('random1','plain').should_not eql(@trocla.password('random2','plain'))
+    it "generates random passwords by default" do
+      expect(@trocla.password('random1','plain')).not_to eq(@trocla.password('random2','plain'))
     end
 
-    it "should generate passwords of length #{default_config['options']['length']}" do
-      @trocla.password('random1','plain').length.should eql(default_config['options']['length'])
+    it "generates passwords of length #{default_config['options']['length']}" do
+      expect(@trocla.password('random1','plain').length).to eq(default_config['options']['length'])
     end
 
     Trocla::Formats.all.each do |format|
       describe "#{format} password format" do
-        it "should return a password hashed in the #{format} format" do
-          @trocla.password('some_test',format,format_options[format]).should_not be_empty
+        it "retursn a password hashed in the #{format} format" do
+          expect(@trocla.password('some_test',format,format_options[format])).not_to be_empty
         end
 
-        it "should return the same hashed for the #{format} format on multiple invocations" do
-          (round1=@trocla.password('some_test',format,format_options[format])).should_not be_empty
-          @trocla.password('some_test',format,format_options[format]).should eql(round1)
+        it "returns the same hashed for the #{format} format on multiple invocations" do
+          expect(round1=@trocla.password('some_test',format,format_options[format])).not_to be_empty
+          expect(@trocla.password('some_test',format,format_options[format])).to eq(round1)
         end
 
-        it "should also store the plain password by default" do
+        it "also stores the plain password by default" do
           pwd = @trocla.password('some_test','plain')
-          pwd.should_not be_empty
-          pwd.length.should eql(16)
+          expect(pwd).not_to be_empty
+          expect(pwd.length).to eq(16)
         end
       end
     end
 
     Trocla::Formats.all.reject{|f| f == 'plain' }.each do |format|
-      it "should raise an exception if not a random password is asked but plain password is not present for format #{format}" do
-        lambda{ @trocla.password('not_random',format, 'random' => false) }.should raise_error /Password must be present as plaintext/
+      it "raises an exception if not a random password is asked but plain password is not present for format #{format}" do
+        expect{@trocla.password('not_random',format, 'random' => false)}.to raise_error(/Password must be present as plaintext/)
       end
     end
 
     describe 'with profiles' do
-      it 'should raise an exception on unknown profile' do
-        lambda{ @trocla.password('no profile known','plain',
-          'profiles' => 'unknown_profile') }.should raise_error /No such profile unknown_profile defined/
+      it 'raises an exception on unknown profile' do
+        expect{@trocla.password('no profile known','plain',
+          'profiles' => 'unknown_profile') }.to raise_error(/No such profile unknown_profile defined/)
       end
 
-      it 'should take a profile and merge its options' do
+      it 'takes a profile and merge its options' do
         pwd = @trocla.password('some_test','plain', 'profiles' => 'rootpw')
-        pwd.should_not be_empty
-        pwd.length.should eql(32)
-        pwd.should_not =~ /[={}\[\]\?%\*()&!]+/
+        expect(pwd).not_to be_empty
+        expect(pwd.length).to eq(32)
+        expect(pwd).to_not match(/[={}\[\]\?%\*()&!]+/)
       end
 
-      it 'should possible to combine profiles but first profile wins' do
+      it 'is possible to combine profiles but first profile wins' do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['rootpw','login'])
-        pwd.should_not be_empty
-        pwd.length.should eql(32)
-        pwd.should_not =~ /[={}\[\]\?%\*()&!]+/
+        expect(pwd).not_to be_empty
+        expect(pwd.length).to eq(32)
+        expect(pwd).not_to match(/[={}\[\]\?%\*()&!]+/)
       end
-      it 'should possible to combine profiles but first profile wins 2' do
+      it 'is possible to combine profiles but first profile wins 2' do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['login','mysql'])
-        pwd.should_not be_empty
-        pwd.length.should eql(16)
-        pwd.should_not =~ /[={}\[\]\?%\*()&!]+/
+        expect(pwd).not_to be_empty
+        expect(pwd.length).to eq(16)
+        expect(pwd).not_to match(/[={}\[\]\?%\*()&!]+/)
       end
-      it 'should possible to combine profiles but first profile wins 3' do
+      it 'is possible to combine profiles but first profile wins 3' do
         pwd = @trocla.password('some_test','plain', 'profiles' => ['mysql','login'])
-        pwd.should_not be_empty
-        pwd.length.should eql(32)
-        pwd.should =~ /[+%\/@=\?_.,:]+/
+        expect(pwd).not_to be_empty
+        expect(pwd.length).to eq(32)
+        expect(pwd).to match(/[+%\/@=\?_.,:]+/)
       end
     end
   end
 
   describe "set_password" do
-    it "should reset hashed passwords on a new plain password" do
-      @trocla.password('set_test','mysql').should_not be_empty
-      @trocla.get_password('set_test','mysql').should_not be_nil
-      (old_plain=@trocla.password('set_test','mysql')).should_not be_empty
+    it "resets hashed passwords on a new plain password" do
+      expect(@trocla.password('set_test','mysql')).not_to be_empty
+      expect(@trocla.get_password('set_test','mysql')).not_to be_nil
+      expect(old_plain=@trocla.password('set_test','mysql')).not_to be_empty
 
-      @trocla.set_password('set_test','plain','foobar').should_not eql(old_plain)
-      @trocla.get_password('set_test','mysql').should be_nil
+      expect(@trocla.set_password('set_test','plain','foobar')).not_to eq(old_plain)
+      expect(@trocla.get_password('set_test','mysql')).to be_nil
     end
 
-    it "should otherwise only update the hash" do
-      (mysql = @trocla.password('set_test2','mysql')).should_not be_empty
-      (md5crypt = @trocla.password('set_test2','md5crypt')).should_not be_empty
-      (plain = @trocla.get_password('set_test2','plain')).should_not be_empty
+    it "otherwise updates only the hash" do
+      expect(mysql = @trocla.password('set_test2','mysql')).not_to be_empty
+      expect(md5crypt = @trocla.password('set_test2','md5crypt')).not_to be_empty
+      expect(plain = @trocla.get_password('set_test2','plain')).not_to be_empty
 
-      (new_mysql = @trocla.set_password('set_test2','mysql','foo')).should_not eql(mysql)
-      @trocla.get_password('set_test2','mysql').should eql(new_mysql)
-      @trocla.get_password('set_test2','md5crypt').should eql(md5crypt)
-      @trocla.get_password('set_test2','plain').should eql(plain)
+      expect(new_mysql = @trocla.set_password('set_test2','mysql','foo')).not_to eql(mysql)
+      expect(@trocla.get_password('set_test2','mysql')).to eq(new_mysql)
+      expect(@trocla.get_password('set_test2','md5crypt')).to eq(md5crypt)
+      expect(@trocla.get_password('set_test2','plain')).to eq(plain)
     end
   end
 
   describe "reset_password" do
-    it "should reset a password" do
+    it "resets a password" do
       plain1 = @trocla.password('reset_pwd','plain')
       plain2 = @trocla.reset_password('reset_pwd','plain')
 
-      plain1.should_not eql(plain2)
+      expect(plain1).not_to eq(plain2)
     end
 
-    it "should not reset other formats" do
-      (mysql = @trocla.password('reset_pwd2','mysql')).should_not be_empty
-      (md5crypt1 = @trocla.password('reset_pwd2','md5crypt')).should_not be_empty
+    it "does not reset other formats" do
+      expect(mysql = @trocla.password('reset_pwd2','mysql')).not_to be_empty
+      expect(md5crypt1 = @trocla.password('reset_pwd2','md5crypt')).not_to be_empty
 
-      (md5crypt2 = @trocla.reset_password('reset_pwd2','md5crypt')).should_not be_empty
-      md5crypt2.should_not eql(md5crypt1)
+      expect(md5crypt2 = @trocla.reset_password('reset_pwd2','md5crypt')).not_to be_empty
+      expect(md5crypt2).not_to eq(md5crypt1)
 
-      @trocla.get_password('reset_pwd2','mysql').should eql(mysql)
+      expect(@trocla.get_password('reset_pwd2','mysql')).to eq(mysql)
     end
   end
 
   describe "delete_password" do
-    it "should delete all passwords if no format is given" do
-      @trocla.password('delete_test1','mysql').should_not be_nil
-      @trocla.get_password('delete_test1','plain').should_not be_nil
+    it "deletes all passwords if no format is given" do
+      expect(@trocla.password('delete_test1','mysql')).not_to be_nil
+      expect(@trocla.get_password('delete_test1','plain')).not_to be_nil
 
       @trocla.delete_password('delete_test1')
-      @trocla.get_password('delete_test1','plain').should be_nil
-      @trocla.get_password('delete_test1','mysql').should be_nil
+      expect(@trocla.get_password('delete_test1','plain')).to be_nil
+      expect(@trocla.get_password('delete_test1','mysql')).to be_nil
     end
 
-    it "should delete only a given format" do
-      @trocla.password('delete_test2','mysql').should_not be_nil
-      @trocla.get_password('delete_test2','plain').should_not be_nil
+    it "deletes only a given format" do
+      expect(@trocla.password('delete_test2','mysql')).not_to be_nil
+      expect(@trocla.get_password('delete_test2','plain')).not_to be_nil
 
       @trocla.delete_password('delete_test2','plain')
-      @trocla.get_password('delete_test2','plain').should be_nil
-      @trocla.get_password('delete_test2','mysql').should_not be_nil
+      expect(@trocla.get_password('delete_test2','plain')).to be_nil
+      expect(@trocla.get_password('delete_test2','mysql')).not_to be_nil
     end
 
-    it "should delete only a given non-plain format" do
-      @trocla.password('delete_test3','mysql').should_not be_nil
-      @trocla.get_password('delete_test3','plain').should_not be_nil
+    it "deletes only a given non-plain format" do
+      expect(@trocla.password('delete_test3','mysql')).not_to be_nil
+      expect(@trocla.get_password('delete_test3','plain')).not_to be_nil
 
       @trocla.delete_password('delete_test3','mysql')
-      @trocla.get_password('delete_test3','mysql').should be_nil
-      @trocla.get_password('delete_test3','plain').should_not be_nil
+      expect(@trocla.get_password('delete_test3','mysql')).to be_nil
+      expect(@trocla.get_password('delete_test3','plain')).not_to be_nil
     end
   end
 
@@ -155,7 +155,7 @@ describe "Trocla" do
 end
 
 describe "VERSION" do
-  it "should return a version" do
-    Trocla::VERSION::STRING.should_not be_empty
+  it "returns a version" do
+    expect(Trocla::VERSION::STRING).not_to be_empty
   end
 end

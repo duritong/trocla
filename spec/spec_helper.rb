@@ -1,7 +1,7 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'rspec'
-require 'mocha'
+require 'rspec/pending_for'
 require 'yaml'
 require 'trocla'
 
@@ -61,16 +61,16 @@ RSpec.shared_examples "encryption_basics" do
   end
 end
 RSpec.shared_examples "verify_encryption" do
-  it "should not store plaintext passwords" do
+  it "does not store plaintext passwords" do
     @trocla.set_password('noplain', 'plain', 'plaintext_password')
-    File.readlines(trocla_yaml_file).grep(/plaintext_password/).should be_empty
+    expect(File.readlines(trocla_yaml_file).grep(/plaintext_password/)).to be_empty
   end
 
-  it "should make sure identical passwords do not match when stored" do
+  it "makes sure identical passwords do not match when stored" do
     @trocla.set_password('one_key', 'plain', 'super secret')
     @trocla.set_password('another_key', 'plain', 'super secret')
     yaml = YAML.load_file(trocla_yaml_file)
-    yaml['one_key']['plain'].should_not eql(yaml['another_key']['plain'])
+    expect(yaml['one_key']['plain']).not_to eq(yaml['another_key']['plain'])
   end
 end
 

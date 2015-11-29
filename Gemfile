@@ -11,12 +11,14 @@ else
   gem "highline", "~> 1.6.2"
 end
 
+if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby')
+  gem 'jruby-openssl'
+end
 gem "bcrypt"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
-  gem "mocha"
   if RUBY_VERSION.to_f > 1.8
     gem "rspec"
     gem "rdoc"
@@ -26,4 +28,5 @@ group :development do
     gem "rdoc", "~> 3.8"
     gem "jeweler", "~> 1.6"
   end
+  gem 'rspec-pending_for'
 end

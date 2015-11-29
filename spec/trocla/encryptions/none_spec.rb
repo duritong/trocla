@@ -14,9 +14,9 @@ describe "Trocla::Encryptions::None" do
   describe "none" do
     include_examples 'encryption_basics'
 
-    it "should store plaintext passwords" do
+    it "stores plaintext passwords" do
       @trocla.set_password('noplain', 'plain', 'plaintext_password')
-      File.readlines(trocla_yaml_file).grep(/plaintext_password/).should eql(["  plain: plaintext_password\n"])
+      expect(File.readlines(trocla_yaml_file).grep(/plaintext_password/)).to eq(["  plain: plaintext_password\n"])
     end
   end
 end

@@ -1,5 +1,5 @@
+require 'openssl'
 class Trocla::Formats::X509 < Trocla::Formats::Base
-  require 'openssl'
   def format(plain_password,options={})
 
     if plain_password.match(/-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----.*-----BEGIN CERTIFICATE-----.*-----END CERTIFICATE-----/m)
@@ -51,8 +51,9 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
 
     if sign_with # certificate signed with CA
       begin
-        ca = OpenSSL::X509::Certificate.new(getca(sign_with))
-        cakey = OpenSSL::PKey::RSA.new(getca(sign_with))
+        ca_str = trocla.get_password(sign_with,'x509')
+        ca = OpenSSL::X509::Certificate.new(ca_str)
+        cakey = OpenSSL::PKey::RSA.new(ca_str)
         caserial = getserial(sign_with)
       rescue Exception => e
         raise "Value of #{sign_with} can't be loaded as CA: #{e.message}"
@@ -113,7 +114,6 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
 
   def mkreq(subject,public_key)
     request = OpenSSL::X509::Request.new
-    request.version = 0
     request.subject = subject
     request.public_key = public_key
 
@@ -150,10 +150,6 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 
     cert
-  end
-
-  def getca(ca)
-    trocla.get_password(ca,'x509')
   end
 
   def getserial(ca)
