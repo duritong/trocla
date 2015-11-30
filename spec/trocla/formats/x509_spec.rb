@@ -173,9 +173,7 @@ describe "Trocla::Format::X509" do
       expect(ku).to match(/Certificate Sign/)
       expect(ku).to match(/CRL Sign/)
       nc = ca2.extensions.find{|e| e.oid == 'nameConstraints' }.value
-      pending_for(:engine => 'jruby',:reason => 'NameConstraints verification seem to be broken in jRuby: https://github.com/jruby/jruby/issues/3502') do
-        expect(nc).to match(/Permitted:\n  DNS:.example.com\n  DNS:.bla.example.net/)
-      end
+      expect(nc).to match(/Permitted:\n  DNS:.example.com\n  DNS:.bla.example.net/)
       valid_cert_str = @trocla.password('myvalidexamplecert','x509', {
         'subject'  => '/C=ZZ/O=Trocla Inc./CN=foo.example.com/emailAddress=example@example.com',
         'ca' => 'mycert_with_nc'
