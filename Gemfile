@@ -27,6 +27,7 @@ group :development do
     gem "rspec", "~> 2.4"
     gem "rdoc", "~> 3.8"
     gem "jeweler", "~> 1.6"
+    gem "addressable", "~> 2.3.8"
   end
   gem 'rspec-pending_for'
 end
