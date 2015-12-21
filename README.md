@@ -203,7 +203,9 @@ Additional options are:
 
 ## Installation
 
-Simply build and install the gem.
+* Debian has trocla within its sid-release: `apt-get install trocla`
+* For RHEL/CentOS 7 there is a [copr reporisotry](https://copr.fedoraproject.org/coprs/duritong/trocla/). Follow the help there to integrate the repository and install trocla.
+* Trocla is also distributed as gem: `gem install trocla`
 
 ## Configuration
 
