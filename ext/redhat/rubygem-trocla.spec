@@ -9,7 +9,6 @@ Group: Development/Languages
 License: GPLv3
 URL: https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/
 Source0: https://rubygems.org/gems/%{gem_name}-%{version}.gem
-Source1: %{gem_name}rc.yaml
 Requires: rubygem-moneta
 Requires: rubygem-bcrypt
 Requires: rubygem-highline
@@ -64,13 +63,19 @@ cp -a .%{gem_dir}/* \
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}/%{_sharedstatedir}/%{gem_name}
+touch %{buildroot}/%{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml
 
 cp -pa .%{_bindir}/* \
         %{buildroot}%{_bindir}/
 
-find %{buildroot}%{gem_instdir}/bin -type f | xargs chmod a+x
+chmod a+x %{buildroot}%{gem_instdir}/bin/%{gem_name}
 
-cp %{SOURCE1} %{buildroot}/%{_sysconfdir}/
+cat <<EOF > %{buildroot}/%{_sysconfdir}/%{gem_name}rc.yaml
+---
+adapter: :YAML
+adapter_options:
+      :file: '%{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml'
+EOF
 
 # Run the test suite
 %check
@@ -90,7 +95,8 @@ popd
 %exclude %{gem_cache}
 %{gem_spec}
 %config(noreplace) %{_sysconfdir}/%{gem_name}rc.yaml
-%dir %attr(750, root, root) %{_sharedstatedir}/%{gem_name}
+%dir %attr(755, root, root) %{_sharedstatedir}/%{gem_name}
+%config(noreplace) %attr(660, root, root) %{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml
 
 %files doc
 %doc %{gem_docdir}
