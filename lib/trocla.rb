@@ -35,11 +35,14 @@ class Trocla
     elsif !options['random'] && plain_pwd.nil?
       raise "Password must be present as plaintext if you don't want a random password"
     end
-    set_password(key,format,self.formats(format).format(plain_pwd,options),options)
+    set_password(key,
+      format,
+      self.formats(format).format(plain_pwd,options),
+      options)
   end
 
-  def get_password(key, format)
-    decrypt(store.get(key,format))
+  def get_password(key, format, options={})
+    render(format,decrypt(store.get(key,format)),options)
   end
 
   def reset_password(key,format,options={})
@@ -47,20 +50,20 @@ class Trocla
     password(key,format,options)
   end
 
-  def delete_password(key,format=nil)
+  def delete_password(key,format=nil,options={})
     v = store.delete(key,format)
     if v.is_a?(Hash)
       Hash[*v.map do |f,encrypted_value|
-        [f,decrypt(encrypted_value)]
+        [f,render(format,decrypt(encrypted_value),options)]
       end.flatten]
     else
-      decrypt(v)
+      render(format,decrypt(v),options)
     end
   end
 
   def set_password(key,format,password,options={})
     store.set(key,format,encrypt(password),options)
-    password
+    render(format,password,options)
   end
 
   def formats(format)
@@ -114,6 +117,14 @@ class Trocla
   def decrypt(value)
     return nil if value.nil?
     encryption.decrypt(value)
+  end
+
+  def render(format,output,options={})
+    if format && output && f=self.formats(format)
+      f.render(output,options['render']||{})
+    else
+      output
+    end
   end
 
   def default_config

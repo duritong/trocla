@@ -90,6 +90,17 @@ describe "Trocla::Format::X509" do
       expect(ku).not_to match(/CRL Sign/)
     end
 
+    it 'supports fetching only the key' do
+      cert_str = @trocla.password('mycert', 'x509', cert_options.merge('render' => {'keyonly' => true }))
+      expect(cert_str).not_to match(/-----BEGIN CERTIFICATE-----/)
+      expect(cert_str).to match(/-----BEGIN RSA PRIVATE KEY-----/)
+    end
+    it 'supports fetching only the cert' do
+      cert_str = @trocla.password('mycert', 'x509', cert_options.merge('render' => {'certonly' => true }))
+      expect(cert_str).to match(/-----BEGIN CERTIFICATE-----/)
+      expect(cert_str).not_to match(/-----BEGIN RSA PRIVATE KEY-----/)
+    end
+
     it 'does not simply increment the serial' do
       cert_str = @trocla.password('mycert', 'x509', cert_options)
       cert1 = OpenSSL::X509::Certificate.new(cert_str)

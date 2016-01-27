@@ -5,6 +5,9 @@ class Trocla::Formats
     def initialize(trocla)
       @trocla = trocla
     end
+    def render(output,render_options={})
+      output
+    end
   end
 
   class << self

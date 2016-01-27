@@ -69,6 +69,7 @@ Valid global options are:
 * profiles: a profile name or an array of profiles matching a profile_name in your configuration. Learn more about profiles below.
 * random: boolean - Whether we allow creation of random passwords or we expect a password to be preset. Default: true - or whatever you define in your global settings.
 * expires: An integer indicating the amount of seconds a value (e.g. password) is available. After expiration a value will not be available anymore and trying to `get` this key will return no value (nil). Meaning that calling create after expiration, would create a new password automatically. There is more about expiration in the storage backends section.
+* render: A hash providing flags for formats to render the output specifially. This is a global option, but support depends on a per format basis.
 
 Example:
 
@@ -201,6 +202,11 @@ Additional options are:
                       openssl versions have a bug with [leading dots](https://rt.openssl.org/Ticket/Display.html?id=3562) for name
                       constraints. So using them might not work everywhere as expected.
 
+Output render options are:
+
+    certonly If set to true the x509 format will return only the certificate
+    keyonly  If set to true the x509 format will return only the private key
+
 ## Installation
 
 * Debian has trocla within its sid-release: `apt-get install trocla`
@@ -301,6 +307,10 @@ encryption_options:
 ```
 
 ## Update & Changes
+
+### to 0.2.1
+
+1. New Feature: Introduce a way to render specific formats, mainly this allows you to control the output of a specific format. See the x509 format for more information.
 
 ### to 0.2.0
 

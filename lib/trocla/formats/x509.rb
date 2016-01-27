@@ -49,6 +49,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       raise "Private key for #{subject} creation failed: #{e.message}"
     end
 
+    cert = nil
     if sign_with # certificate signed with CA
       begin
         ca_str = trocla.get_password(sign_with,'x509')
@@ -68,14 +69,12 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       end
 
       begin
-        csr_cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, name_constraints, become_ca)
-        csr_cert.sign(cakey, signature(hash))
+        cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, name_constraints, become_ca)
+        cert.sign(cakey, signature(hash))
         addserial(sign_with, caserial)
       rescue Exception => e
         raise "Certificate #{subject} signing failed: #{e.message}"
       end
-
-      key.to_pem + csr_cert.to_pem
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
@@ -84,12 +83,21 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
       end
+    end
+    key.to_pem + cert.to_pem
+  end
 
-      key.to_pem + cert.to_pem
+  def render(output,render_options={})
+    if render_options['keyonly']
+      OpenSSL::PKey::RSA.new(output).to_pem
+    elsif render_options['certonly']
+      OpenSSL::X509::Certificate.new(output).to_pem
+    else
+      super(output,render_options)
     end
   end
-  private
 
+  private
   # nice help: https://gist.github.com/mitfik/1922961
 
   def signature(hash = 'sha2')
