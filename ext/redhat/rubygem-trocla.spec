@@ -106,6 +106,7 @@ popd
 %doc %{gem_instdir}/.document
 %{gem_instdir}/Gemfile
 %doc %{gem_instdir}/README.md
+%doc %{gem_instdir}/CHANGELOG.md
 %{gem_instdir}/Rakefile
 %{gem_instdir}/spec
 %{gem_instdir}/trocla.gemspec
