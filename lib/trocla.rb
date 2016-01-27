@@ -24,11 +24,11 @@ class Trocla
 
     raise "Format #{format} is not supported! Supported formats: #{Trocla::Formats.all.join(', ')}" unless Trocla::Formats::available?(format)
 
-    unless (password=get_password(key,format)).nil?
+    unless (password=get_password(key,format,options)).nil?
       return password
     end
 
-    plain_pwd = get_password(key,'plain')
+    plain_pwd = get_password(key,'plain',options)
     if options['random'] && plain_pwd.nil?
       plain_pwd = Trocla::Util.random_str(options['length'].to_i,options['charset'])
       set_password(key,'plain',plain_pwd,options) unless format == 'plain'

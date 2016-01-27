@@ -15,7 +15,9 @@ Requires: rubygem-highline
 BuildRequires: rubygem-moneta = 0.7.20
 BuildRequires: rubygem-bcrypt
 BuildRequires: rubygem-highline
+%if 0%{?rhel} >= 7
 BuildRequires: ruby(release)
+%endif
 BuildRequires: rubygems-devel
 BuildRequires: ruby
 # BuildRequires: rubygem(mocha)
