@@ -2,7 +2,7 @@
 %global gem_name trocla
 
 Name: rubygem-%{gem_name}
-Version: 0.2.1
+Version: 0.2.2
 Release: 1%{?dist}
 Summary: Trocla a simple password generator and storage
 Group: Development/Languages
