@@ -89,6 +89,7 @@ popd
 %{gem_instdir}/.rspec
 %exclude %{gem_instdir}/.travis.yml
 %exclude %{gem_instdir}/.rspec
+%exclude %{gem_instdir}/ext/redhat/%{name}.spec
 %license %{gem_instdir}/LICENSE.txt
 %{gem_instdir}/bin
 %{gem_libdir}
