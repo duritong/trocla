@@ -98,7 +98,7 @@ popd
 %exclude %{gem_cache}
 %{gem_spec}
 %config(noreplace) %{_sysconfdir}/%{gem_name}rc.yaml
-%dir %attr(755, root, root) %{_sharedstatedir}/%{gem_name}
+%dir %attr(-, -, -) %{_sharedstatedir}/%{gem_name}
 %config(noreplace) %attr(660, root, root) %{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml
 
 %files doc
