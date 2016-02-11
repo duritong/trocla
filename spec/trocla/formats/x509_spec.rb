@@ -69,6 +69,47 @@ describe "Trocla::Format::X509" do
       expect(ku).to match(/Certificate Sign/)
       expect(ku).to match(/CRL Sign/)
     end
+    it "is able to create a self signed cert without any keyUsage restrictions" do
+      cert_str = @trocla.password('my_shiny_selfsigned_without restrictions', 'x509', {
+        'CN'         => 'This is my self-signed certificate',
+        'key_usages' => [],
+      })
+      cert = OpenSSL::X509::Certificate.new(cert_str)
+      # selfsigned?
+      expect(cert.issuer.to_s).to eq(cert.subject.to_s)
+      # default size
+      # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
+      expect(cert.public_key.n.num_bytes * 8).to eq(4096)
+      expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
+      # it's a self signed cert and NOT a CA, but has no keyUsage limitation
+      expect(verify(cert,cert)).to be true
+
+      v = cert.extensions.find{|e| e.oid == 'basicConstraints' }.value
+      expect(v).to_not eq('CA:TRUE')
+      expect(cert.extensions.find{|e| e.oid == 'keyUsage' }).to be_nil
+    end
+
+    it "is able to create a self signed cert with custom keyUsage restrictions" do
+      cert_str = @trocla.password('my_shiny_selfsigned_without restrictions', 'x509', {
+        'CN'         => 'This is my self-signed certificate',
+        'key_usages' => [ 'cRLSign', ],
+      })
+      cert = OpenSSL::X509::Certificate.new(cert_str)
+      # selfsigned?
+      expect(cert.issuer.to_s).to eq(cert.subject.to_s)
+      # default size
+      # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
+      expect(cert.public_key.n.num_bytes * 8).to eq(4096)
+      expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
+      # it's a self signed cert and NOT a CA, as it's key is restricted to only CRL Sign
+      expect(verify(cert,cert)).to be false
+
+      v = cert.extensions.find{|e| e.oid == 'basicConstraints' }.value
+      expect(v).to_not eq('CA:TRUE')
+      ku = cert.extensions.find{|e| e.oid == 'keyUsage' }.value
+      expect(ku).to match(/CRL Sign/)
+      expect(ku).not_to match(/Certificate Sign/)
+    end
 
   end
   describe "x509 signed by a ca" do
@@ -310,5 +351,23 @@ describe "Trocla::Format::X509" do
       expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
       expect(verify(@ca,cert)).to be true
     end
+    it "is able to create a signed cert with custom keyUsage restrictions" do
+      cert_str = @trocla.password('mycert_without_restrictions', 'x509', cert_options.merge({
+        'CN'           => 'sign only test',
+        'key_usages' => [ ],
+      }))
+      cert = OpenSSL::X509::Certificate.new(cert_str)
+      # default size
+      # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
+      expect(cert.public_key.n.num_bytes * 8).to eq(4096)
+      expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
+      expect(cert.issuer.to_s).to eq(@ca.subject.to_s)
+      expect(verify(@ca,cert)).to be true
+
+      v = cert.extensions.find{|e| e.oid == 'basicConstraints' }.value
+      expect(v).to_not eq('CA:TRUE')
+      expect(cert.extensions.find{|e| e.oid == 'keyUsage' }).to be_nil
+    end
+
   end
 end

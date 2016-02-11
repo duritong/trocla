@@ -28,6 +28,8 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     keysize = options['keysize'] || 4096
     days = options['days'].nil? ? 365 : options['days'].to_i
     name_constraints = Array(options['name_constraints'])
+    key_usages = options['key_usages']
+    key_usages = Array(key_usages) if key_usages
 
     altnames = if become_ca || (an = options['altnames']) && Array(an).empty?
       []
@@ -69,7 +71,8 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       end
 
       begin
-        cert = mkcert(caserial, request.subject, ca, request.public_key, days, altnames, name_constraints, become_ca)
+        cert = mkcert(caserial, request.subject, ca, request.public_key, days,
+                        altnames, key_usages, name_constraints, become_ca)
         cert.sign(cakey, signature(hash))
         addserial(sign_with, caserial)
       rescue Exception => e
@@ -78,7 +81,8 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
-        cert = mkcert(getserial(subj), subj, nil, key.public_key, days, altnames, name_constraints, become_ca)
+        cert = mkcert(getserial(subj), subj, nil, key.public_key, days,
+                        altnames, key_usages, name_constraints, become_ca)
         cert.sign(key, signature(hash))
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
@@ -128,7 +132,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     request
   end
 
-  def mkcert(serial,subject,issuer,public_key,days,altnames, name_constraints = [], become_ca = false)
+  def mkcert(serial,subject,issuer,public_key,days,altnames, key_usages = nil, name_constraints = [], become_ca = false)
     cert = OpenSSL::X509::Certificate.new
     issuer = cert if issuer == nil
     cert.subject = subject
@@ -146,14 +150,18 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
 
     if become_ca
       cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true)
-      cert.add_extension ef.create_extension("keyUsage", "keyCertSign, cRLSign, nonRepudiation, digitalSignature, keyEncipherment", true)
+      unless (ku = key_usages || ca_key_usages).empty?
+        cert.add_extension ef.create_extension("keyUsage", ku.join(', '), true)
+      end
       if name_constraints && !name_constraints.empty?
         cert.add_extension ef.create_extension("nameConstraints","permitted;DNS:#{name_constraints.join(',permitted;DNS:')}",true)
       end
     else
       cert.add_extension ef.create_extension("subjectAltName", altnames, true) unless altnames.empty?
       cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true)
-      cert.add_extension ef.create_extension("keyUsage", "nonRepudiation, digitalSignature, keyEncipherment", true)
+      unless (ku = key_usages || cert_key_usages).empty?
+        cert.add_extension ef.create_extension("keyUsage", ku.join(', '), true)
+      end
     end
     cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
 
@@ -176,5 +184,13 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
   def addserial(ca,serial)
     serials = all_serials(ca) << serial
     trocla.set_password("#{ca}_all_serials",'plain',YAML.dump(serials))
+  end
+
+  def cert_key_usages
+    ['nonRepudiation', 'digitalSignature', 'keyEncipherment']
+  end
+  def ca_key_usages
+    ['keyCertSign', 'cRLSign', 'nonRepudiation',
+      'digitalSignature', 'keyEncipherment' ]
   end
 end

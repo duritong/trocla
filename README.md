@@ -192,6 +192,9 @@ Additional options are:
     O                 instead within the subject string
     OU                instead within the subject string
     emailAddress      instead within the subject string
+    key_usages        Any specific key_usages different than the default ones. If you specify
+                      any, you must specify all that you want. If you don't want to have any,
+                      you must specify an empty array.
     altnames          An array of subjectAltNames. By default for non CA certificates we
                       ensure that the CN ends up here as well. If you don't want that.
                       You need to pass an empty array.
