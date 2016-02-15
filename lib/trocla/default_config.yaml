@@ -21,6 +21,11 @@ profiles:
   login:
     charset: consolesafe
     length: 16
+  x509verylong:
+    # 15 years
+    days: 5475
+    # 5400 days
+    expires: 466560000
   x509long:
     # 5 years
     days: 1825
