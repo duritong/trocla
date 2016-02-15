@@ -1,5 +1,10 @@
 # Changelog
 
+## to 0.2.3
+
+1. Add extended CA validity profiles
+1. Make it possible to define keyUsage
+
 ## to 0.2.2
 
 1. Bugfix to render output correctly also on an already existing set
