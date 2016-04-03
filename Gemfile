@@ -9,6 +9,7 @@ if RUBY_VERSION.to_f > 1.8
 else
   gem "moneta", "~> 0.7.20"
   gem "highline", "~> 1.6.2"
+  gem 'rake', '< 11'
 end
 
 if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby')
