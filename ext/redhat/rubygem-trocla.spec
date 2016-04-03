@@ -2,7 +2,7 @@
 %global gem_name trocla
 
 Name: rubygem-%{gem_name}
-Version: 0.2.2
+Version: 0.2.3
 Release: 1%{?dist}
 Summary: Trocla a simple password generator and storage
 Group: Development/Languages
@@ -100,7 +100,7 @@ popd
 %exclude %{gem_cache}
 %{gem_spec}
 %config(noreplace) %{_sysconfdir}/%{gem_name}rc.yaml
-%dir %attr(755, root, root) %{_sharedstatedir}/%{gem_name}
+%dir %attr(-, -, -) %{_sharedstatedir}/%{gem_name}
 %config(noreplace) %attr(660, root, root) %{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml
 
 %files doc
