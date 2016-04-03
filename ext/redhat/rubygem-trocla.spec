@@ -74,9 +74,11 @@ chmod a+x %{buildroot}%{gem_instdir}/bin/%{gem_name}
 
 cat <<EOF > %{buildroot}/%{_sysconfdir}/%{gem_name}rc.yaml
 ---
-adapter: :YAML
-adapter_options:
-      :file: '%{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml'
+store: :moneta
+store_options:
+  adapter: :YAML
+  adapter_options:
+    :file: '%{_sharedstatedir}/%{gem_name}/%{gem_name}_data.yaml'
 EOF
 
 # Run the test suite
