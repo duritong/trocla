@@ -13,6 +13,17 @@ class Trocla
     end
   end
 
+  def self.open(config_file=nil)
+    trocla = Trocla.new(config_file)
+
+    if block_given?
+      yield trocla
+      trocla.close
+    else
+      trocla
+    end
+  end
+
   def password(key,format,options={})
     # respect a default profile, but let the
     # profiles win over the default options
@@ -76,6 +87,10 @@ class Trocla
 
   def config
     @config ||= read_config
+  end
+
+  def close
+    store.close
   end
 
   private

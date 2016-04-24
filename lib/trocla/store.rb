@@ -6,6 +6,12 @@ class Trocla::Store
     @trocla = trocla
   end
 
+  # closes the store
+  # when called do whatever "closes" your
+  # store, e.g. close database connections.
+  def close
+  end
+
   # should return value for key & format
   # returns nil if nothing or a nil value
   # was found.
