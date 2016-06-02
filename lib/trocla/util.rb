@@ -24,6 +24,7 @@ class Trocla
             'numeric'      => numeric,
             'hexadecimal'  => hexadecimal,
             'consolesafe'  => consolesafe,
+            'typesafe'     => typesafe,
           }
           h.each { |k, v| h[k] = v.uniq }
         end
@@ -49,6 +50,9 @@ class Trocla
       end
       def numeric
         @numeric ||= ('0'..'9').to_a
+      end
+      def typesafe
+        @typesafe ||= ('a'..'x').to_a - ['i'] - ['l'] + ('A'..'X').to_a - ['I'] - ['L'] + ('1'..'9').to_a
       end
       def special_chars
         @special_chars ||= "*()&![]{}-".split(//)
