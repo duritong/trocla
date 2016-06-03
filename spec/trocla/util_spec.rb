@@ -36,6 +36,14 @@ describe "Trocla::Util" do
     end
   end
 
+  describe :typesafe_generator do
+    10.times.each do |i|
+      it "creates random typesafe password #{i}" do
+        expect(Trocla::Util.random_str(12, 'typesafe')).to match(/^[1-9a-hj-km-xA-HJ-KM-X]{12}$/)
+      end
+    end
+  end
+
   describe :salt do
     10.times.each do |i|
       it "contains only characters and numbers #{i}" do
