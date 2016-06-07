@@ -1,5 +1,10 @@
 # Changelog
 
+## to 0.3.0 (unreleased)
+
+* Add open method to be able to immediately close a trocla store after using it
+* Add typesafe charset
+
 ## to 0.2.3
 
 1. Add extended CA validity profiles
