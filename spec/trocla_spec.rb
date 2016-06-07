@@ -145,6 +145,19 @@ describe "Trocla" do
     end
   end
 
+  describe '.open' do
+    it 'closes the connection with a block' do
+      expect_any_instance_of(Trocla::Stores::Memory).to receive(:close)
+      Trocla.open{|t|
+        t.password('plain_open','plain')
+      }
+    end
+    it 'keeps the connection without a block' do
+      expect_any_instance_of(Trocla::Stores::Memory).not_to receive(:close)
+      Trocla.open.password('plain_open','plain')
+    end
+  end
+
   def format_options
     @format_options ||= Hash.new({}).merge({
       'pgsql' => { 'username' => 'test' },
