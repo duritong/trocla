@@ -10,6 +10,10 @@ class Trocla::Stores::Moneta < Trocla::Store
     @moneta = Moneta.new(store_config['adapter'],adapter_options)
   end
 
+  def close
+    moneta.close
+  end
+
   def get(key,format)
     moneta.fetch(key, {})[format]
   end
