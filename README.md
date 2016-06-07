@@ -168,6 +168,11 @@ options to work properly. These are documented here:
 Password hashes for PostgreSQL servers. Requires the option `username` to be set
 to the username to which the password will be assigned.
 
+### bcrypt
+
+You are able to tune the [cost factor of bcrypt](https://github.com/codahale/bcrypt-ruby#cost-factors) by passing the option `cost`.
+Note: ruby bcrypt does not support a [cost > 31](https://github.com/codahale/bcrypt-ruby/blob/master/lib/bcrypt/password.rb#L45).
+
 ### x509
 
 This format takes a set of additional options. Required are:

@@ -4,6 +4,7 @@
 
 * Add open method to be able to immediately close a trocla store after using it
 * Add typesafe charset
+* Support cost option for bcrypt
 
 ## to 0.2.3
 
