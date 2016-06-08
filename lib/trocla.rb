@@ -46,10 +46,15 @@ class Trocla
     elsif !options['random'] && plain_pwd.nil?
       raise "Password must be present as plaintext if you don't want a random password"
     end
-    set_password(key,
-      format,
-      self.formats(format).format(plain_pwd,options),
-      options)
+    pwd = self.formats(format).format(plain_pwd,options)
+    # it's possible that meanwhile another thread/process was faster in
+    # formating the password. But we want todo that second lookup
+    # only for expensive formats
+    if self.formats(format).expensive?
+      get_password(key,format,options) || set_password(key, format, pwd, options)
+    else
+      set_password(key, format, pwd, options)
+    end
   end
 
   def get_password(key, format, options={})

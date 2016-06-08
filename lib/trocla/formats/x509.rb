@@ -1,5 +1,6 @@
 require 'openssl'
 class Trocla::Formats::X509 < Trocla::Formats::Base
+  expensive true
   def format(plain_password,options={})
 
     if plain_password.match(/-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----.*-----BEGIN CERTIFICATE-----.*-----END CERTIFICATE-----/m)

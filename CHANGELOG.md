@@ -5,6 +5,8 @@
 * Add open method to be able to immediately close a trocla store after using it
 * Add typesafe charset
 * Support cost option for bcrypt
+* address concurrency corner cases, when 2 concurrent threads or even processes
+  are currently calculating the same (expensive) format.
 
 ## to 0.2.3
 

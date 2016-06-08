@@ -282,3 +282,9 @@ end
 def remove_yaml_store
   File.unlink(trocla_yaml_file)
 end
+class Trocla::Formats::Sleep < Trocla::Formats::Base
+  def format(plain_password,options={})
+    sleep options['sleep'] ||= 0
+    (options['sleep'] + 1 ).times.collect{ plain_password }.join(' ')
+  end
+end

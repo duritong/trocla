@@ -8,6 +8,17 @@ class Trocla::Formats
     def render(output,render_options={})
       output
     end
+    def expensive?
+      self.class.expensive?
+    end
+    class << self
+      def expensive(is_expensive)
+        @expensive = is_expensive
+      end
+      def expensive?
+        @expensive == true
+      end
+    end
   end
 
   class << self
