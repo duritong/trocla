@@ -57,7 +57,7 @@ end
 def get(options)
   Trocla.new(options.delete(:config_file)).get_password(
     options.delete(:trocla_key),
-    options.delete(:trocla_format)
+    options.delete(:trocla_format),
     options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
   )
 end
@@ -79,7 +79,7 @@ def set(options)
   value = if no_format
     password
   else
-    trocla.formats(format).format(password, options.delete(:other_options).shift.to_s)
+    trocla.formats(format).format(password, (YAML.load(options.delete(:other_options).shift.to_s)||''))
   end
   trocla.set_password(
     options.delete(:trocla_key),
