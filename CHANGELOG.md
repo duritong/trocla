@@ -2,11 +2,12 @@
 
 ## to 0.3.0 (unreleased)
 
-* Add open method to be able to immediately close a trocla store after using it
-* Add typesafe charset
+* Add open method to be able to immediately close a trocla store after using it - thanks martinpfeiffer
+* Add typesafe charset - thanks hggh
 * Support cost option for bcrypt
 * address concurrency corner cases, when 2 concurrent threads or even processes
   are currently calculating the same (expensive) format.
+* parse additional options on cli (#39 & #46) - thanks fe80
 
 ## to 0.2.3
 
