@@ -242,12 +242,12 @@ describe "Trocla::Format::X509" do
       expect(valid_cert.issuer.to_s).to eq(ca2.subject.to_s)
       expect((Date.parse(valid_cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
       # workaround broken openssl
-      if %x{openssl version} =~ /1\.0\.[2-9]/
-        expect(verify([@ca,ca2],valid_cert)).to be true
-      else
+      if Gem::Version.new(%x{openssl version}.split(' ')[1]) < Gem::Version.new('1.0.2')
         skip_for(:engine => 'ruby',:reason => 'NameConstraints verification is broken on older openssl versions https://rt.openssl.org/Ticket/Display.html?id=3562') do
           expect(verify([@ca,ca2],valid_cert)).to be true
         end
+      else
+        expect(verify([@ca,ca2],valid_cert)).to be true
       end
 
       false_cert_str = @trocla.password('myfalseexamplecert','x509', {
@@ -311,7 +311,9 @@ describe "Trocla::Format::X509" do
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
       expect(cert.public_key.n.num_bytes * 8).to eq(2048)
       expect(verify(@ca,cert)).to be true
-      expect(cert.extensions.find{|e| e.oid == 'subjectAltName' }.value).to eq('DNS:www.test, DNS:test, DNS:test1, DNS:test2, DNS:test3')
+      skip_for(:engine => 'jruby',:reason => 'subjectAltName represenation is broken in jruby-openssl -> https://github.com/jruby/jruby-openssl/pull/123') do
+        expect(cert.extensions.find{|e| e.oid == 'subjectAltName' }.value).to eq('DNS:www.test, DNS:test, DNS:test1, DNS:test2, DNS:test3')
+      end
 
       expect(cert.extensions.find{|e| e.oid == 'basicConstraints' }.value).to eq('CA:FALSE')
       ku = cert.extensions.find{|e| e.oid == 'keyUsage' }.value

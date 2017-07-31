@@ -152,7 +152,7 @@ describe "Trocla" do
     context 'concurrent access' do
       context 'on expensive flagged formats' do
         before(:each) do
-          expect(Trocla::Formats).to receive(:[]).with('sleep').and_return(Trocla::Formats::Sleep)
+          expect(Trocla::Formats).to receive(:[]).with('sleep').at_least(:once).and_return(Trocla::Formats::Sleep)
           expect(Trocla::Formats::Sleep).to receive(:expensive?).at_least(:once).and_return(true)
           expect(Trocla::Formats).to receive(:available?).with('sleep').at_least(:once).and_return(true)
         end
@@ -170,7 +170,7 @@ describe "Trocla" do
       end
       context 'on inexpensive flagged formats' do
         before(:each) do
-          expect(Trocla::Formats).to receive(:[]).with('sleep').and_return(Trocla::Formats::Sleep)
+          expect(Trocla::Formats).to receive(:[]).with('sleep').at_least(:once).and_return(Trocla::Formats::Sleep)
           expect(Trocla::Formats::Sleep).to receive(:expensive?).at_least(:once).and_return(false)
           expect(Trocla::Formats).to receive(:available?).with('sleep').at_least(:once).and_return(true)
         end
