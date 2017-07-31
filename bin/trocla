@@ -47,19 +47,20 @@ OptionParser.new do |opts|
 end.parse!
 
 def create(options)
-  Trocla.new(options.delete(:config_file)).password(
+  [ Trocla.new(options.delete(:config_file)).password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
     options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
-  )
+  ) , 0 ]
 end
 
 def get(options)
-  Trocla.new(options.delete(:config_file)).get_password(
+  res = Trocla.new(options.delete(:config_file)).get_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
     options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
   )
+  [ res, res.nil? ? 1 : 0 ]
 end
 def set(options)
   if options.delete(:ask_password)
@@ -68,7 +69,7 @@ def set(options)
     pwd2 = ask('Repeat password: ') { |q| q.echo = 'x' }.to_s
     unless password == pwd2
       STDERR.puts 'Passwords did not match, exiting!'
-      exit 1
+      return [ nil, 1 ]
     end
   else
     password = options.delete(:password) || STDIN.read.chomp
@@ -86,22 +87,22 @@ def set(options)
     format,
     value
   )
-  ''
+  [ '', 0 ]
 end
 
 def reset(options)
-  Trocla.new(options.delete(:config_file)).reset_password(
+  [ Trocla.new(options.delete(:config_file)).reset_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
     options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
-  )
+  ), 0 ]
 end
 
 def delete(options)
-  Trocla.new(options.delete(:config_file)).delete_password(
+  [ Trocla.new(options.delete(:config_file)).delete_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format)
-  )
+  ), 0 ]
 end
 
 def formats(options)
@@ -126,7 +127,8 @@ if (action=ARGV.shift) && actions.include?(action)
     options[:other_options] = ARGV
     check_format(options[:trocla_format]) unless ['delete','formats'].include?(action)
     begin
-      if result = send(action,options)
+      result, excode = send(action,options)
+      if result
         puts result.is_a?(String) ? result : result.inspect
       end
     rescue Exception => e
@@ -137,6 +139,7 @@ if (action=ARGV.shift) && actions.include?(action)
       raise e if options[:trace]
       exit 1
     end
+    exit excode.nil? ? 0 : excode
 else
     STDERR.puts "Please supply one of the following actions: #{actions.join(', ')}"
     STDERR.puts "Use #{$0} --help to get a list of options for these actions"
