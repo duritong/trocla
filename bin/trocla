@@ -79,7 +79,7 @@ def set(options)
   value = if no_format
     password
   else
-    trocla.formats(format).format(password, (YAML.load(options.delete(:other_options).shift.to_s)||''))
+    trocla.formats(format).format(password, (YAML.load(options.delete(:other_options).shift.to_s)||{}))
   end
   trocla.set_password(
     options.delete(:trocla_key),
