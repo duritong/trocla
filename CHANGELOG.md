@@ -1,6 +1,6 @@
 # Changelog
 
-## to 0.3.0 (unreleased)
+## to 0.3.0
 
 * Add open method to be able to immediately close a trocla store after using it - thanks martinpfeiffer
 * Add typesafe charset - thanks hggh
