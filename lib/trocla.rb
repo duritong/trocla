@@ -82,6 +82,14 @@ class Trocla
     render(format,password,options)
   end
 
+  def available_format(key, options={})
+    render(false,decrypt(store.format(key)),options)
+  end
+
+  def search_key(key, options={})
+    render(false,decrypt(store.search(key)),options)
+  end
+
   def formats(format)
     (@format_cache||={})[format] ||= Trocla::Formats[format].new(self)
   end

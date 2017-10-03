@@ -106,7 +106,23 @@ def delete(options)
 end
 
 def formats(options)
-  "Available formats: #{Trocla::Formats.all.join(', ')}"
+  key = (options.delete(:trocla_key) || '' )
+  if key.empty?
+    "Available formats: #{Trocla::Formats.all.join(', ')}"
+  else
+    res = Trocla.new(options.delete(:config_file)).available_format(
+      key,
+      options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
+    )
+    [ res.nil? ? res : res.join(', '), res.nil? ? 1 : 0 ]
+  end
+end
+
+def search(options)
+  res = Trocla.new(options.delete(:config_file)).search_key(
+    options.delete(:trocla_key)
+  )
+    [ res.nil? ? res : res.join("\n"), res.nil? ? 1 : 0 ]
 end
 
 def check_format(format_name)
@@ -119,13 +135,13 @@ def check_format(format_name)
   end
 end
 
-actions=['create','get','set','reset','delete', 'formats' ]
+actions=['create','get','set','reset','delete','formats','search']
 
 if (action=ARGV.shift) && actions.include?(action)
     options[:trocla_key] = ARGV.shift
     options[:trocla_format] = ARGV.shift
     options[:other_options] = ARGV
-    check_format(options[:trocla_format]) unless ['delete','formats'].include?(action)
+    check_format(options[:trocla_format]) unless ['delete','formats','search'].include?(action)
     begin
       result, excode = send(action,options)
       if result
