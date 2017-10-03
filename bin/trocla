@@ -122,7 +122,7 @@ def search(options)
   res = Trocla.new(options.delete(:config_file)).search_key(
     options.delete(:trocla_key)
   )
-    [ res.nil? ? res : res.join("\n"), res.nil? ? 1 : 0 ]
+  [ res.nil? ? res : res.join("\n"), res.nil? ? 1 : 0 ]
 end
 
 def check_format(format_name)
