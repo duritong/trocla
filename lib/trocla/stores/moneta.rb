@@ -74,6 +74,7 @@ class Trocla::Stores::Moneta < Trocla::Store
     elsif store_config['adapter'] == :YAML
       keys = _moneta.adapter.backend.transaction(true) { _moneta.adapter.backend.roots }
     end
+    _moneta.close
     regexp = Regexp.new("^#{key}")
     keys.each do |k|
       a << k if regexp.match(k)
