@@ -18,9 +18,9 @@ class Trocla::Stores::Moneta < Trocla::Store
     moneta.fetch(key, {})[format]
   end
 
-  def format(key)
-    formats = moneta.fetch(key)
-    formats.nil? ? formats : formats.keys
+  def formats(key)
+    r = moneta.fetch(key)
+    r.nil? ? nil : r.keys
   end
 
   def search(key)
@@ -75,7 +75,7 @@ class Trocla::Stores::Moneta < Trocla::Store
       keys = _moneta.adapter.backend.transaction(true) { _moneta.adapter.backend.roots }
     end
     _moneta.close
-    regexp = Regexp.new("^#{key}")
+    regexp = Regexp.new("#{key}")
     keys.each do |k|
       a << k if regexp.match(k)
     end

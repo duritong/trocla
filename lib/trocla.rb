@@ -83,7 +83,7 @@ class Trocla
   end
 
   def available_format(key, options={})
-    render(false,store.format(key),options)
+    render(false,store.formats(key),options)
   end
 
   def search_key(key, options={})
