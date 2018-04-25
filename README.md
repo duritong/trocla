@@ -215,6 +215,22 @@ Output render options are:
     certonly If set to true the x509 format will return only the certificate
     keyonly  If set to true the x509 format will return only the private key
 
+### sshkey
+
+This format generate a ssh keypair
+
+Additional options are:
+
+    type        The ssh key type (rsa, dsa). Default: rsa
+    bits        Specifies the number of bits in the key to create. Default: 2048
+    comment     Specifies a comment.
+    passphrase  Specifies a passphrase.
+
+Output render options are:
+
+    pubonly     If set to true the sshkey format will return only the ssh public key
+    privonly    If set to true the sshkey format will return only the ssh private key
+
 ## Installation
 
 * Debian has trocla within its sid-release: `apt-get install trocla`
