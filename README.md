@@ -217,11 +217,11 @@ Output render options are:
 
 ### cfssl
 
-This format will use [CFSSL](https://github.com/cloudflare/cfssl) to generate certificates and then sign it via remote CFSSL API server.
+This format will use [CFSSL](https://github.com/cloudflare/cfssl) to generate certificates and then sign it via remote CFSSL API server, for example:
 
-`trocla set testcert cfssl '{"CN" : "test.example.com","hosts":["test.example.com"]}'`
-
-Format for options is same config as CFSSL uses. That means all names must be in `hosts` key including CN.
+`trocla set testcert cfssl '{"CN" : "test.example.com","hosts":["test.example.com"],"names":[{"O":"Testorg","OU":"testcert"}],}'`
+   
+Format for options is same config as CFSSL uses. That means all names must be in `hosts` key including CN. Plaintext pass is not used.
 
 Key type is set to RSA 2048 if not set in trocla call. `names` list can be set as default in trocla config or passed to trocla call to override default
 
