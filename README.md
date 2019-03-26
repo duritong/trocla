@@ -298,11 +298,17 @@ default_names:
 Intermediates to add to the cert hash. Are **not** checked in any way
 
 
+#### Output
 
+Resulting hash will have  those keys, in PEM format: 
 
+* `cert` - cert itself
+* `key` - key to the cert
+* `csr` - CSR of the key
+* `intermediates` - intermediates needed for cert to work
+* `not_before` - stringified start date of cert (  2019-02-28 13:31:00 UTC )
+* `not_after` - stringified end date of cert (  2019-04-28 13:31:00 UTC )
 
-
- 
 
 ## Installation
 
