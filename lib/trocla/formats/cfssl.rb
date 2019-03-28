@@ -1,12 +1,12 @@
-require 'json'
-require 'open3'
 class Trocla::Formats::Cfssl < Trocla::Formats::Base
+  require 'json'
+  require 'open3'
   def format(plain_password,options={})
-    #n o dig method on jruby 1.9 used by puppet ;/
+    #no dig method on jruby 1.9 used by puppet ;/
     if @trocla.config['formats'] && @trocla.config['formats']['cfssl']
       @cfssl_config = @trocla.config['formats']['cfssl']
     else
-       raise "cfssl format needs server parameters in formats -> cfssl config in the config file"
+      raise "cfssl format needs server parameters in formats -> cfssl config in the config file"
     end
     if !options.is_a?(Hash)
       options = YAML.load(options)
@@ -41,5 +41,5 @@ class Trocla::Formats::Cfssl < Trocla::Formats::Base
     certdata['not_before'] = cert.not_before
     certdata['not_after'] = cert.not_after
     return certdata
-end
+  end
 end
