@@ -283,7 +283,7 @@ Changes CFSSL profile. Defaults to 'server'
 
 When set to true switches mode to generate selfsigned certs. Example:
 
-`trocla set testcerts cfssl '{"ca":{"expiry":"96h"},"selfsigned":true,"CN" : "test.example.com","hosts":["test.example.com"],"names":[{"O":"Testorg","OU":"testcert"}],}`
+`trocla set testcerts cfssl '{"ca":{"expiry":"96h"},"selfsigned":true,"CN" : "test.example.com","hosts":["test.example.com"],"names":[{"O":"Testorg","OU":"testcert"}],}'`
 
 will generate selfsigned cert with lifetime 96 hours
 
