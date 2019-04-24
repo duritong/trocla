@@ -11,12 +11,22 @@ class Trocla::Formats::Cfssl < Trocla::Formats::Base
     if !options.is_a?(Hash)
       options = YAML.load(options)
     end
+    selfsigned = false
+    if options['selfsigned']
+      selfsigned = true
+      options.delete('selfsigned')
+    end
     options['names'] ||= @cfssl_config['default_names']
     options['key'] ||= @cfssl_config['default_key'] || { 'algo' => 'rsa', 'size' => 2048 }
-    options['profile'] ||= 'server'
+    if selfsigned
+      options['profile'] ||= 'ca'
+    else
+      options['profile'] ||= 'server'
+    end
+
 
     if plain_password.is_a?(Hash) && plain_password['cert'] && plain_password['key']
-       # looks like cert, just an import, don't generate any new keys
+      # looks like cert, just an import, don't generate any new keys
       return plain_password
     end
     @cfssl_config['cfssl_config_path'] ||= File.expand_path(File.join(File.dirname(__FILE__),'..','ca-config.json'))
@@ -24,7 +34,11 @@ class Trocla::Formats::Cfssl < Trocla::Formats::Base
        raise "options passed should contain CN, hosts, and names (if names are not defined in default config)"
     end
     json_csr = JSON.dump(options)
-    cfssl_cmd = ['cfssl','gencert','-config',@cfssl_config['cfssl_config_path'],'-profile', options['profile'], '-remote',@cfssl_config['server_url'],'-']
+    if selfsigned
+      cfssl_cmd = ['cfssl','gencert','-initca=true','-config',@cfssl_config['cfssl_config_path'],'-profile', options['profile'], '-']
+    else
+      cfssl_cmd = ['cfssl','gencert','-config',@cfssl_config['cfssl_config_path'],'-profile', options['profile'], '-remote',@cfssl_config['server_url'],'-']
+    end
     cfssl_stdout,cfssl_stderr = Open3.capture3(
         *cfssl_cmd,
         :stdin_data=>json_csr

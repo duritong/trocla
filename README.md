@@ -273,9 +273,19 @@ and it will be signed using `server` cfssl profile
 
 #### Additional generation options
 
+all other parameters are passed directly to cfssl
+
 ##### profile
 
 Changes CFSSL profile. Defaults to 'server'
+
+##### selfsigned
+
+When set to true switches mode to generate selfsigned certs. Example:
+
+`trocla set testcerts cfssl '{"ca":{"expiry":"96h"},"selfsigned":true,"CN" : "test.example.com","hosts":["test.example.com"],"names":[{"O":"Testorg","OU":"testcert"}],}`
+
+will generate selfsigned cert with lifetime 96 hours
 
 #### Additional trocla config options
 
@@ -296,7 +306,6 @@ default_names:
 ####  intermediates
 
 Intermediates to add to the cert hash. Are **not** checked in any way
-
 
 #### Output
 
