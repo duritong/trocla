@@ -24,7 +24,7 @@ retrieve (by deleting) the plain password and send it to the user. Puppet
 will still simply retrieve the hashed password that is stored in trocla,
 while the plain password is not anymore stored on the server.
 
-Be default trocla uses moneta to store the passwords and can use any kind of
+By default trocla uses moneta to store the passwords and can use any kind of
 key/value based storage supported by moneta for trocla. By default it uses a
 simple yaml file.
 However, since version 0.2.0 trocla also supports a pluggable storage backend
