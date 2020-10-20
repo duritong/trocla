@@ -99,10 +99,11 @@ def reset(options)
 end
 
 def delete(options)
-  [ Trocla.new(options.delete(:config_file)).delete_password(
+  res = Trocla.new(options.delete(:config_file)).delete_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format)
-  ), 0 ]
+  )
+  [ res, res.nil? ? 1 : 0 ]
 end
 
 def formats(options)
