@@ -256,6 +256,7 @@ Such a store is a simple class that implements Trocla::Store and at the moment t
 
 * Moneta - the default store using [moneta](https://rubygems.org/gems/moneta) to delegate storing the values
 * Memory - simple inmemory backend. Mainly used for testing.
+* Vault - modern secrets storage by HashiCorp, require the ruby gem [vault](https://github.com/hashicorp/vault-ruby)
 
 The backend is chosen based on the `store` configuration option. If it is a symbol, we expect it to be a store that we ship with trocla. Otherwise, we assume it to be a fully qualified ruby class name, that inherits from Trocla::Store. If trocla should load an additional library to be able to find your custom store class, you can set `store_require` to whatever should be passed to a ruby require statement.
 
@@ -297,6 +298,18 @@ store_options:
 ```
 
 These examples are by no way complete, moneta has much more to offer. Please have a look at [moneta's documentation](https://github.com/minad/moneta/blob/master/README.md) for further information.
+
+#### Vault backend
+
+For use vault you need to create un kv storage in your vault. The `store_options` are dynamic argument for initializer Vault::Client class (except `:kv`, used to defined the kv name)
+
+```YAML
+store: :vault
+store_options:
+  :kv: secret
+  :token: s.Tok3n
+  :address: https://vault.local
+```
 
 ### Backend encryption
 
