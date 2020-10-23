@@ -301,12 +301,12 @@ These examples are by no way complete, moneta has much more to offer. Please hav
 
 #### Vault backend
 
-For use vault you need to create un kv storage in your vault. The `store_options` are dynamic argument for initializer Vault::Client class (except `:kv`, used to defined the kv name)
+For use vault you need to create un kv storage in your vault. The `store_options` are dynamic argument for initializer Vault::Client class (except `:mount`, used to defined the kv name)
 
 ```YAML
 store: :vault
 store_options:
-  :kv: secret
+  :mount: secret
   :token: s.Tok3n
   :address: https://vault.local
 ```

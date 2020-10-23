@@ -1,10 +1,10 @@
 # the default vault based store
 class Trocla::Stores::Vault < Trocla::Store
-  attr_reader :vault, :kv
+  attr_reader :vault, :mount
   def initialize(config,trocla)
     super(config,trocla)
     require 'vault'
-    @kv = (config.delete(:kv) || 'kv')
+    @mount = (config.delete(:mount) || 'kv')
     # load expire support by default
     @vault = Vault::Client.new(config)
   end
@@ -22,12 +22,12 @@ class Trocla::Stores::Vault < Trocla::Store
 
   private
   def read(key)
-    k = vault.kv(kv).read(key)
+    k = vault.kv(mount).read(key)
     k.nil? ? {} : k.data
   end
 
   def write(key, value)
-    vault.kv(kv).write(key, value)
+    vault.kv(mount).write(key, value)
   end
 
   def set_plain(key,value,options)
@@ -39,7 +39,7 @@ class Trocla::Stores::Vault < Trocla::Store
   end
 
   def delete_all(key)
-    vault.kv(kv).delete(key)
+    vault.kv(mount).delete(key)
   end
 
   def delete_format(key,format)
