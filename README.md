@@ -301,12 +301,23 @@ These examples are by no way complete, moneta has much more to offer. Please hav
 
 #### Vault backend
 
-For use vault you need to create un kv storage in your vault. The `store_options` are dynamic argument for initializer Vault::Client class (except `:mount`, used to defined the kv name)
+[Vault](https://www.vaultproject.io/) is a modern secret storage supported by HashiCorp, works with a REST API. You can create multiple storage engine.
+
+For use vault with trocla you need to create un kv (key/value) storage engine. It's work with [v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1) and [v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2), but it's recommended to use the v2 (native hash object, history, acl...).
+
+With vault storage, the terminology changes:
+* `mount`, this is the name of your kv engine
+* `key`, this is the biggest change. As usual with trocla, the key is a simple string. With the vault kv engine, the key map to a path, so you can have a key like `my/path/key` for structured your data
+* `secret`, is the data content of your key. This is a simple hash with key (format) and value (the secret content of your format)
+
+The trocla mapping works to have no difference with a moneta or file backend.
+
+The `store_options` are dynamic argument for initializer [Vault::Client](https://github.com/hashicorp/vault-ruby/blob/master/lib/vault/client.rb) class (except `:mount`, used to defined the kv name). Actually you can define just one kv mount.
 
 ```YAML
 store: :vault
 store_options:
-  :mount: secret
+  :mount: kv
   :token: s.Tok3n
   :address: https://vault.local
 ```
