@@ -136,6 +136,11 @@ describe "Trocla::Format::X509" do
       expect(cert_str).not_to match(/-----BEGIN CERTIFICATE-----/)
       expect(cert_str).to match(/-----BEGIN RSA PRIVATE KEY-----/)
     end
+    it 'supports fetching only the publickey' do
+      pkey_str = @trocla.password('mycert', 'x509', cert_options.merge('render' => {'publickeyonly' => true }))
+      expect(pkey_str).not_to match(/-----BEGIN CERTIFICATE-----/)
+      expect(pkey_str).to match(/-----BEGIN PUBLIC KEY-----/)
+    end
     it 'supports fetching only the cert' do
       cert_str = @trocla.password('mycert', 'x509', cert_options.merge('render' => {'certonly' => true }))
       expect(cert_str).to match(/-----BEGIN CERTIFICATE-----/)

@@ -97,6 +97,8 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       OpenSSL::PKey::RSA.new(output).to_pem
     elsif render_options['certonly']
       OpenSSL::X509::Certificate.new(output).to_pem
+    elsif render_options['publickeyonly']
+      OpenSSL::PKey::RSA.new(output).public_key.to_pem
     else
       super(output,render_options)
     end
