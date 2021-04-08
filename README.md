@@ -212,8 +212,9 @@ Additional options are:
 
 Output render options are:
 
-    certonly If set to true the x509 format will return only the certificate
-    keyonly  If set to true the x509 format will return only the private key
+    certonly       If set to true the x509 format will return only the certificate
+    keyonly        If set to true the x509 format will return only the private key
+    publickeyonly  If set to true the x509 format will return only the public key
 
 ## Installation
 
