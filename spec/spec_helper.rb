@@ -1,5 +1,6 @@
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))
+require 'jruby' if Object.const_defined?(:RUBY_ENGINE) and RUBY_ENGINE == 'jruby'
 require 'rspec'
 require 'rspec/pending_for'
 require 'yaml'
