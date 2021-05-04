@@ -1,3 +1,4 @@
+# -- encoding : utf-8 --
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Trocla" do
@@ -98,6 +99,11 @@ describe "Trocla" do
         expect(@trocla.get_password('set_test2','mysql')).to eq(new_mysql)
         expect(@trocla.get_password('set_test2','md5crypt')).to eq(md5crypt)
         expect(@trocla.get_password('set_test2','plain')).to eq(plain)
+      end
+
+      it 'is able to set password with umlauts and other UTF-8 charcters' do
+        expect(myumlaut = @trocla.set_password('set_test_umlaut','plain','Tütü')).to eql('Tütü')
+        expect(@trocla.get_password('set_test_umlaut','plain','Tütü')).to eql('Tütü')
       end
     end
 
