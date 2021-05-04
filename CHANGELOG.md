@@ -1,5 +1,11 @@
 # Changelog
 
+## to x
+
+* drop support for ruby < 2.7 & update dependencies
+* skip self-signed cert verification test on newer openssl version (#63)
+* Proper return code on cli (#57)
+
 ## to 0.3.0
 
 * Add open method to be able to immediately close a trocla store after using it - thanks martinpfeiffer
