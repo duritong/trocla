@@ -226,14 +226,13 @@ RSpec.shared_examples 'store_validation' do |store|
 end
 
 def default_config
-  config_path = false
-  for p in [
-          File.expand_path(base_dir+'/lib/trocla/default_config.yaml'),
-          File.expand_path(File.dirname($LOADED_FEATURES.grep(/trocla.rb/)[0])+'/trocla/default_config.yaml'),
-        ] do
-    config_path = p if File.exists?(p)
+  @default_config ||=  begin
+    config_path = [
+      File.expand_path(base_dir+'/lib/trocla/default_config.yaml'),
+      File.expand_path(File.dirname($LOADED_FEATURES.grep(/trocla.rb/)[0])+'/trocla/default_config.yaml'),
+    ].find { |p| File.exists?(p) }
+    YAML.load(File.read(config_path))
   end
-  @default_config ||= YAML.load(File.read(config_path))
 end
 
 def test_config
