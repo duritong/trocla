@@ -5,6 +5,8 @@
 * drop support for ruby < 2.7 & update dependencies
 * skip self-signed cert verification test on newer openssl version (#63)
 * Proper return code on cli (#57)
+* Add a method to search for keys and list all formats of a key (#49)
+* Fix reseting passwords when using SSL encryption (#52)
 
 ## to 0.3.0
 
