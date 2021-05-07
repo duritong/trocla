@@ -36,6 +36,11 @@ RSpec.shared_examples "encryption_basics" do
       expect(@trocla.get_password('some_pass', 'plain')).to eql('super secret')
     end
 
+    it "resets passwords" do
+      @trocla.set_password('some_pass', 'plain', 'super secret')
+      expect(@trocla.reset_password('some_pass', 'plain')).not_to eql('super secret')
+    end
+
   end
   describe 'deleting' do
     it "plain" do

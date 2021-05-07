@@ -62,7 +62,7 @@ class Trocla
   end
 
   def reset_password(key,format,options={})
-    set_password(key,format,nil,options)
+    delete_password(key,format)
     password(key,format,options)
   end
 
