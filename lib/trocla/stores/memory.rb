@@ -19,6 +19,15 @@ class Trocla::Stores::Memory < Trocla::Store
     set_expires(key,options['expires'])
   end
 
+  def formats(key)
+    memory[key].empty? ? nil : memory[key].keys
+  end
+
+  def search(key)
+    r = memory.keys.grep(/#{key}/)
+    r.empty? ? nil : r
+  end
+
   private
   def set_plain(key,value,options)
     memory[key] = { 'plain' => value }

@@ -50,6 +50,16 @@ class Trocla::Store
     format.nil? ? (delete_all(key)||{}) : delete_format(key,format)
   end
 
+  # returns all formats for a key
+  def formats(key)
+    raise 'not implemented'
+  end
+
+  # def searches for a key
+  def search(key)
+    raise 'not implemented'
+  end
+
   private
   # sets a new plain value
   # *must* invalidate all
