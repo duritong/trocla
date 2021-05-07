@@ -20,7 +20,7 @@ class Trocla::Stores::Memory < Trocla::Store
   end
 
   def formats(key)
-    memory[key].nil? ? nil : memory[key].keys
+    memory[key].empty? ? nil : memory[key].keys
   end
 
   def search(key)
