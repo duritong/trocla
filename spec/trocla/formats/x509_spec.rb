@@ -44,13 +44,9 @@ describe "Trocla::Format::X509" do
       expect(cert.public_key.n.num_bytes * 8).to eq(4096)
       expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
       # it's a self signed cert and NOT a CA
-      if Gem::Version.new(%x{openssl version}.split(' ')[1]) > Gem::Version.new('1.1.1g')
-        skip_for(:engine => 'ruby',:reason => 'Requires clarification in behavior change on openssl side: https://github.com/openssl/openssl/issues/15146') do
-          expect(verify(cert,cert)).to be false
-        end
-      else
-        expect(verify(cert,cert)).to be false
-      end
+      # Change of behavior on openssl side: https://github.com/openssl/openssl/issues/15146
+      validates_self_even_if_no_ca = Gem::Version.new(%x{openssl version}.split(' ')[1]) > Gem::Version.new('1.1.1g')
+      expect(verify(cert,cert)).to be validates_self_even_if_no_ca
 
       v = cert.extensions.find{|e| e.oid == 'basicConstraints' }.value
       expect(v).to eq('CA:FALSE')
