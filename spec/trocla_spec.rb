@@ -126,6 +126,40 @@ describe "Trocla" do
       end
     end
 
+    describe "search_key" do
+      it "search a specific key" do
+        keys = ['search_key','search_key1','key_search','key_search2']
+        keys.each do |k|
+          @trocla.password(k,'plain')
+        end
+        expect(@trocla.search_key('search_key1').length).to eq(1)
+      end
+      it "ensure search regex is ok" do
+        keys = ['search_key2','search_key3','key_search2','key_search4']
+        keys.each do |k|
+          @trocla.password(k,'plain')
+        end
+        expect(@trocla.search_key('key').length).to eq(4)
+        expect(@trocla.search_key('^search').length).to eq(2)
+        expect(@trocla.search_key('ch.*3').length).to eq(1)
+        expect(@trocla.search_key('ch.*[3-4]$').length).to eq(2)
+        expect(@trocla.search_key('ch.*1')).to be_nil
+      end
+    end
+
+    describe "list_format" do
+      it "list available formats for key" do
+        formats = ['plain','mysql']
+        formats.each do |f|
+          @trocla.password('list_key',f)
+        end
+        expect(@trocla.available_format('list_key')).to eq(formats)
+      end
+      it "no return if key doesn't exist" do
+        expect(@trocla.available_format('list_key1')).to be_nil
+      end
+    end
+
     describe "delete_password" do
       it "deletes all passwords if no format is given" do
         expect(@trocla.password('delete_test1','mysql')).not_to be_nil
