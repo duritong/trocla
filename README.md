@@ -257,6 +257,7 @@ Such a store is a simple class that implements Trocla::Store and at the moment t
 
 * Moneta - the default store using [moneta](https://rubygems.org/gems/moneta) to delegate storing the values
 * Memory - simple inmemory backend. Mainly used for testing.
+* Vault - modern secrets storage by HashiCorp, require the ruby gem [vault](https://github.com/hashicorp/vault-ruby)
 
 The backend is chosen based on the `store` configuration option. If it is a symbol, we expect it to be a store that we ship with trocla. Otherwise, we assume it to be a fully qualified ruby class name, that inherits from Trocla::Store. If trocla should load an additional library to be able to find your custom store class, you can set `store_require` to whatever should be passed to a ruby require statement.
 
@@ -298,6 +299,31 @@ store_options:
 ```
 
 These examples are by no way complete, moneta has much more to offer. Please have a look at [moneta's documentation](https://github.com/minad/moneta/blob/master/README.md) for further information.
+
+#### Vault backend
+
+[Vault](https://www.vaultproject.io/) is a modern secret storage supported by HashiCorp, which works with a REST API. You can create multiple storage engine.
+
+To use vault with trocla you need to create a kv (key/value) storage engine on the vault side. Trocla can use [v1](https://www.vaultproject.io/docs/secrets/kv/kv-v1) and [v2](https://www.vaultproject.io/docs/secrets/kv/kv-v2) API endpoints, but it's recommended to use the v2 (native hash object, history, acl...).
+
+You need to install the `vault` gem to be able to use the vault backend, which is not included in the default dependencies for trocla.
+
+With vault storage, the terminology changes:
+* `mount`, this is the name of your kv engine
+* `key`, this is the biggest change. As usual with trocla, the key is a simple string. With the vault kv engine, the key map to a path, so you can have a key like `my/path/key` for structured your data
+* `secret`, is the data content of your key. This is a simple hash with key (format) and value (the secret content of your format)
+
+The trocla mapping works the same way as with a moneta or file backend.
+
+The `store_options` are a dynamic argument for initializer [Vault::Client](https://github.com/hashicorp/vault-ruby/blob/master/lib/vault/client.rb) class (except `:mount`, used to defined the kv name). You can define only one kv mount.
+
+```YAML
+store: :vault
+store_options:
+  :mount: kv
+  :token: s.Tok3n
+  :address: https://vault.local
+```
 
 ### Backend encryption
 
