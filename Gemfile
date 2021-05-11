@@ -10,6 +10,7 @@ if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby')
   gem 'jruby-openssl'
 end
 gem "bcrypt"
+gem "sshkey"
 
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.

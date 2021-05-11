@@ -46,6 +46,7 @@ Gem::Specification.new do |s|
     "lib/trocla/formats/sha256crypt.rb",
     "lib/trocla/formats/sha512crypt.rb",
     "lib/trocla/formats/ssha.rb",
+    "lib/trocla/formats/sshkey.rb",
     "lib/trocla/formats/x509.rb",
     "lib/trocla/store.rb",
     "lib/trocla/stores.rb",
@@ -76,6 +77,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<moneta>.freeze, [">= 0"])
       s.add_runtime_dependency(%q<highline>.freeze, [">= 0"])
       s.add_runtime_dependency(%q<bcrypt>.freeze, [">= 0"])
+      s.add_runtime_dependency(%q<sshkey>.freeze, [">= 0"])
       s.add_development_dependency(%q<rspec>.freeze, [">= 0"])
       s.add_development_dependency(%q<rdoc>.freeze, [">= 0"])
       s.add_development_dependency(%q<jeweler>.freeze, [">= 0"])
