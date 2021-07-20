@@ -232,6 +232,17 @@ Output render options are:
     pubonly     If set to true the sshkey format will return only the ssh public key
     privonly    If set to true the sshkey format will return only the ssh private key
 
+### wireguard
+
+This format generate a keypair for WireGuard.
+
+The format requires the wg binary from WireGuard userland utilities.
+
+Output render options are:
+
+    pubonly     If set to true the wireguard format will return only the public key
+    privonly    If set to true the wireguard format will return only the private key
+
 ## Installation
 
 * Debian has trocla within its sid-release: `apt-get install trocla`
