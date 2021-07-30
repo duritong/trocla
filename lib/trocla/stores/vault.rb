@@ -20,6 +20,10 @@ class Trocla::Stores::Vault < Trocla::Store
     read(key).keys
   end
 
+  def search(key)
+    vault.kv(mount).list(key)
+  end
+
   private
   def read(key)
     k = vault.kv(mount).read(key)
