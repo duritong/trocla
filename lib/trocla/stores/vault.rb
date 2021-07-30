@@ -20,6 +20,17 @@ class Trocla::Stores::Vault < Trocla::Store
     read(key).keys
   end
 
+  def search(key)
+    arr = key.split('/')
+    regexp = Regexp.new(arr.pop(1)[0].to_s)
+    path = arr.join('/')
+    list = vault.kv(mount).list(path)
+    list.map! do |l|
+      path.empty? ? l : [path, l].join('/') if regexp.match(l)
+    end
+    list.compact
+  end
+
   private
   def read(key)
     k = vault.kv(mount).read(key)
