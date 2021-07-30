@@ -341,6 +341,8 @@ store_options:
   :address: https://vault.local
 ```
 
+With Vault when you delete a key, you don't delete all key content. The metadatas, like history, are still here and the endpoint are not delete. If you prefere to destroy all key content you can add `:destroy: true` in the `store_options:` hash.
+
 ### Backend encryption
 
 By default trocla does not encrypt anything it stores. You might want to let Trocla encrypt all your passwords, at the moment the only supported way is SSL.
