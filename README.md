@@ -165,8 +165,9 @@ options to work properly. These are documented here:
 
 ### pgsql
 
-Password hashes for PostgreSQL servers. Requires the option `username` to be set
-to the username to which the password will be assigned.
+Password hashes for PostgreSQL servers. Since postgesql 10 you can use the sha256 hash, you have two options:
+* Create a ssh256 hash password with option `encode: sha256` (default value)
+* Create a md5 hash, the username is require for the salt key, with option  `encode: md5` and `username: your_user`
 
 ### bcrypt
 
