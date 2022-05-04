@@ -4,15 +4,19 @@ class Trocla
     class << self
       def random_str(length=12, charset='default')
         _charsets = charsets[charset] || charsets['default']
-        (1..length).collect{|a| _charsets[SecureRandom.random_number(_charsets.size)] }.join.to_s
+        charsets_size = _charsets.size
+        (1..length).collect{|a| _charsets[rand_num(charsets_size)] }.join.to_s
       end
 
       def salt(length=8)
-        alphanumeric_size = alphanumeric.size
-        (1..length).collect{|a| alphanumeric[SecureRandom.random_number(alphanumeric_size)] }.join.to_s
+        random_str(length,'alphanumeric')
       end
 
       private
+
+      def rand_num(n)
+        SecureRandom.random_number(n)
+      end
 
       def charsets
         @charsets ||= begin
