@@ -243,6 +243,110 @@ Output render options are:
     pubonly     If set to true the wireguard format will return only the public key
     privonly    If set to true the wireguard format will return only the private key
 
+### cfssl
+
+This format will use [CFSSL](https://github.com/cloudflare/cfssl) to generate certificates and then sign it via remote CFSSL API server, for example:
+
+`trocla set testcert cfssl '{"CN" : "test.example.com","hosts":["test.example.com"],"names":[{"O":"Testorg","OU":"testcert"}],}'`
+   
+Format for options is same config as CFSSL uses. That means all names must be in `hosts` key including CN. Plaintext pass is not used.
+
+Key type is set to RSA 2048 if not set in trocla call. `names` list can be set as default in trocla config or passed to trocla call to override default
+
+Required configuration:
+
+* cfssl installed in /usr/bin/cfssl (that's where Debian packages install it) or anywhere in PATH that trocla sees.
+* cfssl CA configuration (example of it is in`lib/trocla/ca-config.json`
+* cfssl config keys showing server URL and CA configuration
+
+Trocla config minimum setup:
+
+```yaml
+formats:
+  cfssl:
+    server_url: https://certserver.example.com:8443
+    cfssl_config_path: /etc/trocla/trocla-ca-config.json
+```
+
+#### Basic usage
+
+call trocla with hash describing cert to sign:
+```json
+{
+  "CN": "*.example.com",
+  "hosts": [
+    "*.example.com",
+    "example.com",
+    "10.0.0.1"
+  ],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "AB",
+      "L": "Nowherecity",
+      "O": "Someorg",
+      "OU": "IT dept",
+      "ST": "nowhere",
+      "emailAddress": "admin@example.com"
+    }
+  ]
+}
+```
+and it will be signed using `server` cfssl profile
+
+`names` can be skipped if `default_names` key is specified in trocla config. `key` defaults to RSA 2048 and can be set globally via `default_key` key
+
+#### Additional generation options
+
+all other parameters are passed directly to cfssl
+
+##### profile
+
+Changes CFSSL profile. Defaults to 'server'
+
+##### selfsigned
+
+When set to true switches mode to generate selfsigned certs. Example:
+
+`trocla set testcerts cfssl '{"ca":{"expiry":"96h"},"selfsigned":true,"CN" : "test.example.com","hosts":["test.example.com"],"names":[{"O":"Testorg","OU":"testcert"}],}'`
+
+will generate selfsigned cert with lifetime 96 hours
+
+#### Additional trocla config options
+
+##### default_names
+
+Array to use if no `names` key is provided when requesting the certificate. For example:
+
+```yaml
+default_names:
+  - C: AB
+    L: Nowherecity
+    O: Someorg
+    OU: IT dept
+    ST: nowhere
+    emailAddress: admin@example.com
+
+```
+####  intermediates
+
+Intermediates to add to the cert hash. Are **not** checked in any way
+
+#### Output
+
+Resulting hash will have  those keys, in PEM format: 
+
+* `cert` - cert itself
+* `key` - key to the cert
+* `csr` - CSR of the key
+* `intermediates` - intermediates needed for cert to work
+* `not_before` - stringified start date of cert (  2019-02-28 13:31:00 UTC )
+* `not_after` - stringified end date of cert (  2019-04-28 13:31:00 UTC )
+
+
 ## Installation
 
 * Debian has trocla within its sid-release: `apt-get install trocla`

@@ -44,4 +44,12 @@ profiles:
     days: 2
     # 1 day
     expires: 86400
-
+formats:
+  cfssl:
+    server_url: http://localhost:8888
+    #cfssl_config_path: ./ca-config.json
+    # intermediates: |
+    #    -----BEGIN CERTIFICATE-----
+    #    ...
+    #    -----END CERTIFICATE-----
+    #
