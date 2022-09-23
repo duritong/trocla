@@ -1,12 +1,13 @@
 # a simple in memory store just as an example
 class Trocla::Stores::Memory < Trocla::Store
   attr_reader :memory
-  def initialize(config,trocla)
-    super(config,trocla)
+
+  def initialize(config, trocla)
+    super(config, trocla)
     @memory = Hash.new({})
   end
 
-  def get(key,format)
+  def get(key, format)
     unless expired?(key)
       memory[key][format]
     else
@@ -14,9 +15,10 @@ class Trocla::Stores::Memory < Trocla::Store
       nil
     end
   end
-  def set(key,format,value,options={})
-    super(key,format,value,options)
-    set_expires(key,options['expires'])
+
+  def set(key, format, value, options = {})
+    super(key, format, value, options)
+    set_expires(key, options['expires'])
   end
 
   def formats(key)
@@ -29,25 +31,29 @@ class Trocla::Stores::Memory < Trocla::Store
   end
 
   private
-  def set_plain(key,value,options)
+
+  def set_plain(key, value, _)
     memory[key] = { 'plain' => value }
   end
 
-  def set_format(key,format,value,options)
+  def set_format(key, format, value, _)
     memory[key].merge!({ format => value })
   end
 
   def delete_all(key)
     memory.delete(key)
   end
-  def delete_format(key,format)
+
+  def delete_format(key, format)
     old_val = (h = memory[key]).delete(format)
     h.empty? ? memory.delete(key) : memory[key] = h
     set_expires(key,nil)
     old_val
   end
+
   private
-  def set_expires(key,expires)
+
+  def set_expires(key, expires)
     expires = memory[key]['_expires'] if expires.nil?
     if expires && expires > 0
       memory[key]['_expires'] = expires
@@ -57,6 +63,7 @@ class Trocla::Stores::Memory < Trocla::Store
       memory[key].delete('_expires_at')
     end
   end
+
   def expired?(key)
     memory.key?(key) &&
       (a = memory[key]['_expires_at']).is_a?(Time) && \

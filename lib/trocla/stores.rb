@@ -7,7 +7,7 @@ class Trocla::Stores
     end
 
     def all
-      @all ||= Dir[ path '*' ].collect do |store|
+      @all ||= Dir[path '*'].collect do |store|
         File.basename(store, '.rb').downcase
       end
     end
@@ -17,10 +17,11 @@ class Trocla::Stores
     end
 
     private
+
     def stores
       @@stores ||= Hash.new do |hash, store|
         store = store.to_s.downcase
-        if File.exists?(path(store))
+        if File.exist?(path(store))
           require "trocla/stores/#{store}"
           class_name = "Trocla::Stores::#{store.capitalize}"
           hash[store] = (eval class_name)
