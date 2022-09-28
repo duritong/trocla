@@ -7,9 +7,9 @@ store_options:
 
 encryption: :none
 options:
-    random: true
-    length: 16
-    charset: default
+  random: true
+  length: 16
+  charset: default
 
 profiles:
   rootpw:
@@ -44,4 +44,3 @@ profiles:
     days: 2
     # 1 day
     expires: 86400
-

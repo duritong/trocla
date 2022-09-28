@@ -7,4 +7,3 @@ class Trocla::Encryptions::None < Trocla::Encryptions::Base
     value
   end
 end
-

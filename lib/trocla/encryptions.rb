@@ -1,18 +1,24 @@
-class Trocla::Encryptions
+# frozen_string_literal: true
 
+# Trocla::Encryptions
+class Trocla::Encryptions
+  # Base
   class Base
     attr_reader :trocla, :config
+
     def initialize(config, trocla)
       @trocla = trocla
       @config = config
     end
 
-    def encrypt(value)
+    def encrypt(_)
       raise NoMethodError.new("#{self.class.name} needs to implement 'encrypt()'")
+
     end
 
-    def decrypt(value)
+    def decrypt(_)
       raise NoMethodError.new("#{self.class.name} needs to implement 'decrypt()'")
+
     end
   end
 
@@ -22,7 +28,7 @@ class Trocla::Encryptions
     end
 
     def all
-      Dir[ path '*' ].collect do |enc|
+      Dir[path '*'].collect do |enc|
         File.basename(enc, '.rb').downcase
       end
     end
@@ -32,10 +38,11 @@ class Trocla::Encryptions
     end
 
     private
+
     def encryptions
       @@encryptions ||= Hash.new do |hash, encryption|
         encryption = encryption.to_s.downcase
-        if File.exists?( path encryption )
+        if File.exist?(path encryption)
           require "trocla/encryptions/#{encryption}"
           class_name = "Trocla::Encryptions::#{encryption.capitalize}"
           hash[encryption] = (eval class_name)
