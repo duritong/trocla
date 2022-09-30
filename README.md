@@ -301,6 +301,8 @@ We expect storage backends to implement support for the `expires` option, so tha
 
 New backends should be tested using the provided shared example.
 
+> **WARNING**: Vault backend use metadatas. It's set if an option is define. `expire` is automaticly change to `delete_version_after`, and you can use an interger or [format string](https://www.vaultproject.io/api-docs/secret/kv/kv-v2#parameters)
+
 #### Moneta backends
 
 Trocla uses moneta as its default storage backend and hence can store your passwords in any of moneta's supported backends. By default it uses the yaml backend, which is configured as followed:
