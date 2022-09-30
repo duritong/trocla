@@ -27,7 +27,9 @@ class Trocla::Stores::Vault < Trocla::Store
     path = arr.join('/')
     list = vault.kv(mount).list(path)
     list.map! do |l|
-      path.empty? ? l : [path, l].join('/') if regexp.match(l)
+      if regexp.match(l)
+        path.empty? ? l : [path, l].join('/')
+      end
     end
     list.compact
   end
@@ -39,7 +41,8 @@ class Trocla::Stores::Vault < Trocla::Store
     k.nil? ? {} : k.data
   end
 
-  def write(key, value)
+  def write(key, value, options = {})
+    vault.kv(mount).write_metadata(key, convert_metadata(options)) unless options.empty?
     vault.kv(mount).write(key, value)
   end
 
@@ -47,8 +50,12 @@ class Trocla::Stores::Vault < Trocla::Store
     set_format(key, 'plain', value, options)
   end
 
-  def set_format(key, format, value, _)
-    write(key, read(key).merge({ format.to_sym => value }))
+  def set_format(key, format, value, options)
+    write(
+      key,
+      read(key).merge({ format.to_sym => value }),
+      options
+    )
   end
 
   def delete_all(key)
@@ -60,5 +67,12 @@ class Trocla::Stores::Vault < Trocla::Store
     new = old.reject { |k, _| k == format.to_sym }
     new.empty? ? delete_all(key) : write(key, new)
     old[format.to_sym]
+  end
+
+  def convert_metadata(metadatas)
+    metadatas.transform_keys!(&:to_sym)
+    metadatas[:delete_version_after] = metadatas.delete(:expire) if metadatas[:expire]
+    %i[random profiles expires length].each { |k| metadatas.delete(k) }
+    metadatas
   end
 end
