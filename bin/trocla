@@ -43,25 +43,25 @@ OptionParser.new do |opts|
     options[:ask_password] = false
     options[:password] = pass
   end
-
 end.parse!
 
 def create(options)
-  [ Trocla.new(options.delete(:config_file)).password(
+  [Trocla.new(options.delete(:config_file)).password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
-    options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
-  ) , 0 ]
+    options.merge(YAML.safe_load(options.delete(:other_options).shift.to_s) || {})
+  ), 0]
 end
 
 def get(options)
   res = Trocla.new(options.delete(:config_file)).get_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
-    options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
+    options.merge(YAML.safe_load(options.delete(:other_options).shift.to_s) || {})
   )
-  [ res, res.nil? ? 1 : 0 ]
+  [res, res.nil? ? 1 : 0]
 end
+
 def set(options)
   if options.delete(:ask_password)
     require 'highline/import'
@@ -69,7 +69,7 @@ def set(options)
     pwd2 = ask('Repeat password: ') { |q| q.echo = 'x' }.to_s
     unless password == pwd2
       STDERR.puts 'Passwords did not match, exiting!'
-      return [ nil, 1 ]
+      return [nil, 1]
     end
   else
     password = options.delete(:password) || STDIN.read.chomp
@@ -78,24 +78,24 @@ def set(options)
   no_format = options.delete('no_format')
   trocla = Trocla.new(options.delete(:config_file))
   value = if no_format
-    password
-  else
-    trocla.formats(format).format(password, (YAML.load(options.delete(:other_options).shift.to_s)||{}))
-  end
+            password
+          else
+            trocla.formats(format).format(password, (YAML.safe_load(options.delete(:other_options).shift.to_s) || {}))
+          end
   trocla.set_password(
     options.delete(:trocla_key),
     format,
     value
   )
-  [ '', 0 ]
+  ['', 0]
 end
 
 def reset(options)
-  [ Trocla.new(options.delete(:config_file)).reset_password(
+  [Trocla.new(options.delete(:config_file)).reset_password(
     options.delete(:trocla_key),
     options.delete(:trocla_format),
-    options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
-  ), 0 ]
+    options.merge(YAML.safe_load(options.delete(:other_options).shift.to_s) || {})
+  ), 0]
 end
 
 def delete(options)
@@ -103,19 +103,19 @@ def delete(options)
     options.delete(:trocla_key),
     options.delete(:trocla_format)
   )
-  [ res, res.nil? ? 1 : 0 ]
+  [res, res.nil? ? 1 : 0]
 end
 
 def formats(options)
-  key = (options.delete(:trocla_key) || '' )
+  key = (options.delete(:trocla_key) || '')
   if key.empty?
     "Available formats: #{Trocla::Formats.all.join(', ')}"
   else
     res = Trocla.new(options.delete(:config_file)).available_format(
       key,
-      options.merge(YAML.load(options.delete(:other_options).shift.to_s)||{})
+      options.merge(YAML.safe_load(options.delete(:other_options).shift.to_s) || {})
     )
-    [ res.nil? ? res : res.join(', '), res.nil? ? 1 : 0 ]
+    [res.nil? ? res : res.join(', '), res.nil? ? 1 : 0]
   end
 end
 
@@ -123,7 +123,7 @@ def search(options)
   res = Trocla.new(options.delete(:config_file)).search_key(
     options.delete(:trocla_key)
   )
-  [ res.nil? ? res : res.join("\n"), res.nil? ? 1 : 0 ]
+  [res.nil? ? res : res.join("\n"), res.nil? ? 1 : 0]
 end
 
 def check_format(format_name)
@@ -136,30 +136,30 @@ def check_format(format_name)
   end
 end
 
-actions=['create','get','set','reset','delete','formats','search']
+actions = ['create', 'get', 'set', 'reset', 'delete', 'formats', 'search']
 
 if (action=ARGV.shift) && actions.include?(action)
-    options[:trocla_key] = ARGV.shift
-    options[:trocla_format] = ARGV.shift
-    options[:other_options] = ARGV
-    check_format(options[:trocla_format]) unless ['delete','formats','search'].include?(action)
-    begin
-      result, excode = send(action,options)
-      if result
-        puts result.is_a?(String) ? result : result.inspect
-      end
-    rescue Exception => e
-      unless e.message == 'exit'
-        STDERR.puts "Action failed with the following message: #{e.message}"
-        STDERR.puts '(See full trace by running task with --trace)'
-      end
-      raise e if options[:trace]
-      exit 1
+  options[:trocla_key] = ARGV.shift
+  options[:trocla_format] = ARGV.shift
+  options[:other_options] = ARGV
+  check_format(options[:trocla_format]) unless ['delete','formats','search'].include?(action)
+  begin
+    result, excode = send(action, options)
+    if result
+      puts result.is_a?(String) ? result : result.inspect
     end
-    exit excode.nil? ? 0 : excode
-else
-    STDERR.puts "Please supply one of the following actions: #{actions.join(', ')}"
-    STDERR.puts "Use #{$0} --help to get a list of options for these actions"
-    exit 1
-end
+  rescue Exception => e
+    unless e.message == 'exit'
+      STDERR.puts "Action failed with the following message: #{e.message}"
+      STDERR.puts '(See full trace by running task with --trace)'
+    end
+    raise e if options[:trace]
 
+    exit 1
+  end
+  exit excode.nil? ? 0 : excode
+else
+  STDERR.puts "Please supply one of the following actions: #{actions.join(', ')}"
+  STDERR.puts "Use #{$0} --help to get a list of options for these actions"
+  exit 1
+end

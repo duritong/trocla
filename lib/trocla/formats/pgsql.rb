@@ -7,6 +7,7 @@ class Trocla::Formats::Pgsql < Trocla::Formats::Base
     case encode
     when 'md5'
       raise 'You need pass the username as an option to use this format' unless options['username']
+
       'md5' + Digest::MD5.hexdigest(plain_password + options['username'])
     when 'sha256'
       pg_sha256(plain_password)

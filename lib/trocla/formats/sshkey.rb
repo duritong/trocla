@@ -1,11 +1,9 @@
 require 'sshkey'
 
 class Trocla::Formats::Sshkey < Trocla::Formats::Base
-
   expensive true
 
   def format(plain_password,options={})
-
     if plain_password.match(/-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY/m)
       # Import, validate ssh key
       begin
@@ -21,9 +19,8 @@ class Trocla::Formats::Sshkey < Trocla::Formats::Base
 
     begin
       sshkey = ::SSHKey.generate(
-        type:       type,
-        bits:       bits,
-        comment:    options['comment'],
+        type: type, bits: bits,
+        comment: options['comment'],
         passphrase: options['passphrase']
       )
     rescue Exception => e
@@ -33,14 +30,13 @@ class Trocla::Formats::Sshkey < Trocla::Formats::Base
     sshkey.private_key + sshkey.ssh_public_key
   end
 
-  def render(output,render_options={})
+  def render(output, render_options = {})
     if render_options['privonly']
       ::SSHKey.new(output).private_key
     elsif render_options['pubonly']
       ::SSHKey.new(output).ssh_public_key
     else
-      super(output,render_options)
+      super(output, render_options)
     end
   end
-
 end

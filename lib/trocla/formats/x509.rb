@@ -1,8 +1,9 @@
 require 'openssl'
+
+# Trocla::Formats::X509
 class Trocla::Formats::X509 < Trocla::Formats::Base
   expensive true
   def format(plain_password,options={})
-
     if plain_password.match(/-----BEGIN RSA PRIVATE KEY-----.*-----END RSA PRIVATE KEY-----.*-----BEGIN CERTIFICATE-----.*-----END CERTIFICATE-----/m)
       # just an import, don't generate any new keys
       return plain_password
@@ -11,17 +12,17 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     cn = nil
     if options['subject']
       subject = options['subject']
-      if cna = OpenSSL::X509::Name.parse(subject).to_a.find{|e| e[0] == 'CN' }
+      if cna = OpenSSL::X509::Name.parse(subject).to_a.find { |e| e[0] == 'CN' }
         cn = cna[1]
       end
     elsif options['CN']
       subject = ''
       cn = options['CN']
-      ['C','ST','L','O','OU','CN','emailAddress'].each do |field|
+      ['C', 'ST', 'L', 'O', 'OU', 'CN', 'emailAddress'].each do |field|
         subject << "/#{field}=#{options[field]}" if options[field]
       end
     else
-      raise "You need to pass \"subject\" or \"CN\" as an option to use this format"
+      raise 'You need to pass "subject" or "CN" as an option to use this format'
     end
     hash = options['hash'] || 'sha2'
     sign_with = options['ca']
@@ -33,17 +34,17 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     key_usages = Array(key_usages) if key_usages
 
     altnames = if become_ca || (an = options['altnames']) && Array(an).empty?
-      []
-    else
-      # ensure that we have the CN with us, but only if it
-      # it's like a hostname.
-      # This might have to be improved.
-      if cn.include?(' ')
-        Array(an).collect { |v| "DNS:#{v}" }.join(', ')
-      else
-        (["DNS:#{cn}"] + Array(an).collect { |v| "DNS:#{v}" }).uniq.join(', ')
-      end
-    end
+                 []
+               else
+                 # ensure that we have the CN with us, but only if it
+                 # it's like a hostname.
+                 # This might have to be improved.
+                 if cn.include?(' ')
+                   Array(an).collect { |v| "DNS:#{v}" }.join(', ')
+                 else
+                   (["DNS:#{cn}"] + Array(an).collect { |v| "DNS:#{v}" }).uniq.join(', ')
+                 end
+               end
 
     begin
       key = mkkey(keysize)
@@ -55,7 +56,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     cert = nil
     if sign_with # certificate signed with CA
       begin
-        ca_str = trocla.get_password(sign_with,'x509')
+        ca_str = trocla.get_password(sign_with, 'x509')
         ca = OpenSSL::X509::Certificate.new(ca_str)
         cakey = OpenSSL::PKey::RSA.new(ca_str)
         caserial = getserial(sign_with)
@@ -72,8 +73,10 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
       end
 
       begin
-        cert = mkcert(caserial, request.subject, ca, request.public_key, days,
-                        altnames, key_usages, name_constraints, become_ca)
+        cert = mkcert(
+          caserial, request.subject, ca, request.public_key, days,
+          altnames, key_usages, name_constraints, become_ca
+        )
         cert.sign(cakey, signature(hash))
         addserial(sign_with, caserial)
       rescue Exception => e
@@ -82,8 +85,10 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     else # self-signed certificate
       begin
         subj = OpenSSL::X509::Name.parse(subject)
-        cert = mkcert(getserial(subj), subj, nil, key.public_key, days,
-                        altnames, key_usages, name_constraints, become_ca)
+        cert = mkcert(
+          getserial(subj), subj, nil, key.public_key, days,
+          altnames, key_usages, name_constraints, become_ca
+        )
         cert.sign(key, signature(hash))
       rescue Exception => e
         raise "Self-signed certificate #{subject} creation failed: #{e.message}"
@@ -92,7 +97,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     key.to_pem + cert.to_pem
   end
 
-  def render(output,render_options={})
+  def render(output, render_options = {})
     if render_options['keyonly']
       OpenSSL::PKey::RSA.new(output).to_pem
     elsif render_options['certonly']
@@ -100,26 +105,26 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     elsif render_options['publickeyonly']
       OpenSSL::PKey::RSA.new(output).public_key.to_pem
     else
-      super(output,render_options)
+      super(output, render_options)
     end
   end
 
   private
-  # nice help: https://gist.github.com/mitfik/1922961
 
+  # nice help: https://gist.github.com/mitfik/1922961
   def signature(hash = 'sha2')
     if hash == 'sha1'
-        OpenSSL::Digest::SHA1.new
+      OpenSSL::Digest::SHA1.new
     elsif hash == 'sha224'
-        OpenSSL::Digest::SHA224.new
+      OpenSSL::Digest::SHA224.new
     elsif hash == 'sha2' || hash == 'sha256'
-        OpenSSL::Digest::SHA256.new
+      OpenSSL::Digest::SHA256.new
     elsif hash == 'sha384'
-        OpenSSL::Digest::SHA384.new
+      OpenSSL::Digest::SHA384.new
     elsif hash == 'sha512'
-        OpenSSL::Digest::SHA512.new
+      OpenSSL::Digest::SHA512.new
     else
-        raise "Unrecognized hash: #{hash}"
+      raise "Unrecognized hash: #{hash}"
     end
   end
 
@@ -127,7 +132,7 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     OpenSSL::PKey::RSA.generate(len)
   end
 
-  def mkreq(subject,public_key)
+  def mkreq(subject, public_key)
     request = OpenSSL::X509::Request.new
     request.subject = subject
     request.public_key = public_key
@@ -135,9 +140,9 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     request
   end
 
-  def mkcert(serial,subject,issuer,public_key,days,altnames, key_usages = nil, name_constraints = [], become_ca = false)
+  def mkcert(serial, subject, issuer, public_key, days, altnames, key_usages = nil, name_constraints = [], become_ca = false)
     cert = OpenSSL::X509::Certificate.new
-    issuer = cert if issuer == nil
+    issuer = cert if issuer.nil?
     cert.subject = subject
     cert.issuer = issuer.subject
     cert.not_before = Time.now
@@ -149,36 +154,36 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
     ef = OpenSSL::X509::ExtensionFactory.new
     ef.subject_certificate = cert
     ef.issuer_certificate = issuer
-    cert.extensions = [ ef.create_extension("subjectKeyIdentifier", "hash") ]
+    cert.extensions = [ef.create_extension('subjectKeyIdentifier', 'hash')]
 
     if become_ca
-      cert.add_extension ef.create_extension("basicConstraints","CA:TRUE", true)
+      cert.add_extension ef.create_extension('basicConstraints', 'CA:TRUE', true)
       unless (ku = key_usages || ca_key_usages).empty?
-        cert.add_extension ef.create_extension("keyUsage", ku.join(', '), true)
+        cert.add_extension ef.create_extension('keyUsage', ku.join(', '), true)
       end
       if name_constraints && !name_constraints.empty?
-        cert.add_extension ef.create_extension("nameConstraints","permitted;DNS:#{name_constraints.join(',permitted;DNS:')}",true)
+        cert.add_extension ef.create_extension('nameConstraints', "permitted;DNS:#{name_constraints.join(',permitted;DNS:')}", true)
       end
     else
-      cert.add_extension ef.create_extension("subjectAltName", altnames, true) unless altnames.empty?
-      cert.add_extension ef.create_extension("basicConstraints","CA:FALSE", true)
+      cert.add_extension ef.create_extension('subjectAltName', altnames, true) unless altnames.empty?
+      cert.add_extension ef.create_extension('basicConstraints', 'CA:FALSE', true)
       unless (ku = key_usages || cert_key_usages).empty?
-        cert.add_extension ef.create_extension("keyUsage", ku.join(', '), true)
+        cert.add_extension ef.create_extension('keyUsage', ku.join(', '), true)
       end
     end
-    cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
+    cert.add_extension ef.create_extension('authorityKeyIdentifier', 'keyid:always,issuer:always')
 
     cert
   end
 
   def getserial(ca)
-    newser = Trocla::Util.random_str(20,'hexadecimal').to_i(16)
+    newser = Trocla::Util.random_str(20, 'hexadecimal').to_i(16)
     all_serials(ca).include?(newser) ? getserial(ca) : newser
   end
 
   def all_serials(ca)
-    if allser = trocla.get_password("#{ca}_all_serials",'plain')
-      YAML.load(allser)
+    if allser = trocla.get_password("#{ca}_all_serials", 'plain')
+      YAML.safe_load(allser)
     else
       []
     end
@@ -186,14 +191,17 @@ class Trocla::Formats::X509 < Trocla::Formats::Base
 
   def addserial(ca,serial)
     serials = all_serials(ca) << serial
-    trocla.set_password("#{ca}_all_serials",'plain',YAML.dump(serials))
+    trocla.set_password("#{ca}_all_serials", 'plain', YAML.dump(serials))
   end
 
   def cert_key_usages
     ['nonRepudiation', 'digitalSignature', 'keyEncipherment']
   end
+
   def ca_key_usages
-    ['keyCertSign', 'cRLSign', 'nonRepudiation',
-      'digitalSignature', 'keyEncipherment' ]
+    [
+      'keyCertSign', 'cRLSign', 'nonRepudiation',
+      'digitalSignature', 'keyEncipherment'
+    ]
   end
 end

@@ -72,6 +72,9 @@ describe "Trocla" do
           expect(pwd).not_to match(/[={}\[\]\?%\*()&!]+/)
         end
         it 'is possible to combine profiles but first profile wins 3' do
+          # mysql profile uses a 32 long random pwd with shell safe characters
+          # and we want to use a fixed random str here https://github.com/duritong/trocla/issues/55
+          allow(Trocla::Util).to receive(:random_str).with(32,'shellsafe') { "jmNi6+7dsUn@H?vfbXCq=ULEGPW,u:hu" }
           pwd = @trocla.password('some_test3','plain', 'profiles' => ['mysql','login'])
           expect(pwd).not_to be_empty
           expect(pwd.length).to eq(32)

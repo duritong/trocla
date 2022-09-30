@@ -1,13 +1,19 @@
-class Trocla::Formats
+# frozen_string_literal: true
 
+# Trocla::Formats
+class Trocla::Formats
+  # Base
   class Base
     attr_reader :trocla
+
     def initialize(trocla)
       @trocla = trocla
     end
-    def render(output,render_options={})
+
+    def render(output, render_options = {})
       output
     end
+
     def expensive?
       self.class.expensive?
     end
@@ -15,6 +21,7 @@ class Trocla::Formats
       def expensive(is_expensive)
         @expensive = is_expensive
       end
+
       def expensive?
         @expensive == true
       end
@@ -27,7 +34,9 @@ class Trocla::Formats
     end
 
     def all
-      Dir[File.expand_path(File.join(File.dirname(__FILE__),'formats','*.rb'))].collect{|f| File.basename(f,'.rb').downcase }
+      Dir[File.expand_path(
+        File.join(File.dirname(__FILE__), 'formats', '*.rb')
+      )].collect { |f| File.basename(f, '.rb').downcase }
     end
 
     def available?(format)
@@ -35,10 +44,11 @@ class Trocla::Formats
     end
 
     private
+
     def formats
       @@formats ||= Hash.new do |hash, format|
         format = format.downcase
-        if File.exists?(path(format))
+        if File.exist?(path(format))
           require "trocla/formats/#{format}"
           hash[format] = (eval "Trocla::Formats::#{format.capitalize}")
         else
@@ -48,7 +58,7 @@ class Trocla::Formats
     end
 
     def path(format)
-      File.expand_path(File.join(File.dirname(__FILE__),'formats',"#{format}.rb"))
+      File.expand_path(File.join(File.dirname(__FILE__), 'formats', "#{format}.rb"))
     end
   end
 end

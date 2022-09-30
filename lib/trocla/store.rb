@@ -1,7 +1,8 @@
 # implements the default store behavior
 class Trocla::Store
   attr_reader :store_config, :trocla
-  def initialize(config,trocla)
+
+  def initialize(config, trocla)
     @store_config = config
     @trocla = trocla
   end
@@ -9,14 +10,13 @@ class Trocla::Store
   # closes the store
   # when called do whatever "closes" your
   # store, e.g. close database connections.
-  def close
-  end
+  def close; end
 
   # should return value for key & format
   # returns nil if nothing or a nil value
   # was found.
   # If a key is expired it must return nil.
-  def get(key,format)
+  def get(key, format)
     raise 'not implemented'
   end
 
@@ -33,11 +33,11 @@ class Trocla::Store
   # amount of seconds a key can live with.
   # This mechanism is expected to be
   # be implemented by the backend.
-  def set(key,format,value,options={})
+  def set(key, format, value, options = {})
     if format == 'plain'
-      set_plain(key,value,options)
+      set_plain(key, value, options)
     else
-      set_format(key,format,value,options)
+      set_format(key, format, value, options)
     end
   end
 
@@ -46,30 +46,31 @@ class Trocla::Store
   # returns value of format or hash of
   # format => value # if everything is
   # deleted.
-  def delete(key,format=nil)
-    format.nil? ? (delete_all(key)||{}) : delete_format(key,format)
+  def delete(key, format = nil)
+    format.nil? ? (delete_all(key) || {}) : delete_format(key, format)
   end
 
   # returns all formats for a key
-  def formats(key)
+  def formats(_)
     raise 'not implemented'
   end
 
   # def searches for a key
-  def search(key)
+  def search(_)
     raise 'not implemented'
   end
 
   private
+
   # sets a new plain value
   # *must* invalidate all
   # other formats
-  def set_plain(key,value,options)
+  def set_plain(key, value, options)
     raise 'not implemented'
   end
 
   # sets a value of a format
-  def set_format(key,format,value,options)
+  def set_format(key, format, value, options)
     raise 'not implemented'
   end
 
@@ -77,14 +78,14 @@ class Trocla::Store
   # and returns a hash with all
   # formats and values
   # or nil if nothing is found
-  def delete_all(key)
+  def delete_all(_)
     raise 'not implemented'
   end
 
   # deletes the value of the passed
   # key & format and returns the
   # value.
-  def delete_format(key,format)
+  def delete_format(key, format)
     raise 'not implemented'
   end
 end
