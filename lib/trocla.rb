@@ -128,7 +128,7 @@ class Trocla
     else
       raise "Configfile #{@config_file} does not exist!" unless File.exist?(@config_file)
 
-      c = default_config.merge(YAML.safe_load(File.read(@config_file)))
+      c = default_config.merge(YAML.load(File.read(@config_file)))
       c['profiles'] = default_config['profiles'].merge(c['profiles'])
       # migrate all options to new store options
       # TODO: remove workaround in 0.3.0
@@ -159,7 +159,7 @@ class Trocla
 
   def default_config
     require 'yaml'
-    YAML.safe_load(File.read(File.expand_path(File.join(File.dirname(__FILE__), 'trocla', 'default_config.yaml'))))
+    YAML.load(File.read(File.expand_path(File.join(File.dirname(__FILE__), 'trocla', 'default_config.yaml'))))
   end
 
   def merge_profiles(profiles)
