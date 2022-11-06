@@ -1,0 +1,24 @@
+---
+name: Ruby
+on: [push, pull_request]
+jobs:
+  spec:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3
+      - name: set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          ruby-version: ${{ matrix.ruby }}
+      - name: install dependencies
+        run: bundle install
+      - name: install wireguard
+        run: sudo apt install -y wireguard
+      - name: run rspec
+        run: bundle exec rake spec
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [2.5, 2.7, 3.0, 3.1]
