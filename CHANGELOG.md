@@ -1,5 +1,16 @@
 # Changelog
 
+## to 0.5.0
+
+* moved from travis ci to github actions (#73) - Thank you [Georg-g](https://github.com/geor-g)
+* Support expire in vault (#71) - Thank you [Steffy Fort](https://github.com/fe80)
+* Syntax improvements (#70) - Thank you [Steffy Fort](https://github.com/fe80)
+* Add SCRAM-SHA-256 postgres support (#69) - Thank you [Steffy Fort](https://github.com/fe80)
+* Support destroying and entry to properly clean up in vault (#68) - Thank you [Steffy Fort](https://github.com/fe80)
+* Support search with vault backend (#67) - Thank you [Steffy Fort](https://github.com/fe80)
+* Add wireguard format (#65) - Thank you [Jonas Genannt](https://github.com/hggh)
+* Expand search path for sample config - Thank you [Anarcat](https://github.com/anarcat)
+
 ## to 0.4.0
 
 * Add vault backend (#61) - Thank you [Steffy Fort](https://github.com/fe80)
