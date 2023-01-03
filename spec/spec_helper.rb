@@ -235,7 +235,7 @@ def default_config
     config_path = [
       File.expand_path(base_dir+'/lib/trocla/default_config.yaml'),
       File.expand_path(File.dirname($LOADED_FEATURES.grep(/trocla.rb/)[0])+'/trocla/default_config.yaml'),
-    ].find { |p| File.exists?(p) }
+    ].find { |p| File.exist?(p) }
     YAML.load(File.read(config_path))
   end
 end
