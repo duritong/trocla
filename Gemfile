@@ -4,7 +4,7 @@ source 'http://rubygems.org'
 #   gem "activesupport", ">= 2.3.5"
 
 gem 'highline', '~> 2.0.0'
-gem 'moneta', '~> 1.4.0'
+gem 'moneta', '~> 1.0'
 
 if defined?(RUBY_ENGINE) && (RUBY_ENGINE == 'jruby')
   gem 'jruby-openssl'

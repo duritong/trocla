@@ -80,7 +80,7 @@ Gem::Specification.new do |s|
 
   if s.respond_to? :add_runtime_dependency then
     s.add_runtime_dependency(%q<highline>.freeze, ["~> 2.0.0"])
-    s.add_runtime_dependency(%q<moneta>.freeze, ["~> 1.4.0"])
+    s.add_runtime_dependency(%q<moneta>.freeze, ["~> 1.0"])
     s.add_runtime_dependency(%q<bcrypt>.freeze, [">= 0"])
     s.add_runtime_dependency(%q<openssl>.freeze, [">= 0"])
     s.add_runtime_dependency(%q<sshkey>.freeze, [">= 0"])
@@ -91,7 +91,7 @@ Gem::Specification.new do |s|
     s.add_development_dependency(%q<rspec-pending_for>.freeze, [">= 0"])
   else
     s.add_dependency(%q<highline>.freeze, ["~> 2.0.0"])
-    s.add_dependency(%q<moneta>.freeze, ["~> 1.4.0"])
+    s.add_dependency(%q<moneta>.freeze, ["~> 1.0"])
     s.add_dependency(%q<bcrypt>.freeze, [">= 0"])
     s.add_dependency(%q<openssl>.freeze, [">= 0"])
     s.add_dependency(%q<sshkey>.freeze, [">= 0"])
