@@ -71,7 +71,7 @@ class Trocla::Stores::Vault < Trocla::Store
 
   def convert_metadata(metadatas)
     metadatas.transform_keys!(&:to_sym)
-    metadatas[:delete_version_after] = metadatas.delete(:expire) if metadatas[:expire]
+    metadatas[:delete_version_after] = metadatas.delete(:expires) if metadatas[:expires]
     %i[random profiles expires length].each { |k| metadatas.delete(k) }
     metadatas
   end
