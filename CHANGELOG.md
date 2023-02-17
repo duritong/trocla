@@ -1,5 +1,11 @@
 # Changelog
 
+## to 0.5.1
+
+* support more moneta versions (#78) - Thank you [jcharaoui](https://github.com/jcharaoui)
+* Fix issue with passing down expires to vault (#79) - Thank you [Steffy Fort](https://github.com/fe80)
+* Don't require openssl Gem and make sure we don't regress on JRuby
+
 ## to 0.5.0
 
 * moved from travis ci to github actions (#73) - Thank you [Georg-g](https://github.com/geor-g)
