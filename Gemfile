@@ -17,7 +17,7 @@ gem 'sshkey'
 group :development do
   gem 'rake'
   gem 'addressable'
-  gem 'jeweler'
+  gem 'jeweler', '~> 2.0'
   gem 'rdoc'
   gem 'rspec'
   gem 'rspec-pending_for'

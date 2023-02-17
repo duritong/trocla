@@ -85,7 +85,7 @@ Gem::Specification.new do |s|
     s.add_runtime_dependency(%q<openssl>.freeze, [">= 0"])
     s.add_runtime_dependency(%q<sshkey>.freeze, [">= 0"])
     s.add_development_dependency(%q<addressable>.freeze, [">= 0"])
-    s.add_development_dependency(%q<jeweler>.freeze, [">= 0"])
+    s.add_development_dependency(%q<jeweler>.freeze, ["~> 2.0"])
     s.add_development_dependency(%q<rdoc>.freeze, [">= 0"])
     s.add_development_dependency(%q<rspec>.freeze, [">= 0"])
     s.add_development_dependency(%q<rspec-pending_for>.freeze, [">= 0"])
