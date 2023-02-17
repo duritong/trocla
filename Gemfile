@@ -15,6 +15,7 @@ gem 'sshkey'
 # Add dependencies to develop your gem here.
 # Include everything needed to run rake, tests, features, etc.
 group :development do
+  gem 'rake'
   gem 'addressable'
   gem 'jeweler'
   gem 'rdoc'
