@@ -291,7 +291,7 @@ describe "Trocla::Format::X509" do
 
     it 'respects all options' do
       co = cert_options.merge({
-        'hash'         => 'sha1',
+        'hash'         => 'sha512',
         'keysize'      => 2048,
         'days'         => 3650,
         'subject'      => nil,
@@ -311,7 +311,7 @@ describe "Trocla::Format::X509" do
         expect(cert.subject.to_s).to match(/#{field}=#{co[field]}/)
       end
       expect(cert.subject.to_s).to match(/(Email|emailAddress)=#{co['emailAddress']}/)
-      hash_match = (defined?(RUBY_ENGINE) &&RUBY_ENGINE == 'jruby') ? 'RSA-SHA1' : 'sha1WithRSAEncryption'
+      hash_match = (defined?(RUBY_ENGINE) &&RUBY_ENGINE == 'jruby') ? 'RSA-SHA512' : 'sha512WithRSAEncryption'
       expect(cert.signature_algorithm).to eq(hash_match)
       expect(cert.not_before).to be < Time.now
       expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(3650)
