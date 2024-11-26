@@ -3,6 +3,7 @@ require 'trocla/util'
 require 'trocla/formats'
 require 'trocla/encryptions'
 require 'trocla/stores'
+require 'trocla/hooks'
 
 # Trocla class
 class Trocla
@@ -67,6 +68,7 @@ class Trocla
 
   def delete_password(key, format = nil, options = {})
     v = store.delete(key, format)
+    hooks_runner.run('delete', key, format, options)
     if v.is_a?(Hash)
       Hash[*v.map do |f, encrypted_value|
         [f, render(format, decrypt(encrypted_value), options)]
@@ -78,6 +80,7 @@ class Trocla
 
   def set_password(key, format, password, options = {})
     store.set(key, format, encrypt(password), options)
+    hooks_runner.run('set', key, format, options)
     render(format, password, options)
   end
 
@@ -120,6 +123,12 @@ class Trocla
               eval(s)
             end
     clazz.new(config['store_options'], self)
+  end
+
+  def hooks_runner
+    @hooks_runner ||= begin
+      Trocla::Hooks::Runner.new(self)
+    end
   end
 
   def read_config

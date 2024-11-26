@@ -373,6 +373,37 @@ encryption_options:
     :public_key: '/var/lib/puppet/ssl/public_keys/trocla.pem'
 ```
 
+## Hooks
+
+You can specify hooks to be called whenever trocla sets or deletes a password. The idea is that this allows you to run custom code that can trigger further actions based on deleting or setting a password.
+
+Enabling hooks is done through the following configuration:
+
+```YAML
+hooks:
+  set:
+    my_hook: /path/to/my_hook_file.rb
+  delete:
+    other_hook: /path/to/my_other_hook_file.rb
+```
+
+A hook must have the following implementation based on the above config:
+
+```Ruby
+class Trocla
+  module Hooks
+    def self.my_hook(trocla, key, format, options)
+      # [... your code ...]
+    end
+  end
+end
+```
+You can specify only either one or both kinds of hooks.
+
+Hooks must not raise any exceptions or interrupt the flow itself. They can also not change the value that was set or revert a deletion.
+
+However, they have Trocla itself available (through `trocla`) and you must ensure to not create infinite loops.
+
 ## Update & Changes
 
 See [Changelog](CHANGELOG.md)

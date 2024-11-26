@@ -241,13 +241,13 @@ def default_config
 end
 
 def test_config
-  @config ||= default_config.merge({
+  @test_config ||= default_config.merge({
     'store' => :memory,
   })
 end
 
 def test_config_persistent
-  @config ||= default_config.merge({
+  @test_config_persistent ||= default_config.merge({
     'store_options' => {
       'adapter'         => :YAML,
       'adapter_options' => {
@@ -264,6 +264,19 @@ def ssl_test_config
       :private_key => data_dir('trocla.key'),
       :public_key  => data_dir('trocla.pub'),
     },
+  })
+end
+
+def hooks_config
+  @hooks_config ||= test_config.merge({
+    'hooks' => {
+      'set' => {
+        'set_test_hook' => File.expand_path(File.join(base_dir,'spec/fixtures/set_test_hook.rb'))
+      },
+      'delete' => {
+        'delete_test_hook' => File.expand_path(File.join(base_dir,'spec/fixtures/delete_test_hook.rb'))
+      }
+    }
   })
 end
 
