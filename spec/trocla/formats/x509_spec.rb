@@ -45,7 +45,7 @@ describe "Trocla::Format::X509" do
       expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(365)
       # it's a self signed cert and NOT a CA
       # Change of behavior on openssl side: https://github.com/openssl/openssl/issues/15146
-      validates_self_even_if_no_ca = Gem::Version.new(%x{openssl version}.split(' ')[1]) > Gem::Version.new('1.1.1g')
+      validates_self_even_if_no_ca = RUBY_ENGINE == 'jruby' ? true : Gem::Version.new(%x{openssl version}.split(' ')[1]) > Gem::Version.new('1.1.1g')
       expect(verify(cert,cert)).to be validates_self_even_if_no_ca
 
       v = cert.extensions.find{|e| e.oid == 'basicConstraints' }.value
@@ -311,8 +311,7 @@ describe "Trocla::Format::X509" do
         expect(cert.subject.to_s).to match(/#{field}=#{co[field]}/)
       end
       expect(cert.subject.to_s).to match(/(Email|emailAddress)=#{co['emailAddress']}/)
-      hash_match = (defined?(RUBY_ENGINE) &&RUBY_ENGINE == 'jruby') ? 'RSA-SHA512' : 'sha512WithRSAEncryption'
-      expect(cert.signature_algorithm).to eq(hash_match)
+      expect(cert.signature_algorithm).to eq('sha512WithRSAEncryption')
       expect(cert.not_before).to be < Time.now
       expect((Date.parse(cert.not_after.localtime.to_s) - Date.today).to_i).to eq(3650)
       # https://stackoverflow.com/questions/13747212/determine-key-size-from-public-key-pem-format
