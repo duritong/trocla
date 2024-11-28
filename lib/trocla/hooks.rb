@@ -7,6 +7,7 @@ class Trocla
       end
 
       def run(action, key, format, options)
+        return unless hooks[action]
         hooks[action].each do |cmd|
           Trocla::Hooks.send(cmd, trocla, key, format, options)
         end
