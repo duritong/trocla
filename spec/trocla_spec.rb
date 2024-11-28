@@ -22,6 +22,13 @@ describe "Trocla" do
       end
 
       Trocla::Formats.all.each do |format|
+        if format == 'wireguard'
+          require 'open3'
+          before(:each) do
+            allow(Open3).to receive(:popen3).with('wg genkey').and_yield(nil, StringIO.new('key'), nil, nil)
+            allow(Open3).to receive(:popen3).with('wg pubkey').and_yield(StringIO.new, StringIO.new('key'), nil, nil)
+          end
+        end
         describe "#{format} password format" do
           it "retursn a password hashed in the #{format} format" do
             expect(@trocla.password('some_test',format,format_options[format])).not_to be_empty
