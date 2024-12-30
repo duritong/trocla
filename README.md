@@ -1,5 +1,5 @@
 # trocla
-[![Build Status](https://travis-ci.org/duritong/trocla.png)](https://travis-ci.org/duritong/trocla)
+[![Ruby](https://github.com/duritong/trocla/actions/workflows/ruby.yml/badge.svg)](https://github.com/duritong/trocla/actions/workflows/ruby.yml)
 
 Trocla provides you a simple way to create and store (random) passwords on a
 central server, which can be retrieved by other applications. An example for
