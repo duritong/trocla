@@ -1,5 +1,11 @@
 # Changelog
 
+## to 0.6.0
+
+* move away from sha1 since they are not supported anymore on all distributions
+* fix tests on various platforms and newer ruby versions
+* introduce hooks for set and delete actions
+
 ## to 0.5.1
 
 * support more moneta versions (#78) - Thank you [jcharaoui](https://github.com/jcharaoui)
