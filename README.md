@@ -357,6 +357,100 @@ store_options:
 
 With Vault when you delete a key, you don't delete all key content. The metadatas, like history, are still here and the endpoint are not delete. If you prefere to destroy all key content you can add `:destroy: true` in the `store_options:` hash.
 
+#### Vault JWT Authentication backend
+
+The `vault_jwt` store extends the standard Vault backend with JWT-based authentication using Puppet's trusted facts and CA infrastructure. This provides enhanced security by authenticating each Puppet agent individually with dynamically generated JWT tokens.
+
+**Features:**
+- Per-agent JWT authentication using Puppet trusted facts
+- Tokens signed by Puppet CA and verified by Vault
+- Configurable trusted fact selection (certname, environment, etc.)
+- Automatic token caching and renewal
+- Thread-safe operation for multi-agent Puppet Server environments
+
+**Prerequisites:**
+- Vault server with JWT auth method configured
+- Access to Puppet CA private key for JWT signing
+- `jwt` gem installed (`gem install jwt`)
+
+**Configuration:**
+
+```YAML
+store: :vault_jwt
+store_options:
+  # Standard Vault configuration
+  :address: https://vault.example.com:8200
+  :mount: kv
+  
+  # JWT Authentication configuration
+  :jwt_auth_path: jwt                    # Vault JWT auth path
+  :jwt_role: trocla-agents              # Vault JWT role name
+  :trusted_fact: certname               # Puppet trusted fact to use as agent ID
+  :ca_cert_path: /etc/puppetlabs/puppet/ssl/certs/ca.pem
+  :ca_key_path: /etc/puppetlabs/puppet/ssl/private_keys/ca.pem
+  
+  # Token configuration
+  :token_ttl: 3600                      # Token lifetime in seconds (1 hour)
+  :cache_tokens: true                   # Enable token caching per agent
+  :jwt_algorithm: RS256                 # JWT signing algorithm
+  
+  # JWT Claims configuration
+  :jwt_issuer: puppet-ca                # JWT issuer claim
+  :jwt_audience: vault                  # JWT audience claim
+  :jwt_claims:                          # Custom JWT claims
+    iss: puppet-ca
+    aud: vault
+    sub: "{{trusted_fact}}"             # Replaced with trusted fact value
+    puppet_environment: "{{environment}}"
+    puppet_certname: "{{certname}}"
+```
+
+**Vault Server Setup:**
+
+1. Enable JWT auth method:
+```bash
+vault auth enable jwt
+```
+
+2. Configure JWT auth with Puppet CA public key:
+```bash
+vault write auth/jwt/config \
+    bound_issuer="puppet-ca" \
+    jwks_ca_pem=@/path/to/puppet-ca-cert.pem
+```
+
+3. Create role for Puppet agents:
+```bash
+vault write auth/jwt/role/trocla-agents \
+    bound_audiences="vault" \
+    bound_subject="*" \
+    bound_claims='{"iss":"puppet-ca"}' \
+    user_claim="sub" \
+    role_type="jwt" \
+    policies="trocla-agent-policy" \
+    ttl=1h \
+    max_ttl=4h
+```
+
+4. Create policy for agent access:
+```hcl
+# Policy allowing agents to access their own secrets
+path "kv/data/{{identity.entity.aliases.AUTH_METHOD_ACCESSOR.metadata.sub}}/*" {
+  capabilities = ["read"]
+}
+
+path "kv/data/common/*" {
+  capabilities = ["read"]
+}
+```
+
+**Security Benefits:**
+- Each Puppet agent gets individual authentication based on trusted facts
+- JWT tokens are short-lived and automatically renewed
+- Vault policies can restrict access based on agent identity
+- Complete audit trail of all secret access per agent
+- No shared static tokens across agents
+
 ### Backend encryption
 
 By default trocla does not encrypt anything it stores. You might want to let Trocla encrypt all your passwords, at the moment the only supported way is SSL.

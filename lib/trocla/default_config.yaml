@@ -44,3 +44,34 @@ profiles:
     days: 2
     # 1 day
     expires: 86400
+
+# Example JWT Vault configuration
+# Uncomment and modify to use JWT authentication with Vault
+# store: :vault_jwt
+# store_options:
+#   # Standard Vault configuration
+#   :address: https://vault.example.com:8200
+#   :mount: kv
+#
+#   # JWT Authentication configuration
+#   :jwt_auth_path: jwt
+#   :jwt_role: trocla-agents
+#   :trusted_fact: certname  # configurable trusted fact
+#   :ca_cert_path: /etc/puppetlabs/puppet/ssl/certs/ca.pem
+#   :ca_key_path: /etc/puppetlabs/puppet/ssl/private_keys/ca.pem
+#
+#   # Token configuration
+#   :token_ttl: 3600  # 1 hour
+#   :token_renewable: true
+#   :cache_tokens: true
+#   :jwt_algorithm: RS256
+#
+#   # JWT Claims configuration
+#   :jwt_issuer: puppet-ca
+#   :jwt_audience: vault
+#   :jwt_claims:
+#     iss: puppet-ca
+#     aud: vault
+#     sub: "{{trusted_fact}}"  # Replaced by the value of the trusted fact
+#     puppet_environment: "{{environment}}"
+#     puppet_certname: "{{certname}}"

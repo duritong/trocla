@@ -84,6 +84,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency(%q<moneta>.freeze, ["~> 1.0".freeze])
   s.add_runtime_dependency(%q<bcrypt>.freeze, [">= 0".freeze])
   s.add_runtime_dependency(%q<sshkey>.freeze, [">= 0".freeze])
+  s.add_runtime_dependency(%q<jwt>.freeze, ["~> 2.0".freeze])
   s.add_development_dependency(%q<rake>.freeze, [">= 0".freeze])
   s.add_development_dependency(%q<addressable>.freeze, [">= 0".freeze])
   s.add_development_dependency(%q<jeweler>.freeze, ["~> 2.0".freeze])

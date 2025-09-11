@@ -23,7 +23,8 @@ class Trocla::Stores
         store = store.to_s.downcase
         if File.exist?(path(store))
           require "trocla/stores/#{store}"
-          class_name = "Trocla::Stores::#{store.capitalize}"
+          # Handle compound names like vault_jwt -> VaultJwt
+          class_name = "Trocla::Stores::#{store.split('_').map(&:capitalize).join}"
           hash[store] = (eval class_name)
         else
           raise "Store #{store} is not supported!"
