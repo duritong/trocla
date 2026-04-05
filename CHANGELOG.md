@@ -1,5 +1,10 @@
 # Changelog
 
+## to 0.7.0
+
+* bump support for various dependencies and ruby versions
+* get rid off jeweler gem
+
 ## to 0.6.0
 
 * move away from sha1 since they are not supported anymore on all distributions
