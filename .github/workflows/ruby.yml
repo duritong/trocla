@@ -22,3 +22,25 @@ jobs:
       fail-fast: false
       matrix:
         ruby: ['3.1', '3.2', '3.3', '3.4', '4.0', 'head', 'jruby', 'jruby-head']
+
+  build-and-install:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: ['3.1', '3.2', '3.3', '3.4', '4.0', 'head', 'jruby', 'jruby-head']
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v3
+      - name: set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+      - name: build gem
+        run: gem build trocla.gemspec
+      - name: install gem
+        run: gem install ./trocla-*.gem
+      - name: test trocla cli
+        run: |
+          trocla -V
+          trocla --help
