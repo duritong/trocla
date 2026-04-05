@@ -25,8 +25,8 @@ describe "Trocla" do
         if format == 'wireguard'
           require 'open3'
           before(:each) do
-            allow(Open3).to receive(:popen3).with('wg genkey').and_yield(nil, StringIO.new('key'), nil, nil)
-            allow(Open3).to receive(:popen3).with('wg pubkey').and_yield(StringIO.new, StringIO.new('key'), nil, nil)
+            allow(Open3).to receive(:popen3).with('wg genkey', any_args).and_yield(nil, StringIO.new('key'), nil, nil)
+            allow(Open3).to receive(:popen3).with('wg pubkey', any_args).and_yield(StringIO.new, StringIO.new('key'), nil, nil)
           end
         end
         describe "#{format} password format" do
