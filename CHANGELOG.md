@@ -1,5 +1,9 @@
 # Changelog
 
+## to 0.8.x
+
+* Add Argon2 format - Fixes [#84](https://github.com/duritong/trocla/issues/84)
+
 ## to 0.7.0
 
 * bump support for various dependencies and ruby versions
