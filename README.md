@@ -181,6 +181,9 @@ You are able to tune argon2 options by passing the option `argon2` with what the
 ### yescrypt
 
 You are able to tune the cost factor of yescrypt by passing the option `cost`.
+Note: yescrypt does not support a cost > 11
+
+**Important:** Since we are using [XCrypt](https://github.com/rkh/ruby-xcrypt) gem, which calls out to libxcrypt through FFI, you cannot use the yecrypt format on JRuby installations, aka. OpenVox Server installations. If you want to deliver yescrypt hashes in your Puppet manifests, you need to generate the yescrypt hash in a Ruby MRI installation, once the hash is in the trocla database a OpenVox Server can just fetch it.
 
 ### x509
 
@@ -255,7 +258,6 @@ Output render options are:
 ## Installation
 
 * Debian has trocla within its sid-release: `apt-get install trocla`
-* For RHEL/CentOS 7 there is a [copr reporisotry](https://copr.fedoraproject.org/coprs/duritong/trocla/). Follow the help there to integrate the repository and install trocla.
 * Trocla is also distributed as gem: `gem install trocla`
 
 ## Configuration
@@ -428,6 +430,6 @@ See [Changelog](CHANGELOG.md)
 
 ## Copyright
 
-Copyright (c) 2011-2015 mh. See LICENSE.txt for
+Copyright (c) 2011-2026 mh. See LICENSE.txt for
 further details.
 
