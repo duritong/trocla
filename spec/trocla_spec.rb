@@ -29,20 +29,23 @@ describe "Trocla" do
             allow(Open3).to receive(:popen3).with('wg pubkey', any_args).and_yield(StringIO.new, StringIO.new('key'), nil, nil)
           end
         end
-        describe "#{format} password format" do
-          it "retursn a password hashed in the #{format} format" do
-            expect(@trocla.password('some_test',format,format_options[format])).not_to be_empty
-          end
+        # yescrypt format not supported on JRuby - handled in the format specific specs
+        if format != 'yescrypt' || (Object.const_defined?(:RUBY_ENGINE) && RUBY_ENGINE != 'jruby')
+          describe "#{format} password format" do
+            it "retursn a password hashed in the #{format} format" do
+              expect(@trocla.password('some_test',format,format_options[format])).not_to be_empty
+            end
 
-          it "returns the same hashed for the #{format} format on multiple invocations" do
-            expect(round1=@trocla.password('some_test',format,format_options[format])).not_to be_empty
-            expect(@trocla.password('some_test',format,format_options[format])).to eq(round1)
-          end
+            it "returns the same hashed for the #{format} format on multiple invocations" do
+              expect(round1=@trocla.password('some_test',format,format_options[format])).not_to be_empty
+              expect(@trocla.password('some_test',format,format_options[format])).to eq(round1)
+            end
 
-          it "also stores the plain password by default" do
-            pwd = @trocla.password('some_test','plain')
-            expect(pwd).not_to be_empty
-            expect(pwd.length).to eq(16)
+            it "also stores the plain password by default" do
+              pwd = @trocla.password('some_test','plain')
+              expect(pwd).not_to be_empty
+              expect(pwd.length).to eq(16)
+            end
           end
         end
       end
