@@ -3,7 +3,7 @@
 class Trocla
   module VERSION
     MAJOR = 0
-    MINOR = 7
+    MINOR = 8
     PATCH = 0
     BUILD = nil
 

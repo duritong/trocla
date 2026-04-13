@@ -1,9 +1,9 @@
 # Changelog
 
-## to 0.8.x
+## to 0.8.0
 
 * Add Argon2 format - Fixes [#84](https://github.com/duritong/trocla/issues/84)
-* Add yescrypt format - Fixes [#81](https://github.com/duritong/trocla/issues/81)
+* Add yescrypt format - Fixes [#81](https://github.com/duritong/trocla/issues/81) - not supported on Jruby
 
 ## to 0.7.0
 
