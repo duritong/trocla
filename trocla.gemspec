@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = "Trocla helps you to generate random passwords and to store them in various formats (plain, MD5, bcrypt) for later retrieval."
   spec.homepage      = "https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/"
   spec.license       = "GPL-3.0-or-later"
-  spec.required_ruby_version = ">= 2.5.0"
+  spec.required_ruby_version = ">= 3.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/duritong/trocla"
@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "base64", "~> 0.3.0"
   spec.add_dependency "pstore", "~> 0.2"
   spec.add_dependency "argon2", "~> 2.3"
+  spec.add_dependency "xcrypt", "~> 0.2"
 
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.13"
