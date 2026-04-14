@@ -30,9 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "base64", "~> 0.3.0"
   spec.add_dependency "pstore", "~> 0.2"
   spec.add_dependency "argon2", "~> 2.3"
-  unless Object.const_defined?(:RUBY_ENGINE) and RUBY_ENGINE == 'jruby'
-    spec.add_dependency "xcrypt", "~> 0.2"
-  end
+  spec.add_dependency "xcrypt", "~> 0.2"
 
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.13"
