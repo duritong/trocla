@@ -178,10 +178,6 @@ Note: ruby bcrypt does not support a [cost > 31](https://github.com/codahale/bcr
 
 You are able to tune argon2 options by passing the option `argon2` with what the [Argon2](https://github.com/technion/ruby-argon2?tab=readme-ov-file#usage) rubygem supports.
 
-### yescrypt
-
-You are able to tune the cost factor of yescrypt by passing the option `cost`.
-
 ### x509
 
 This format takes a set of additional options. Required are:
