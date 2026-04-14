@@ -1,5 +1,9 @@
 # Changelog
 
+## to 0.9.0
+
+* Remove yescrypt - since supporting it on JRuby is a mess
+
 ## to 0.8.0
 
 * Add Argon2 format - Fixes [#84](https://github.com/duritong/trocla/issues/84)
