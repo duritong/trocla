@@ -176,7 +176,7 @@ Note: ruby bcrypt does not support a [cost > 31](https://github.com/codahale/bcr
 
 ### argon2
 
-You are able to tune argon2 options by passing the option `argon2` with what the [Argon2](https://github.com/technion/ruby-argon2?tab=readme-ov-file#usage) rubygem supports.
+You are able to tune argon2 options by passing the option `argon2` with what the [Argon2id](https://github.com/mudge/argon2id?tab=readme-ov-file#hashing-passwords) rubygem supports.
 
 ### x509
 

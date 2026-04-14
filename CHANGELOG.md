@@ -1,5 +1,9 @@
 # Changelog
 
+## to 0.10.0
+
+* Switch to use Argon2id gem instead of argon2, since the former has better JRuby support
+
 ## to 0.9.0
 
 * Remove yescrypt - since supporting it on JRuby is a mess
