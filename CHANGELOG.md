@@ -1,5 +1,12 @@
 # Changelog
 
+## to 0.11.0
+
+* Drop support for EOL Ruby versions (< 3.1)
+* Add automated release workflow via GitHub Actions using Trusted Publishing
+* Setup Dependabot for bundler and github-actions
+* Fix test suite on Ruby 3.2 and modern JRuby
+
 ## to 0.10.0
 
 * Switch to use Argon2id gem instead of argon2, since the former has better JRuby support
