@@ -127,10 +127,10 @@ describe "Trocla" do
 
       it "does not reset other formats" do
         expect(mysql = @trocla.password('reset_pwd2','mysql')).not_to be_empty
-        expect(md5crypt1 = @trocla.password('reset_pwd2','md5crypt')).not_to be_empty
+        expect(bcrypt1 = @trocla.password('reset_pwd2','bcrypt')).not_to be_empty
 
-        expect(md5crypt2 = @trocla.reset_password('reset_pwd2','md5crypt')).not_to be_empty
-        expect(md5crypt2).not_to eq(md5crypt1)
+        expect(bcrypt2 = @trocla.reset_password('reset_pwd2','bcrypt')).not_to be_empty
+        expect(bcrypt2).not_to eq(bcrypt1)
 
         expect(@trocla.get_password('reset_pwd2','mysql')).to eq(mysql)
       end
