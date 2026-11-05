@@ -12,13 +12,14 @@ Gem::Specification.new do |spec|
   spec.description   = "Trocla helps you to generate random passwords and to store them in various formats (plain, MD5, bcrypt) for later retrieval."
   spec.homepage      = "https://tech.immerda.ch/2011/12/trocla-get-hashed-passwords-out-of-puppet-manifests/"
   spec.license       = "GPL-3.0-or-later"
-  spec.required_ruby_version = ">= 2.5.0"
+  spec.required_ruby_version = ">= 3.1.0"
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/duritong/trocla"
+  spec.metadata["bug_tracker_uri"] = "https://github.com/duritong/trocla/issues"
   spec.metadata["changelog_uri"] = "https://github.com/duritong/trocla/blob/master/CHANGELOG.md"
 
-  spec.files         = Dir.glob("{bin,lib}/**/*") + %w[LICENSE.txt README.md CHANGELOG.md]
+  spec.files         = Dir.glob("{bin,lib}/**/*").reject { |f| File.directory?(f) } + %w[LICENSE.txt README.md CHANGELOG.md]
   spec.bindir        = "bin"
   spec.executables   = spec.files.grep(%r{\Abin/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]

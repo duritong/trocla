@@ -412,6 +412,36 @@ However, they have Trocla itself available (through `trocla`) and you must ensur
 
 See [Changelog](CHANGELOG.md)
 
+## Releasing
+
+Releases are fully automated via GitHub Actions (`.github/workflows/release.yml`). The workflow runs specs, builds the gem, creates a GitHub Release with the `.gem` artifact, and publishes to RubyGems using Trusted Publishing.
+
+### Prerequisites
+
+Ensure GitHub Actions has write access to the repository:
+1. In repository **Settings** → **Actions** → **General**.
+2. Under **Workflow permissions**, select **Read and write permissions**.
+
+### Triggering a Release
+
+#### Option A: GitHub Actions UI (Manual Trigger)
+
+1. Go to the **Actions** tab in the GitHub repository.
+2. Select the **Release** workflow from the left sidebar.
+3. Click **Run workflow**:
+   - Leave `version` blank to release the current version in `lib/trocla/version.rb`.
+   - Or provide an explicit version (e.g. `0.11.0`) to update `version.rb`, commit, and tag automatically.
+4. Click **Run workflow**.
+
+#### Option B: Push a Git Tag
+
+Pushing a version tag (`[0-9]*` or `v*`) automatically runs the workflow and publishes the release:
+
+```bash
+git tag 0.11.0
+git push origin 0.11.0
+```
+
 ## Contributing to trocla
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet

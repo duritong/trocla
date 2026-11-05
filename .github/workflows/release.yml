@@ -1,0 +1,107 @@
+---
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - '[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g. 0.11.0). Leave empty to use version in lib/trocla/version.rb'
+        required: false
+        default: ''
+      push_to_rubygems:
+        description: 'Publish gem to RubyGems'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Determine release version
+        id: version
+        run: |
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          elif [[ "$GITHUB_REF" =~ ^refs/tags/v?(.*)$ ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            VERSION=$(ruby -Ilib -r trocla/version -e 'puts Trocla::VERSION::STRING')
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Update version if dispatched with explicit version
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version != ''
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          ruby -e "
+            file = 'lib/trocla/version.rb'
+            content = File.read(file)
+            parts = '$VERSION'.split('.')
+            content.sub!(/MAJOR = \d+/, \"MAJOR = #{parts[0]}\")
+            content.sub!(/MINOR = \d+/, \"MINOR = #{parts[1]}\")
+            content.sub!(/PATCH = \d+/, \"PATCH = #{parts[2]}\")
+            File.write(file, content)
+          "
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "release ${VERSION}" || echo "No changes to commit"
+          git tag "${VERSION}"
+          git push origin HEAD --tags
+
+      - name: Create tag if not existing
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.version == ''
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if ! git rev-parse "$TAG" >/dev/null 2>&1; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: Install wireguard
+        run: sudo apt install -y wireguard
+
+      - name: Run specs
+        run: bundle exec rake spec
+
+      - name: Build gem
+        run: gem build trocla.gemspec
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" ./trocla-${VERSION}.gem --clobber
+          else
+            gh release create "$TAG" ./trocla-${VERSION}.gem \
+              --title "${VERSION}" \
+              --generate-notes
+          fi
+
+      - name: Publish to RubyGems
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push_to_rubygems }}
+        uses: rubygems/release-gem@v1
