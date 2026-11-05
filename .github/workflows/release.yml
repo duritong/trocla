@@ -86,7 +86,12 @@ jobs:
         run: bundle exec rake spec
 
       - name: Build gem
-        run: gem build trocla.gemspec
+        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.push_to_rubygems }}
+        run: bundle exec rake build
+
+      - name: Publish to RubyGems
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push_to_rubygems }}
+        uses: rubygems/release-gem@v1
 
       - name: Create GitHub Release
         env:
@@ -95,13 +100,9 @@ jobs:
           TAG="${{ steps.version.outputs.tag }}"
           VERSION="${{ steps.version.outputs.version }}"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            gh release upload "$TAG" ./trocla-${VERSION}.gem --clobber
+            gh release upload "$TAG" ./pkg/trocla-${VERSION}.gem --clobber
           else
-            gh release create "$TAG" ./trocla-${VERSION}.gem \
+            gh release create "$TAG" ./pkg/trocla-${VERSION}.gem \
               --title "${VERSION}" \
               --generate-notes
           fi
-
-      - name: Publish to RubyGems
-        if: ${{ github.event_name != 'workflow_dispatch' || inputs.push_to_rubygems }}
-        uses: rubygems/release-gem@v1
