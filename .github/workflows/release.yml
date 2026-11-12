@@ -26,12 +26,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+        uses: ruby/setup-ruby@v1.338.0
         with:
           ruby-version: '3.3'
           bundler-cache: true
@@ -91,7 +91,7 @@ jobs:
 
       - name: Publish to RubyGems
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.push_to_rubygems }}
-        uses: rubygems/release-gem@v1
+        uses: rubygems/release-gem@v1.4.1
 
       - name: Create GitHub Release
         env:
