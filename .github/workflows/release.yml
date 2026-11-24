@@ -91,7 +91,7 @@ jobs:
 
       - name: Publish to RubyGems
         if: ${{ github.event_name != 'workflow_dispatch' || inputs.push_to_rubygems }}
-        uses: rubygems/release-gem@v1.4.1
+        uses: rubygems/release-gem@v1.4.2
 
       - name: Create GitHub Release
         env:
